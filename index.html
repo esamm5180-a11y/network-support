@@ -50,7 +50,6 @@
 </head>
 <body>
 
-  <!-- ملف صوت نقي وعالي للتنبيه المستمر -->
   <audio id="alertAudio" preload="auto" loop src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
   <div class="status-badge">
@@ -203,14 +202,24 @@
         <div id="techListManage"></div>
       </div>
 
+      <!-- سجل الأعطال مع الفلترة حسب الفني -->
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <h4 style="font-size: 13px; font-weight: bold;">سجل الأعطال</h4>
+          <h4 style="font-size: 13px; font-weight: bold;">سجل الأعطال والمتابعة</h4>
           <div>
-            <button type="button" id="btnFilterToday" onclick="changeAdminFilter('today')" class="badge badge-done" style="border:none; cursor:pointer;">أعطال اليوم</button>
+            <button type="button" id="btnFilterToday" onclick="changeAdminFilter('today')" class="badge badge-done" style="border:none; cursor:pointer;">اليوم</button>
             <button type="button" id="btnFilterAll" onclick="changeAdminFilter('all')" class="badge badge-pending" style="border:none; cursor:pointer;">الكل</button>
           </div>
         </div>
+
+        <!-- قائمة اختيار الفني لعرض سجله الخاص -->
+        <div class="input-group" style="margin-bottom: 12px;">
+          <label style="font-size: 11px; color: #2563eb;">عرض سجل الفني:</label>
+          <select id="filterByTechSelect" onchange="renderAdmin()" class="input-control" style="padding: 8px; font-weight: bold;">
+            <option value="ALL">عرض جميع الفنيين</option>
+          </select>
+        </div>
+
         <div id="adminFeed"></div>
       </div>
     </div>
@@ -314,15 +323,12 @@
       return 'تم حل المشكلة ✓';
     }
 
-    // تشغيل الرنين المتكرر المستمر والاهتزاز
     function startContinuousAlarm() {
       const audio = document.getElementById('alertAudio');
       if (audio) {
         audio.currentTime = 0;
         audio.play().catch(() => {});
       }
-
-      // اهتزاز الهاتف بشكل متكرر
       if (navigator.vibrate) {
         try { navigator.vibrate([600, 300, 600, 300, 1000]); } catch(e){}
       }
@@ -379,10 +385,8 @@
         document.getElementById('notifCallLink').href = `tel:${newlyAddedOrder.phone}`;
         document.getElementById('techNotificationModal').classList.remove('hidden');
 
-        // بدء الرنين المتكرر المستمر
         startContinuousAlarm();
 
-        // إشعار شاشة القفل عبر متصفح الهاتف
         if ('Notification' in window && Notification.permission === 'granted') {
           try {
             const notif = new Notification(`🔔 ${newlyAddedOrder.type}: ${newlyAddedOrder.customer}`, {
@@ -486,17 +490,14 @@
       document.getElementById('screenLogin').classList.remove('hidden');
     }
 
+    // مزامنة دقيقة تعتمد القائمة المحفوظة في السحابة فقط دون إعادة المحذوف
     function syncCloudDown() {
       fetch(`${FIREBASE_DB}/network_data.json`)
         .then(res => res.json())
         .then(data => {
           if (data) {
-            if (Array.isArray(data.accounts) && data.accounts.length > 0) {
-              data.accounts.forEach(ca => {
-                const idx = appAccounts.findIndex(a => a.id === ca.id);
-                if (idx !== -1) appAccounts[idx] = ca;
-                else appAccounts.push(ca);
-              });
+            if (Array.isArray(data.accounts)) {
+              appAccounts = data.accounts;
             }
             if (Array.isArray(data.orders)) {
               checkTechNewTasks(data.orders);
@@ -539,6 +540,7 @@
         document.getElementById('adminPassVal').value = adminAcc.pass;
       }
 
+      // قائمة تعيين الفني لأوردر جديد
       const select = document.getElementById('newTechSelect');
       select.innerHTML = '';
       const techs = appAccounts.filter(a => a.role === 'tech');
@@ -546,6 +548,15 @@
         select.innerHTML += `<option value="${t.name}">${t.name}</option>`;
       });
 
+      // قائمة فلتر الفنيين لسجل الأعطال
+      const filterSelect = document.getElementById('filterByTechSelect');
+      const selectedFilterTech = filterSelect ? filterSelect.value : 'ALL';
+      filterSelect.innerHTML = '<option value="ALL">عرض جميع الفنيين</option>';
+      techs.forEach(t => {
+        filterSelect.innerHTML += `<option value="${t.name}" ${selectedFilterTech === t.name ? 'selected' : ''}>${t.name}</option>`;
+      });
+
+      // قائمة الحسابات وإدارة الفنيين
       const finList = document.getElementById('techFinancialList');
       const manageList = document.getElementById('techListManage');
       finList.innerHTML = '';
@@ -574,21 +585,30 @@
             <span>${t.name} (${t.username})</span>
             <div>
               <button type="button" onclick="openEditModal(${t.id})" class="badge badge-done" style="border:none; cursor:pointer;">تعديل</button>
-              <button type="button" onclick="deleteTech(${t.id})" class="badge badge-repeat" style="border:none; cursor:pointer;">حذف</button>
+              <button type="button" onclick="deleteTech(${t.id})" class="badge badge-repeat" style="border:none; cursor:pointer; background:#fee2e2; color:#b91c1c;">حذف نهائي</button>
             </div>
           </div>
         `;
       });
 
+      // بناء وتصفية سجل الأعطال
       const feed = document.getElementById('adminFeed');
       feed.innerHTML = '';
+      
       let list = appOrders;
+
+      // 1. تصفية حسب التاريخ
       if (currentAdminFilter === 'today') {
-        list = appOrders.filter(o => o.createdDate === today || o.finishedDate === today);
+        list = list.filter(o => o.createdDate === today || o.finishedDate === today);
+      }
+
+      // 2. تصفية حسب الفني المختار
+      if (filterSelect && filterSelect.value !== 'ALL') {
+        list = list.filter(o => o.tech === filterSelect.value);
       }
 
       if (list.length === 0) {
-        feed.innerHTML = '<p style="text-align:center; font-size:12px; color:#94a3b8; padding:15px;">لا توجد أوردرات</p>';
+        feed.innerHTML = '<p style="text-align:center; font-size:12px; color:#94a3b8; padding:15px;">لا توجد أوردرات لهذا الفني</p>';
         return;
       }
 
@@ -604,7 +624,7 @@
             </div>
             <p style="color:#475569; margin-bottom:4px;">${o.desc} - ${o.address}</p>
             <div style="display:flex; justify-content:space-between; color:#64748b; font-size:11px;">
-              <span>الفني: <strong>${o.tech}</strong></span>
+              <span>الفني المسؤول: <strong style="color:#2563eb;">${o.tech}</strong></span>
               <span>البونص: <strong>${o.bonus} ج</strong></span>
             </div>
             ${isDone && o.reason ? `
@@ -739,11 +759,16 @@
       }
     }
 
+    // حذف الفني نهائياً ومنع استرجاعه بالسحابة
     function deleteTech(id) {
-      if (confirm('حذف الفني؟')) {
+      const targetTech = appAccounts.find(a => a.id === id);
+      if (!targetTech) return;
+
+      if (confirm(`هل أنت متأكد من حذف الفني (${targetTech.name}) نهائياً؟`)) {
         appAccounts = appAccounts.filter(a => a.id !== id);
         renderAdmin();
         syncCloudUp();
+        alert('تم حذف الفني نهائياً ولن يعود مجدداً');
       }
     }
 
