@@ -19,6 +19,8 @@
       --success-light: #ecfdf5;
       --warning: #d97706;
       --warning-light: #fffbeb;
+      --postpone: #f59e0b;
+      --postpone-light: #fef3c7;
       --danger: #e11d48;
       --danger-light: #fff1f2;
       --dark: #0f172a;
@@ -110,22 +112,23 @@
 
     .btn {
       width: 100%;
-      padding: 13px;
+      padding: 12px;
       border-radius: 14px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       border: none;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       transition: all 0.15s ease;
       text-decoration: none;
     }
     .btn:active { transform: scale(0.98); }
     .btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
     .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
+    .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25); }
     .btn-danger { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #ffffff; }
     .btn-secondary { background: #f1f5f9; color: var(--slate); border: 1px solid var(--border); }
 
@@ -182,6 +185,7 @@
     }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     
     .badge {
       display: inline-flex;
@@ -192,6 +196,7 @@
       font-weight: 800;
     }
     .badge-pending { background: var(--warning-light); color: var(--warning); border: 1px solid rgba(217, 119, 6, 0.2); }
+    .badge-postponed { background: var(--postpone-light); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.3); }
     .badge-done { background: var(--success-light); color: var(--success); border: 1px solid rgba(5, 150, 105, 0.2); }
     .badge-repeat { background: #f5f3ff; color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.2); }
 
@@ -219,6 +224,7 @@
 </head>
 <body onclick="unlockAudioSystem()">
 
+  <!-- شريط التحديث اللحظي للأجهزة -->
   <div id="updateBannerBar" class="hidden">
     <div style="display: flex; align-items: center; gap: 8px;">
       <span style="font-size: 16px;">🚀</span>
@@ -416,7 +422,7 @@
       </div>
 
       <div style="display: flex; gap: 8px; margin-bottom: 14px;">
-        <button type="button" id="btnTabPending" onclick="switchTechTab('pending')" class="btn btn-primary" style="flex: 1; padding: 10px;">المطلوبة (<span id="countPending">0</span>)</button>
+        <button type="button" id="btnTabPending" onclick="switchTechTab('pending')" class="btn btn-primary" style="flex: 1; padding: 10px;">المطلوبة والمؤجلة (<span id="countPending">0</span>)</button>
         <button type="button" id="btnTabDone" onclick="switchTechTab('done')" class="btn btn-secondary" style="flex: 1; padding: 10px;">المنجزة (<span id="countDone">0</span>)</button>
       </div>
 
@@ -448,7 +454,7 @@
     </div>
   </div>
 
-  <!-- نافذة إغلاق العطل وتسجيل سبب العطل فقط -->
+  <!-- نافذة تقفيل العطل وتسجيل سبب العطل فقط -->
   <div id="modalCloseOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 16px; font-weight: 900; margin-bottom: 14px;">تقفيل العطل الميداني</h4>
@@ -466,11 +472,29 @@
     </div>
   </div>
 
+  <!-- نافذة تأجيل العطل -->
+  <div id="modalPostponeOrder" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h4 style="font-size: 16px; font-weight: 900; margin-bottom: 14px; color: var(--postpone);">⏳ تأجيل موعد العطل</h4>
+      <input type="hidden" id="postponeId">
+      
+      <div class="input-group">
+        <label>سبب التأجيل (ملاحظة للفني والمدير)</label>
+        <input type="text" id="postponeReasonText" placeholder="مثلاً: العميل غير متواجد، طلب التأجيل لبكرا، التليفون مغلق..." class="input-control">
+      </div>
+
+      <div class="grid-2" style="margin-top: 18px;">
+        <button type="button" onclick="confirmPostponeOrder()" class="btn btn-warning">حفظ التأجيل ⏳</button>
+        <button type="button" onclick="closePostponeModal()" class="btn btn-secondary">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
   <!-- المحرك البرمجي -->
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    const APP_CURRENT_VERSION = 3;
+    const APP_CURRENT_VERSION = 4;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -854,24 +878,47 @@
 
       list.forEach(o => {
         const isDone = o.status === 'done';
+        const isPostponed = o.status === 'postponed';
+
+        let badgeClass = 'badge-pending';
+        let badgeText = 'معلق';
+
+        if (isDone) {
+          badgeClass = 'badge-done';
+          badgeText = getDoneLabel(o.type);
+        } else if (isPostponed) {
+          badgeClass = 'badge-postponed';
+          badgeText = '⏳ مؤجل';
+        } else if (o.isRepeat) {
+          badgeClass = 'badge-repeat';
+          badgeText = 'متكرر (0ج)';
+        }
+
         feed.innerHTML += `
           <div class="order-box">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
               <strong style="font-size:14px; color:var(--dark);">${o.customer}</strong>
-              <span class="badge ${isDone ? 'badge-done' : (o.isRepeat ? 'badge-repeat' : 'badge-pending')}">
-                ${isDone ? getDoneLabel(o.type) : (o.isRepeat ? 'متكرر (0ج)' : 'معلق')}
-              </span>
+              <span class="badge ${badgeClass}">${badgeText}</span>
             </div>
             <p style="color:var(--slate); font-size:12px; margin-bottom:8px; line-height:1.5;">${o.desc} - <strong style="color:var(--dark);">${o.address}</strong></p>
+            
             <div style="display:flex; justify-content:space-between; color:var(--slate); font-size:12px; border-top:1px solid #f1f5f9; padding-top:8px;">
               <span>الفني: <strong style="color:var(--primary); font-weight:800;">${o.tech}</strong></span>
               <span>البونص: <strong style="color:var(--success); font-weight:900;">${o.bonus} ج</strong></span>
             </div>
+
+            ${isPostponed && o.postponeReason ? `
+              <div style="margin-top:8px; font-size:12px; color:#92400e; background:var(--postpone-light); padding:8px 10px; border-radius:10px; border:1px solid rgba(245,158,11,0.25);">
+                <strong>سبب التأجيل:</strong> ${o.postponeReason}
+              </div>
+            ` : ''}
+
             ${isDone && o.reason ? `
               <div style="margin-top:8px; font-size:12px; color:#065f46; background:var(--success-light); padding:8px 10px; border-radius:10px; border:1px solid rgba(5,150,105,0.15);">
                 <strong>سبب العطل:</strong> ${o.reason}
               </div>
             ` : ''}
+
             <div style="text-align:left; margin-top:10px; display:flex; justify-content:flex-end; gap:6px;">
               ${isDone ? `<button type="button" onclick="repeatOrder('${o.id}')" class="badge badge-repeat" style="border:none; cursor:pointer;">عطل تاني (0ج)</button>` : ''}
               <button type="button" onclick="deleteOrder('${o.id}')" class="badge" style="background:var(--danger-light); color:var(--danger); border:none; cursor:pointer;">حذف</button>
@@ -911,7 +958,8 @@
         createdDate: getToday(),
         finishedDate: '',
         settledMonth: false,
-        reason: ''
+        reason: '',
+        postponeReason: ''
       });
 
       document.getElementById('newCustomer').value = '';
@@ -1040,7 +1088,8 @@
           createdDate: getToday(),
           finishedDate: '',
           settledMonth: false,
-          reason: ''
+          reason: '',
+          postponeReason: ''
         });
         renderAdmin();
         syncCloudUp();
@@ -1060,18 +1109,20 @@
       const today = getToday();
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       const myOrders = appOrders.filter(o => o.tech === me.name);
-      const pending = myOrders.filter(o => o.status === 'pending');
+      
+      // التبويب الأول يجمع الأعطال المطلوبة والمؤجلة معاً ليبقى الفني متابعاً لها
+      const pendingAndPostponed = myOrders.filter(o => o.status === 'pending' || o.status === 'postponed');
       const done = myOrders.filter(o => o.status === 'done');
 
       document.getElementById('techTotalBonus').innerText = `${Number(me.accumulatedBonus || 0)} ج`;
       document.getElementById('techDoneToday').innerText = `إنجاز اليوم: ${done.filter(o => o.finishedDate === today).length} مهمة`;
 
-      document.getElementById('countPending').innerText = pending.length;
+      document.getElementById('countPending').innerText = pendingAndPostponed.length;
       document.getElementById('countDone').innerText = done.length;
 
       const feed = document.getElementById('techFeed');
       feed.innerHTML = '';
-      const list = currentTechTab === 'pending' ? pending : done;
+      const list = currentTechTab === 'pending' ? pendingAndPostponed : done;
 
       if (list.length === 0) {
         feed.innerHTML = '<p style="text-align:center; font-size:13px; color:#94a3b8; padding:35px; font-weight:700;">لا توجد مهام في هذا التبويب حالياً</p>';
@@ -1080,26 +1131,57 @@
 
       list.forEach(o => {
         const isDone = o.status === 'done';
+        const isPostponed = o.status === 'postponed';
+
+        let badgeClass = 'badge-pending';
+        let badgeText = o.type;
+
+        if (isDone) {
+          badgeClass = 'badge-done';
+          badgeText = getDoneLabel(o.type);
+        } else if (isPostponed) {
+          badgeClass = 'badge-postponed';
+          badgeText = '⏳ مؤجل';
+        } else if (o.isRepeat) {
+          badgeClass = 'badge-repeat';
+        }
+
         feed.innerHTML += `
           <div class="card" style="box-shadow:var(--shadow-sm); padding:18px;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
               <div>
                 <h4 style="font-size:16px; font-weight:900; color:var(--dark);">${o.customer}</h4>
-                <span class="badge ${o.isRepeat ? 'badge-repeat' : 'badge-pending'}" style="margin-top:4px;">${o.type}</span>
+                <span class="badge ${badgeClass}" style="margin-top:4px;">${badgeText}</span>
               </div>
               <span style="font-size:16px; font-weight:900; color:var(--success);">${o.bonus} ج</span>
             </div>
             <p style="font-size:13px; color:var(--slate); margin-bottom:6px;">📍 <strong>${o.address}</strong></p>
             <p style="font-size:12px; background:#f8fafc; border:1px solid var(--border); padding:8px 10px; border-radius:10px; margin-bottom:12px; color:var(--dark); font-weight:600;">${o.desc}</p>
+            
+            ${isPostponed && o.postponeReason ? `
+              <div style="background:var(--postpone-light); border:1px solid rgba(245,158,11,0.3); padding:8px 10px; border-radius:10px; font-size:12px; margin-bottom:12px; color:#92400e;">
+                <strong>سبب التأجيل الحالي:</strong> ${o.postponeReason}
+              </div>
+            ` : ''}
+
             ${isDone && o.reason ? `
               <div style="background:var(--success-light); border:1px solid rgba(5,150,105,0.2); padding:10px; border-radius:12px; font-size:12px; margin-bottom:12px; color:#065f46;">
                 <strong>سبب العطل:</strong> ${o.reason}
               </div>
             ` : ''}
-            <div class="grid-2">
-              <a href="tel:${o.phone}" class="btn btn-secondary">📞 اتصال</a>
-              ${!isDone ? `<button type="button" onclick="openOrderModal('${o.id}')" class="btn btn-success">تم الحل ✓</button>` : `<span class="badge badge-done" style="text-align:center; justify-content:center; padding:10px; font-size:12px;">${getDoneLabel(o.type)}</span>`}
-            </div>
+
+            ${!isDone ? `
+              <div class="grid-3">
+                <a href="tel:${o.phone}" class="btn btn-secondary">📞 اتصال</a>
+                <button type="button" onclick="openPostponeModal('${o.id}')" class="btn btn-warning">⏳ تأجيل</button>
+                <button type="button" onclick="openOrderModal('${o.id}')" class="btn btn-success">تم الحل ✓</button>
+              </div>
+            ` : `
+              <div class="grid-2">
+                <a href="tel:${o.phone}" class="btn btn-secondary">📞 اتصال</a>
+                <span class="badge badge-done" style="text-align:center; justify-content:center; padding:10px; font-size:12px;">${getDoneLabel(o.type)}</span>
+              </div>
+            `}
           </div>
         `;
       });
@@ -1150,6 +1232,38 @@
         closeOrderModal();
         renderTech();
         syncCloudUp();
+      }
+    }
+
+    /* ================= دوال تأجيل العطل ================= */
+    function openPostponeModal(id) {
+      document.getElementById('postponeId').value = id;
+      document.getElementById('postponeReasonText').value = '';
+      document.getElementById('modalPostponeOrder').classList.remove('hidden');
+    }
+
+    function closePostponeModal() {
+      document.getElementById('modalPostponeOrder').classList.add('hidden');
+    }
+
+    function confirmPostponeOrder() {
+      const id = document.getElementById('postponeId').value;
+      const reasonVal = document.getElementById('postponeReasonText').value.trim();
+
+      if (!reasonVal) {
+        alert('يرجى كتابة سبب التأجيل');
+        return;
+      }
+
+      const ord = appOrders.find(o => o.id === id);
+      if (ord) {
+        ord.status = 'postponed';
+        ord.postponeReason = reasonVal;
+
+        closePostponeModal();
+        renderTech();
+        syncCloudUp();
+        alert('تم تأجيل العطل وحفظ السبب، ولم يُحسب أي بونص لحين حله.');
       }
     }
   </script>
