@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>منظومة إدارة الدعم الفني والشبكات</title>
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
@@ -36,12 +39,19 @@
     .badge-pending { background: #fef3c7; color: #b45309; }
     .badge-done { background: #d1fae5; color: #047857; }
     .badge-repeat { background: #f3e8ff; color: #6b21a8; }
+    
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .bell-animate { animation: pulse-ring 1s infinite; display: inline-block; }
   </style>
 </head>
 <body>
 
-  <!-- ملف صوت نقي وعالي للتنبيه -->
-  <audio id="alertAudio" preload="auto" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+  <!-- ملف صوت نقي وعالي للتنبيه المستمر -->
+  <audio id="alertAudio" preload="auto" loop src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
   <div class="status-badge">
     <div id="cloudDot" class="dot"></div>
@@ -51,9 +61,9 @@
   <!-- ================= نافذة التنبيه الفوري بمهمة جديدة للفني ================= -->
   <div id="techNotificationModal" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid #2563eb;">
-      <div style="font-size: 36px; margin-bottom: 8px;">🔔</div>
+      <div class="bell-animate" style="font-size: 40px; margin-bottom: 8px;">🔔</div>
       <h3 style="font-size: 17px; font-weight: 800; color: #1e293b; margin-bottom: 4px;">عطل جديد مسند إليك الآن!</h3>
-      <p style="font-size: 12px; color: #64748b; margin-bottom: 14px;">تمت إضافة مهمة جديدة لقائمتك</p>
+      <p style="font-size: 12px; color: #64748b; margin-bottom: 14px;">يرن الهاتف لتنبيهك بوجود مهمة جديدة</p>
 
       <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: right; font-size: 13px; line-height: 1.6; margin-bottom: 14px;">
         <div><strong>العميل:</strong> <span id="notifCustomer"></span></div>
@@ -65,7 +75,7 @@
 
       <div class="grid-2">
         <a id="notifCallLink" href="tel:" onclick="closeNotifModal()" class="btn btn-primary" style="text-decoration: none;">📞 اتصال بالعميل</a>
-        <button type="button" onclick="closeNotifModal()" class="btn btn-secondary">حسناً، فهمت</button>
+        <button type="button" onclick="closeNotifModal()" class="btn btn-secondary">حسناً، إيقاف الرنين</button>
       </div>
     </div>
   </div>
@@ -290,13 +300,13 @@
     let currentTechTab = 'pending';
     let knownPendingIds = new Set();
     let isInitialLoad = true;
+    let repeatAlarmTimer = null;
 
     function getToday() {
       const d = new Date();
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
-    // نص شارة الإنجاز حسب نوع الطلب
     function getDoneLabel(type) {
       if (type === 'تركيب جديد') {
         return 'تم التركيب ✓';
@@ -304,15 +314,37 @@
       return 'تم حل المشكلة ✓';
     }
 
-    // إطلاق الصوت والاهتزاز حتى مع شاشة القفل
-    function triggerAlertSound() {
+    // تشغيل الرنين المتكرر المستمر والاهتزاز
+    function startContinuousAlarm() {
       const audio = document.getElementById('alertAudio');
       if (audio) {
         audio.currentTime = 0;
         audio.play().catch(() => {});
       }
+
+      // اهتزاز الهاتف بشكل متكرر
       if (navigator.vibrate) {
-        try { navigator.vibrate([500, 200, 500, 200, 800]); } catch(e){}
+        try { navigator.vibrate([600, 300, 600, 300, 1000]); } catch(e){}
+      }
+
+      clearInterval(repeatAlarmTimer);
+      repeatAlarmTimer = setInterval(() => {
+        if (audio && audio.paused) {
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        }
+        if (navigator.vibrate) {
+          try { navigator.vibrate([600, 300, 600]); } catch(e){}
+        }
+      }, 3500);
+    }
+
+    function stopContinuousAlarm() {
+      clearInterval(repeatAlarmTimer);
+      const audio = document.getElementById('alertAudio');
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
       }
     }
 
@@ -347,16 +379,17 @@
         document.getElementById('notifCallLink').href = `tel:${newlyAddedOrder.phone}`;
         document.getElementById('techNotificationModal').classList.remove('hidden');
 
-        triggerAlertSound();
+        // بدء الرنين المتكرر المستمر
+        startContinuousAlarm();
 
-        // إشعار هاتف متقدم يظهر والشاشة مغلقة
+        // إشعار شاشة القفل عبر متصفح الهاتف
         if ('Notification' in window && Notification.permission === 'granted') {
           try {
             const notif = new Notification(`🔔 ${newlyAddedOrder.type}: ${newlyAddedOrder.customer}`, {
               body: `${newlyAddedOrder.address}\nالتفاصيل: ${newlyAddedOrder.desc}`,
               icon: 'https://cdn-icons-png.flaticon.com/512/893/893505.png',
               requireInteraction: true,
-              vibrate: [500, 200, 500]
+              vibrate: [600, 300, 600, 300, 1000]
             });
             notif.onclick = function() {
               window.focus();
@@ -368,8 +401,7 @@
     }
 
     function closeNotifModal() {
-      const audio = document.getElementById('alertAudio');
-      if (audio) { audio.pause(); audio.currentTime = 0; }
+      stopContinuousAlarm();
       document.getElementById('techNotificationModal').classList.add('hidden');
     }
 
