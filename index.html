@@ -57,7 +57,7 @@
     <span id="cloudStatusText">متصل بالسحابة ✓</span>
   </div>
 
-  <!-- ================= نافذة التنبيه الفوري بمهمة جديدة للفني ================= -->
+  <!-- نافذة التنبيه الفوري بمهمة جديدة للفني -->
   <div id="techNotificationModal" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid #2563eb;">
       <div class="bell-animate" style="font-size: 40px; margin-bottom: 8px;">🔔</div>
@@ -79,7 +79,7 @@
     </div>
   </div>
 
-  <!-- ================= 1. شاشة تسجيل الدخول ================= -->
+  <!-- 1. شاشة تسجيل الدخول -->
   <div id="screenLogin" class="container" style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
     <div class="card" style="width: 100%; text-align: center; margin-top: 40px;">
       <div style="width: 60px; height: 60px; background: #2563eb; color: #fff; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 24px; font-weight: bold;">
@@ -109,7 +109,7 @@
     </div>
   </div>
 
-  <!-- ================= 2. واجهة المدير ================= -->
+  <!-- 2. واجهة المدير -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -202,7 +202,6 @@
         <div id="techListManage"></div>
       </div>
 
-      <!-- سجل الأعطال مع الفلترة حسب الفني -->
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <h4 style="font-size: 13px; font-weight: bold;">سجل الأعطال والمتابعة</h4>
@@ -212,7 +211,6 @@
           </div>
         </div>
 
-        <!-- قائمة اختيار الفني لعرض سجله الخاص -->
         <div class="input-group" style="margin-bottom: 12px;">
           <label style="font-size: 11px; color: #2563eb;">عرض سجل الفني:</label>
           <select id="filterByTechSelect" onchange="renderAdmin()" class="input-control" style="padding: 8px; font-weight: bold;">
@@ -225,7 +223,7 @@
     </div>
   </div>
 
-  <!-- ================= 3. واجهة الفني ================= -->
+  <!-- 3. واجهة الفني -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -251,7 +249,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة تعديل بيانات فني ================= -->
+  <!-- نافذة تعديل بيانات فني -->
   <div id="modalEditTech" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 14px; font-weight: bold; margin-bottom: 12px;">تعديل بيانات الفني</h4>
@@ -275,7 +273,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة إغلاق العطل وتسجيل سبب العطل فقط ================= -->
+  <!-- نافذة إغلاق العطل وتسجيل سبب العطل فقط -->
   <div id="modalCloseOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 14px; font-weight: bold; margin-bottom: 12px;">تقفيل العطل</h4>
@@ -293,14 +291,14 @@
     </div>
   </div>
 
-  <!-- ================= المحرك البرمجي ================= -->
+  <!-- المحرك البرمجي -->
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
-      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111' },
-      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222' }
+      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0 },
+      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0 }
     ];
 
     let appOrders = [];
@@ -490,14 +488,18 @@
       document.getElementById('screenLogin').classList.remove('hidden');
     }
 
-    // مزامنة دقيقة تعتمد القائمة المحفوظة في السحابة فقط دون إعادة المحذوف
     function syncCloudDown() {
       fetch(`${FIREBASE_DB}/network_data.json`)
         .then(res => res.json())
         .then(data => {
           if (data) {
             if (Array.isArray(data.accounts)) {
-              appAccounts = data.accounts;
+              appAccounts = data.accounts.map(acc => {
+                if (acc.role === 'tech' && typeof acc.accumulatedBonus === 'undefined') {
+                  acc.accumulatedBonus = 0;
+                }
+                return acc;
+              });
             }
             if (Array.isArray(data.orders)) {
               checkTechNewTasks(data.orders);
@@ -507,6 +509,8 @@
           document.getElementById('cloudStatusText').innerText = "متصل بالسحابة ✓";
           document.getElementById('cloudDot').style.background = "#10b981";
           if (currentUser) {
+            const updatedMe = appAccounts.find(a => a.id === currentUser.id);
+            if (updatedMe) currentUser = updatedMe;
             if (currentUser.role === 'admin') renderAdmin();
             else renderTech();
           }
@@ -540,7 +544,6 @@
         document.getElementById('adminPassVal').value = adminAcc.pass;
       }
 
-      // قائمة تعيين الفني لأوردر جديد
       const select = document.getElementById('newTechSelect');
       select.innerHTML = '';
       const techs = appAccounts.filter(a => a.role === 'tech');
@@ -548,7 +551,6 @@
         select.innerHTML += `<option value="${t.name}">${t.name}</option>`;
       });
 
-      // قائمة فلتر الفنيين لسجل الأعطال
       const filterSelect = document.getElementById('filterByTechSelect');
       const selectedFilterTech = filterSelect ? filterSelect.value : 'ALL';
       filterSelect.innerHTML = '<option value="ALL">عرض جميع الفنيين</option>';
@@ -556,16 +558,14 @@
         filterSelect.innerHTML += `<option value="${t.name}" ${selectedFilterTech === t.name ? 'selected' : ''}>${t.name}</option>`;
       });
 
-      // قائمة الحسابات وإدارة الفنيين
       const finList = document.getElementById('techFinancialList');
       const manageList = document.getElementById('techListManage');
       finList.innerHTML = '';
       manageList.innerHTML = '';
 
       techs.forEach(t => {
-        const doneOrders = appOrders.filter(o => o.tech === t.name && o.status === 'done');
-        const activeBonus = doneOrders.filter(o => !o.settledMonth).reduce((s, o) => s + (Number(o.bonus) || 0), 0);
-        const doneTodayCount = doneOrders.filter(o => o.finishedDate === today).length;
+        const currentBonus = Number(t.accumulatedBonus || 0);
+        const doneTodayCount = appOrders.filter(o => o.tech === t.name && o.status === 'done' && o.finishedDate === today).length;
 
         finList.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:10px; border-radius:12px; margin-bottom:8px; border:1px solid #e2e8f0;">
@@ -574,7 +574,7 @@
               <span style="font-size:11px; color:#64748b; display:block;">منجز اليوم: ${doneTodayCount}</span>
             </div>
             <div style="text-align:left;">
-              <span style="font-size:13px; font-weight:800; color:#059669;">${activeBonus} ج</span>
+              <span style="font-size:13px; font-weight:800; color:#059669;">${currentBonus} ج</span>
               <button type="button" onclick="settleTech('${t.name}')" class="btn btn-secondary" style="width:auto; padding:4px 8px; font-size:10px; margin-top:2px;">تقفيل الحساب</button>
             </div>
           </div>
@@ -591,18 +591,15 @@
         `;
       });
 
-      // بناء وتصفية سجل الأعطال
       const feed = document.getElementById('adminFeed');
       feed.innerHTML = '';
       
       let list = appOrders;
 
-      // 1. تصفية حسب التاريخ
       if (currentAdminFilter === 'today') {
         list = list.filter(o => o.createdDate === today || o.finishedDate === today);
       }
 
-      // 2. تصفية حسب الفني المختار
       if (filterSelect && filterSelect.value !== 'ALL') {
         list = list.filter(o => o.tech === filterSelect.value);
       }
@@ -710,7 +707,7 @@
         return;
       }
 
-      appAccounts.push({ id: Date.now(), role: 'tech', name, username: user, pass });
+      appAccounts.push({ id: Date.now(), role: 'tech', name, username: user, pass, accumulatedBonus: 0 });
       document.getElementById('techNameIn').value = '';
       document.getElementById('techUserIn').value = '';
       document.getElementById('techPassIn').value = '';
@@ -759,7 +756,6 @@
       }
     }
 
-    // حذف الفني نهائياً ومنع استرجاعه بالسحابة
     function deleteTech(id) {
       const targetTech = appAccounts.find(a => a.id === id);
       if (!targetTech) return;
@@ -768,12 +764,14 @@
         appAccounts = appAccounts.filter(a => a.id !== id);
         renderAdmin();
         syncCloudUp();
-        alert('تم حذف الفني نهائياً ولن يعود مجدداً');
+        alert('تم حذف الفني نهائياً');
       }
     }
 
     function settleTech(name) {
-      if (confirm(`تقفيل ومحاسبة الفني ${name}؟`)) {
+      const techObj = appAccounts.find(a => a.name === name);
+      if (techObj && confirm(`تقفيل ومحاسبة الفني ${name}؟ سيتم تصفير البونص للشهر الجديد.`)) {
+        techObj.accumulatedBonus = 0;
         appOrders.forEach(o => {
           if (o.tech === name && o.status === 'done') o.settledMonth = true;
         });
@@ -806,8 +804,9 @@
       }
     }
 
+    // حذف العطل دون المساس برصيد البونص المكتسب نهائياً
     function deleteOrder(id) {
-      if (confirm('حذف الطلب؟')) {
+      if (confirm('حذف الطلب من السجل؟ (لن ينقص من بونص الفني)')) {
         appOrders = appOrders.filter(o => o.id !== id);
         renderAdmin();
         syncCloudUp();
@@ -817,12 +816,12 @@
     /* ================= دوال الفني ================= */
     function renderTech() {
       const today = getToday();
-      const myOrders = appOrders.filter(o => o.tech === currentUser.name);
+      const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
+      const myOrders = appOrders.filter(o => o.tech === me.name);
       const pending = myOrders.filter(o => o.status === 'pending');
       const done = myOrders.filter(o => o.status === 'done');
 
-      const totalBonus = done.filter(o => !o.settledMonth).reduce((s, o) => s + (Number(o.bonus) || 0), 0);
-      document.getElementById('techTotalBonus').innerText = `${totalBonus} ج`;
+      document.getElementById('techTotalBonus').innerText = `${Number(me.accumulatedBonus || 0)} ج`;
       document.getElementById('techDoneToday').innerText = `إنجاز اليوم: ${done.filter(o => o.finishedDate === today).length} مهمة`;
 
       document.getElementById('countPending').innerText = pending.length;
@@ -886,6 +885,7 @@
       document.getElementById('modalCloseOrder').classList.add('hidden');
     }
 
+    // عند تأكيد الحل: يُضاف البونص فوراً لرصيد الفني الدائم
     function confirmOrderDone() {
       const id = document.getElementById('closingId').value;
       const reasonVal = document.getElementById('closeReasonText').value.trim();
@@ -900,6 +900,12 @@
         ord.status = 'done';
         ord.finishedDate = getToday();
         ord.reason = reasonVal;
+
+        // إضافة البونص في حساب الفني التراكمي
+        const techObj = appAccounts.find(a => a.name === ord.tech);
+        if (techObj) {
+          techObj.accumulatedBonus = Number(techObj.accumulatedBonus || 0) + Number(ord.bonus || 0);
+        }
 
         closeOrderModal();
         renderTech();
