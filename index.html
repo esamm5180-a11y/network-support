@@ -39,17 +39,21 @@
     
     .container { width: 100%; max-width: 520px; margin: 0 auto; padding: 16px; }
     
+    /* شريط التحديث اللحظي العائم فوق جميع الواجهات */
     #updateBannerBar {
-      position: sticky;
+      position: fixed;
       top: 0;
-      z-index: 9999;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 10000;
       background: linear-gradient(135deg, #059669, #10b981);
       color: #ffffff;
-      padding: 10px 16px;
+      padding: 12px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+      box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);
       animation: slideDownBanner 0.35s ease-out;
     }
     @keyframes slideDownBanner {
@@ -62,7 +66,7 @@
       border: none;
       border-radius: 10px;
       padding: 6px 14px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 800;
       cursor: pointer;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
@@ -224,10 +228,10 @@
 </head>
 <body onclick="unlockAudioSystem()">
 
-  <!-- شريط التحديث اللحظي للأجهزة -->
+  <!-- شريط التحديث اللحظي العائم الشامل لجميع الواجهات -->
   <div id="updateBannerBar" class="hidden">
     <div style="display: flex; align-items: center; gap: 8px;">
-      <span style="font-size: 16px;">🚀</span>
+      <span style="font-size: 18px;">🚀</span>
       <span style="font-size: 13px; font-weight: 800;">تحديث جديد متوفر للمنظومة!</span>
     </div>
     <button type="button" onclick="performInstantUpdate()" class="btn-update-now">تحديث الآن ⚡</button>
@@ -454,7 +458,7 @@
     </div>
   </div>
 
-  <!-- نافذة تقفيل العطل وتسجيل سبب العطل فقط -->
+  <!-- نافذة تقفيل العطل -->
   <div id="modalCloseOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 16px; font-weight: 900; margin-bottom: 14px;">تقفيل العطل الميداني</h4>
@@ -494,7 +498,8 @@
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    const APP_CURRENT_VERSION = 4;
+    // الإصدار الحالي
+    const APP_CURRENT_VERSION = 5;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -523,10 +528,11 @@
       return 'تم حل المشكلة ✓';
     }
 
+    // فحص دوري للإصدار يظهر للجميع فوراً
     function verifyAppVersionUpdate(serverVer) {
-      if (serverVer && Number(serverVer) > APP_CURRENT_VERSION) {
-        const banner = document.getElementById('updateBannerBar');
-        if (banner) banner.classList.remove('hidden');
+      const banner = document.getElementById('updateBannerBar');
+      if (banner && serverVer && Number(serverVer) > APP_CURRENT_VERSION) {
+        banner.classList.remove('hidden');
       }
     }
 
@@ -545,7 +551,7 @@
       setTimeout(() => {
         const freshUrl = window.location.origin + window.location.pathname + '?v=' + Date.now();
         window.location.replace(freshUrl);
-      }, 500);
+      }, 400);
     }
 
     function unlockAudioSystem() {
@@ -746,11 +752,13 @@
       document.getElementById('screenLogin').classList.remove('hidden');
     }
 
+    // سحب البيانات وفحص الإصدار لكل الشاشات (الفني والأدمن)
     function syncCloudDown() {
       fetch(`${FIREBASE_DB}/network_data.json`)
         .then(res => res.json())
         .then(data => {
           if (data) {
+            // التحقق من الإصدار في جميع الأجهزة فوراً
             if (data.latestAppVersion) {
               verifyAppVersionUpdate(data.latestAppVersion);
             }
@@ -782,9 +790,10 @@
         });
     }
 
+    // رفع البيانات مع تثبيت رقم الإصدار دائماً في السحابة
     function syncCloudUp() {
       fetch(`${FIREBASE_DB}/network_data.json`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           latestAppVersion: APP_CURRENT_VERSION,
@@ -794,10 +803,20 @@
       }).catch(() => {});
     }
 
+    // تحديث رقم الإصدار في السحابة تلقائياً عند فتح الأدمن
+    function broadcastVersion() {
+      fetch(`${FIREBASE_DB}/network_data/latestAppVersion.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(APP_CURRENT_VERSION)
+      }).catch(() => {});
+    }
+
     setInterval(syncCloudDown, 3000);
     window.onload = function() {
       autoLoginCheck();
       syncCloudDown();
+      broadcastVersion();
     };
 
     /* ================= دوال الأدمن ================= */
@@ -1110,7 +1129,6 @@
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       const myOrders = appOrders.filter(o => o.tech === me.name);
       
-      // التبويب الأول يجمع الأعطال المطلوبة والمؤجلة معاً ليبقى الفني متابعاً لها
       const pendingAndPostponed = myOrders.filter(o => o.status === 'pending' || o.status === 'postponed');
       const done = myOrders.filter(o => o.status === 'done');
 
