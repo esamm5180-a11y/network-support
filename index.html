@@ -39,7 +39,7 @@
     
     .container { width: 100%; max-width: 520px; margin: 0 auto; padding: 16px; }
     
-    /* تصميم زر التحديث العلوي مع إشعار النقطة الحمراء */
+    /* زر التحديث العلوي مع إشعار النقطة الحمراء */
     .btn-header-update {
       position: relative;
       background: #f1f5f9;
@@ -57,7 +57,6 @@
     }
     .btn-header-update:active { transform: scale(0.95); }
 
-    /* مظهر الزر عندما يكون هناك تحديث متاح */
     .btn-header-update.has-update {
       background: #ecfdf5;
       color: #059669;
@@ -151,6 +150,7 @@
     .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25); }
     .btn-danger { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #ffffff; }
     .btn-secondary { background: #f1f5f9; color: var(--slate); border: 1px solid var(--border); }
+    .btn-notify { background: #f3e8ff; color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.2); }
 
     .header {
       background: rgba(255, 255, 255, 0.9);
@@ -249,12 +249,12 @@
     <span id="cloudStatusText">متصل بالسحابة ✓</span>
   </div>
 
-  <!-- نافذة التنبيه الفوري بمهمة جديدة للفني -->
+  <!-- نافذة التنبيه الفوري بمهمة أو استعجال للفني -->
   <div id="techNotificationModal" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid var(--primary);">
       <div class="bell-animate" style="font-size: 42px; margin-bottom: 10px;">🔔</div>
-      <h3 style="font-size: 18px; font-weight: 900; color: var(--dark); margin-bottom: 4px;">عطل جديد مسند إليك الآن!</h3>
-      <p style="font-size: 12px; color: var(--slate); margin-bottom: 16px;">يرن هاتفك لتنبيهك بالمهمة الجديدة</p>
+      <h3 id="notifTitleText" style="font-size: 18px; font-weight: 900; color: var(--dark); margin-bottom: 4px;">عطل جديد مسند إليك الآن!</h3>
+      <p id="notifSubtitleText" style="font-size: 12px; color: var(--slate); margin-bottom: 16px;">يرن هاتفك لتنبيهك بخصوص هذه المهمة</p>
 
       <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; padding: 14px; text-align: right; font-size: 13px; line-height: 1.7; margin-bottom: 16px;">
         <div><strong style="color: var(--slate);">العميل:</strong> <span id="notifCustomer" style="font-weight: 800; color: var(--dark);"></span></div>
@@ -309,7 +309,6 @@
         <span id="adminDateBadge" style="font-size: 11px; color: var(--slate); font-weight: 600;"></span>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
-        <!-- زر التحديث الذكي مع إشعار التحديث الجديد -->
         <button type="button" id="btnAdminUpdate" onclick="performInstantUpdate()" class="btn-header-update">
           <span>🔄 تحديث</span>
           <span id="adminUpdateBadge" class="update-badge-dot hidden">جديد!</span>
@@ -430,7 +429,6 @@
         <span style="font-size: 11px; color: var(--slate); font-weight: 600;">أعطالي الميدانية</span>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
-        <!-- زر التحديث الذكي عند الفني مع إشعار التحديث الجديد -->
         <button type="button" id="btnTechUpdate" onclick="performInstantUpdate()" class="btn-header-update">
           <span>🔄 تحديث</span>
           <span id="techUpdateBadge" class="update-badge-dot hidden">جديد!</span>
@@ -519,8 +517,8 @@
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار الحالي للكود
-    const APP_CURRENT_VERSION = 6;
+    // رقم الإصدار
+    const APP_CURRENT_VERSION = 7;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -536,6 +534,7 @@
     let isInitialLoad = true;
     let repeatAlarmTimer = null;
     let globalAudioCtx = null;
+    let lastHandledPingId = null;
 
     function getToday() {
       const d = new Date();
@@ -549,7 +548,6 @@
       return 'تم حل المشكلة ✓';
     }
 
-    // إظهار إشعار النقطة الحمراء وتلوين زر التحديث للأدمن والفني
     function verifyAppVersionUpdate(serverVer) {
       const isNew = serverVer && Number(serverVer) > APP_CURRENT_VERSION;
       
@@ -655,10 +653,41 @@
       clearInterval(repeatAlarmTimer);
     }
 
+    // إظهار نافذة التنبيه للفني
+    function showTechAlertModal(order, isPing = false) {
+      document.getElementById('notifTitleText').innerText = isPing ? '⚠️ تنبيه واستعجال من الإدارة!' : 'عطل جديد مسند إليك الآن!';
+      document.getElementById('notifSubtitleText').innerText = isPing ? 'تنبيه عاجل لسرعة التوجه وإنهاء هذا العطل' : 'يرن هاتفك لتنبيهك بالمهمة الجديدة';
+      document.getElementById('notifCustomer').innerText = order.customer;
+      document.getElementById('notifPhone').innerText = order.phone;
+      document.getElementById('notifAddress').innerText = order.address;
+      document.getElementById('notifDesc').innerText = order.desc;
+      document.getElementById('notifBonus').innerText = `${order.bonus} جنيه`;
+      document.getElementById('notifCallLink').href = `tel:${order.phone}`;
+      document.getElementById('techNotificationModal').classList.remove('hidden');
+
+      startContinuousAlarm();
+
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          const notif = new Notification(`🔔 ${isPing ? 'استعجال عطل' : order.type}: ${order.customer}`, {
+            body: `${order.address}\nالتفاصيل: ${order.desc}`,
+            icon: 'https://cdn-icons-png.flaticon.com/512/893/893505.png',
+            requireInteraction: true,
+            vibrate: [300, 150, 300, 150, 600]
+          });
+          notif.onclick = function() {
+            window.focus();
+            notif.close();
+          };
+        } catch(e){}
+      }
+    }
+
+    // فحص نزول أوردرات جديدة
     function checkTechNewTasks(ordersList) {
       if (!currentUser || currentUser.role !== 'tech') return;
 
-      const currentMyPending = ordersList.filter(o => o.tech === currentUser.name && o.status === 'pending');
+      const currentMyPending = ordersList.filter(o => o.tech === currentUser.name && (o.status === 'pending' || o.status === 'postponed'));
       const currentIds = new Set(currentMyPending.map(o => o.id));
 
       if (isInitialLoad) {
@@ -678,29 +707,19 @@
       knownPendingIds = currentIds;
 
       if (newlyAddedOrder) {
-        document.getElementById('notifCustomer').innerText = newlyAddedOrder.customer;
-        document.getElementById('notifPhone').innerText = newlyAddedOrder.phone;
-        document.getElementById('notifAddress').innerText = newlyAddedOrder.address;
-        document.getElementById('notifDesc').innerText = newlyAddedOrder.desc;
-        document.getElementById('notifBonus').innerText = `${newlyAddedOrder.bonus} جنيه`;
-        document.getElementById('notifCallLink').href = `tel:${newlyAddedOrder.phone}`;
-        document.getElementById('techNotificationModal').classList.remove('hidden');
+        showTechAlertModal(newlyAddedOrder, false);
+      }
+    }
 
-        startContinuousAlarm();
+    // فحص إشارات الاستدعاء المباشرة الموجهة للفني بعطل معين
+    function checkTechSpecificPing(pingData) {
+      if (!currentUser || currentUser.role !== 'tech' || !pingData) return;
 
-        if ('Notification' in window && Notification.permission === 'granted') {
-          try {
-            const notif = new Notification(`🔔 ${newlyAddedOrder.type}: ${newlyAddedOrder.customer}`, {
-              body: `${newlyAddedOrder.address}\nالتفاصيل: ${newlyAddedOrder.desc}`,
-              icon: 'https://cdn-icons-png.flaticon.com/512/893/893505.png',
-              requireInteraction: true,
-              vibrate: [300, 150, 300, 150, 600]
-            });
-            notif.onclick = function() {
-              window.focus();
-              notif.close();
-            };
-          } catch(e){}
+      if (pingData.targetTech === currentUser.name && pingData.pingId !== lastHandledPingId) {
+        lastHandledPingId = pingData.pingId;
+        const targetOrder = appOrders.find(o => o.id === pingData.orderId);
+        if (targetOrder) {
+          showTechAlertModal(targetOrder, true);
         }
       }
     }
@@ -806,8 +825,11 @@
               });
             }
             if (Array.isArray(data.orders)) {
-              checkTechNewTasks(data.orders);
               appOrders = data.orders;
+              checkTechNewTasks(data.orders);
+            }
+            if (data.directAlertPing) {
+              checkTechSpecificPing(data.directAlertPing);
             }
           }
           document.getElementById('cloudStatusText').innerText = "متصل بالسحابة ✓";
@@ -843,6 +865,28 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(APP_CURRENT_VERSION)
       }).catch(() => {});
+    }
+
+    // إرسال تنبيه مخصص لفني بعطل محدد
+    function pingTechnicianForOrder(orderId, techName) {
+      if (!confirm(`هل تريد إرسال تنبيه ورنين فوري للفني (${techName}) بخصوص هذا العطل؟`)) return;
+
+      const pingPayload = {
+        pingId: 'PING-' + Date.now(),
+        orderId: orderId,
+        targetTech: techName,
+        sentAt: Date.now()
+      };
+
+      fetch(`${FIREBASE_DB}/network_data/directAlertPing.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pingPayload)
+      }).then(() => {
+        alert(`تم إرسال التنبيه والرنين لهاتف الفني (${techName}) بنجاح 🔔`);
+      }).catch(() => {
+        alert('حدث خطأ في الاتصال بالشبكة');
+      });
     }
 
     setInterval(syncCloudDown, 3000);
@@ -972,6 +1016,7 @@
             ` : ''}
 
             <div style="text-align:left; margin-top:10px; display:flex; justify-content:flex-end; gap:6px;">
+              ${!isDone ? `<button type="button" onclick="pingTechnicianForOrder('${o.id}', '${o.tech}')" class="badge btn-notify" style="border:none; cursor:pointer;">🔔 تنبيه الفني</button>` : ''}
               ${isDone ? `<button type="button" onclick="repeatOrder('${o.id}')" class="badge badge-repeat" style="border:none; cursor:pointer;">عطل تاني (0ج)</button>` : ''}
               <button type="button" onclick="deleteOrder('${o.id}')" class="badge" style="background:var(--danger-light); color:var(--danger); border:none; cursor:pointer;">حذف</button>
             </div>
