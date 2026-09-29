@@ -320,7 +320,6 @@
       return 'تم حل المشكلة ✓';
     }
 
-    // فك قفل الصوت تلقائياً لتخطي قيود حظر الصوت في أندرويد
     function unlockAudioSystem() {
       try {
         if (!globalAudioCtx) {
@@ -333,31 +332,37 @@
       } catch(e) {}
     }
 
-    // توليد نغمة إنذار قوية (BEEP) برمجياً دون الحاجة لملفات خارجية
+    // نغمة رنين ناعمة ومتناسقة (Marimba / Chime) مكونة من نوتات موسيقية مريحة
+    function playMelodicTone(freq, startTime, duration) {
+      if (!globalAudioCtx) return;
+      const osc = globalAudioCtx.createOscillator();
+      const gain = globalAudioCtx.createGain();
+
+      osc.connect(gain);
+      gain.connect(globalAudioCtx.destination);
+
+      osc.type = 'sine'; // موجة جيبية ناعمة جداً للأذن
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.4, startTime + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    }
+
     function playSynthesizedBeep() {
       try {
         unlockAudioSystem();
         if (!globalAudioCtx) return;
 
-        const osc = globalAudioCtx.createOscillator();
-        const gain = globalAudioCtx.createGain();
-
-        osc.connect(gain);
-        gain.connect(globalAudioCtx.destination);
-
         const now = globalAudioCtx.currentTime;
-        osc.type = 'sawtooth';
-        
-        // نغمة شرطة/إنذار متناوبة
-        osc.frequency.setValueAtTime(800, now);
-        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.15);
-        osc.frequency.exponentialRampToValueAtTime(800, now + 0.3);
-
-        gain.gain.setValueAtTime(0.5, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.38);
-
-        osc.start(now);
-        osc.stop(now + 0.4);
+        // نغمات متتالية أنيقة: E5 -> G#5 -> B5 -> E6
+        playMelodicTone(659.25, now, 0.22);
+        playMelodicTone(830.61, now + 0.12, 0.22);
+        playMelodicTone(987.77, now + 0.24, 0.25);
+        playMelodicTone(1318.51, now + 0.38, 0.45);
       } catch(e) {}
     }
 
@@ -365,16 +370,16 @@
       playSynthesizedBeep();
 
       if (navigator.vibrate) {
-        try { navigator.vibrate([600, 300, 600, 300, 1000]); } catch(e){}
+        try { navigator.vibrate([300, 150, 300, 150, 600]); } catch(e){}
       }
 
       clearInterval(repeatAlarmTimer);
       repeatAlarmTimer = setInterval(() => {
         playSynthesizedBeep();
         if (navigator.vibrate) {
-          try { navigator.vibrate([600, 300, 600]); } catch(e){}
+          try { navigator.vibrate([300, 150, 300]); } catch(e){}
         }
-      }, 1000);
+      }, 1800);
     }
 
     function stopContinuousAlarm() {
@@ -420,7 +425,7 @@
               body: `${newlyAddedOrder.address}\nالتفاصيل: ${newlyAddedOrder.desc}`,
               icon: 'https://cdn-icons-png.flaticon.com/512/893/893505.png',
               requireInteraction: true,
-              vibrate: [600, 300, 600, 300, 1000]
+              vibrate: [300, 150, 300, 150, 600]
             });
             notif.onclick = function() {
               window.focus();
