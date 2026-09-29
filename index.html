@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>منظومة إدارة الدعم الفني والشبكات</title>
+  <title>أعطالي</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -37,7 +37,6 @@
     
     .container { width: 100%; max-width: 520px; margin: 0 auto; padding: 16px; }
     
-    /* شريط التحديث اللحظي المنبثق بالأعلى */
     #updateBannerBar {
       position: sticky;
       top: 0;
@@ -220,7 +219,6 @@
 </head>
 <body onclick="unlockAudioSystem()">
 
-  <!-- شريط التنبيه بوجود تحديث جديد للكود في الأعلى -->
   <div id="updateBannerBar" class="hidden">
     <div style="display: flex; align-items: center; gap: 8px;">
       <span style="font-size: 16px;">🚀</span>
@@ -262,8 +260,8 @@
       <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; border-radius: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 28px; box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);">
         📶
       </div>
-      <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 6px;">منظومة الدعم الفني</h2>
-      <p style="font-size: 13px; color: var(--slate); margin-bottom: 24px;">تسجيل الدخول لمتابعة المهام والميدان</p>
+      <h2 style="font-size: 22px; font-weight: 900; margin-bottom: 6px;">أعطالي</h2>
+      <p style="font-size: 13px; color: var(--slate); margin-bottom: 24px;">منظومة إدارة الدعم الفني الميداني</p>
 
       <div class="input-group">
         <label>اسم المستخدم</label>
@@ -290,7 +288,7 @@
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
-        <h3 style="font-size: 16px; font-weight: 900; color: var(--dark);">لوحة تحكم المدير</h3>
+        <h3 style="font-size: 16px; font-weight: 900; color: var(--dark);">أعطالي - لوحة المدير</h3>
         <span id="adminDateBadge" style="font-size: 11px; color: var(--slate); font-weight: 600;"></span>
       </div>
       <button type="button" onclick="logoutNow()" class="btn btn-danger" style="width: auto; padding: 7px 14px; font-size: 12px; border-radius: 10px;">خروج</button>
@@ -405,7 +403,7 @@
     <header class="header">
       <div>
         <h3 id="techHeaderName" style="font-size: 16px; font-weight: 900; color: var(--dark);">الفني</h3>
-        <span style="font-size: 11px; color: var(--slate); font-weight: 600;">لوحة المهام الميدانية</span>
+        <span style="font-size: 11px; color: var(--slate); font-weight: 600;">أعطالي الميدانية</span>
       </div>
       <button type="button" onclick="logoutNow()" class="btn btn-danger" style="width: auto; padding: 7px 14px; font-size: 12px; border-radius: 10px;">خروج</button>
     </header>
@@ -472,8 +470,7 @@
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // رقم إصدار الكود المحلي الحالي في هذا الملف
-    const APP_CURRENT_VERSION = 2;
+    const APP_CURRENT_VERSION = 3;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -502,7 +499,6 @@
       return 'تم حل المشكلة ✓';
     }
 
-    // فحص ما إذا كان هناك تحديث منشور جديد على السيرفر
     function verifyAppVersionUpdate(serverVer) {
       if (serverVer && Number(serverVer) > APP_CURRENT_VERSION) {
         const banner = document.getElementById('updateBannerBar');
@@ -510,7 +506,6 @@
       }
     }
 
-    // تنفيذ التحديث الفوري بضغطة الزر مع مسح الكاش
     function performInstantUpdate() {
       const banner = document.getElementById('updateBannerBar');
       if (banner) banner.innerHTML = '<span style="font-size:13px; font-weight:800; padding:6px 0;">جارِ تنزيل أحدث نسخة للمنظومة... ⏳</span>';
