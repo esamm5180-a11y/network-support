@@ -40,6 +40,9 @@
 </head>
 <body>
 
+  <!-- صوت إشعار عالي ونقي يعمل في الخلفية -->
+  <audio id="alertAudio" preload="auto" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+
   <div class="status-badge">
     <div id="cloudDot" class="dot"></div>
     <span id="cloudStatusText">متصل بالسحابة ✓</span>
@@ -48,7 +51,7 @@
   <!-- ================= نافذة التنبيه الفوري بمهمة جديدة للفني ================= -->
   <div id="techNotificationModal" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid #2563eb;">
-      <div style="font-size: 36px; margin-bottom: 8px; animation: bounce 1s infinite;">🔔</div>
+      <div style="font-size: 36px; margin-bottom: 8px;">🔔</div>
       <h3 style="font-size: 17px; font-weight: 800; color: #1e293b; margin-bottom: 4px;">عطل جديد مسند إليك الآن!</h3>
       <p style="font-size: 12px; color: #64748b; margin-bottom: 14px;">تمت إضافة مهمة جديدة لقائمتك</p>
 
@@ -285,69 +288,76 @@
     let currentUser = null;
     let currentAdminFilter = 'today';
     let currentTechTab = 'pending';
-    let lastSeenOrdersCount = -1;
-    let alarmSoundInterval = null;
+    let knownPendingIds = new Set();
+    let isInitialLoad = true;
 
     function getToday() {
       const d = new Date();
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
-    // تشغيل نغمة تنبيه متكررة للفني
-    function playBeepSound() {
-      try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        const ctx = new AudioCtx();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.type = "sine";
-        const now = ctx.currentTime;
-        osc.frequency.setValueAtTime(659.25, now); // E5
-        osc.frequency.setValueAtTime(880, now + 0.15); // A5
-
-        gain.gain.setValueAtTime(0.4, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
-
-        osc.start(now);
-        osc.stop(now + 0.35);
-      } catch(e) {}
-
+    // إطلاق الصوت والاهتزاز بدقة
+    function triggerAlertSound() {
+      const audio = document.getElementById('alertAudio');
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+      }
       if (navigator.vibrate) {
-        try { navigator.vibrate([250, 100, 250]); } catch(e){}
+        try { navigator.vibrate([400, 200, 400, 200, 600]); } catch(e){}
       }
     }
 
-    // فحص نزول أوردر جديد يخص الفني وتشغيل الصوت والنافذة
+    // فحص الأوردرات الجديدة الفعلية بالـ ID
     function checkTechNewTasks(ordersList) {
       if (!currentUser || currentUser.role !== 'tech') return;
 
-      const myPending = ordersList.filter(o => o.tech === currentUser.name && o.status === 'pending');
-      
-      if (lastSeenOrdersCount !== -1 && myPending.length > lastSeenOrdersCount) {
-        const latest = myPending[0];
-        document.getElementById('notifCustomer').innerText = latest.customer;
-        document.getElementById('notifPhone').innerText = latest.phone;
-        document.getElementById('notifAddress').innerText = latest.address;
-        document.getElementById('notifDesc').innerText = latest.desc;
-        document.getElementById('notifBonus').innerText = `${latest.bonus} جنيه`;
-        document.getElementById('notifCallLink').href = `tel:${latest.phone}`;
+      const currentMyPending = ordersList.filter(o => o.tech === currentUser.name && o.status === 'pending');
+      const currentIds = new Set(currentMyPending.map(o => o.id));
+
+      if (isInitialLoad) {
+        knownPendingIds = currentIds;
+        isInitialLoad = false;
+        return;
+      }
+
+      // البحث عن أي ID جديد لم يكن مسجلاً من قبل إطلاقاً
+      let newlyAddedOrder = null;
+      for (const ord of currentMyPending) {
+        if (!knownPendingIds.has(ord.id)) {
+          newlyAddedOrder = ord;
+          break;
+        }
+      }
+
+      knownPendingIds = currentIds;
+
+      if (newlyAddedOrder) {
+        document.getElementById('notifCustomer').innerText = newlyAddedOrder.customer;
+        document.getElementById('notifPhone').innerText = newlyAddedOrder.phone;
+        document.getElementById('notifAddress').innerText = newlyAddedOrder.address;
+        document.getElementById('notifDesc').innerText = newlyAddedOrder.desc;
+        document.getElementById('notifBonus').innerText = `${newlyAddedOrder.bonus} جنيه`;
+        document.getElementById('notifCallLink').href = `tel:${newlyAddedOrder.phone}`;
         document.getElementById('techNotificationModal').classList.remove('hidden');
 
-        // تشغيل الصوت وتكراره كل ثانيتين للتنبيه
-        playBeepSound();
-        clearInterval(alarmSoundInterval);
-        alarmSoundInterval = setInterval(playBeepSound, 2000);
+        triggerAlertSound();
+
+        // إشعار شاشة القفل عبر متصفح الهاتف
+        if ('Notification' in window && Notification.permission === 'granted') {
+          try {
+            new Notification('عطل جديد مسند إليك الآن!', {
+              body: `${newlyAddedOrder.customer} - ${newlyAddedOrder.address}`,
+              icon: 'https://cdn-icons-png.flaticon.com/512/893/893505.png'
+            });
+          } catch(e){}
+        }
       }
-      lastSeenOrdersCount = myPending.length;
     }
 
     function closeNotifModal() {
-      clearInterval(alarmSoundInterval);
+      const audio = document.getElementById('alertAudio');
+      if (audio) { audio.pause(); audio.currentTime = 0; }
       document.getElementById('techNotificationModal').classList.add('hidden');
     }
 
@@ -365,8 +375,6 @@
           } else {
             document.getElementById('screenTech').classList.remove('hidden');
             document.getElementById('techHeaderName').innerText = currentUser.name;
-            const myPending = appOrders.filter(o => o.tech === currentUser.name && o.status === 'pending');
-            lastSeenOrdersCount = myPending.length;
             renderTech();
           }
         } catch(e) {}
@@ -383,6 +391,15 @@
     }
 
     function loginNow() {
+      // طلب إذن الإشعارات وتشغيل كارت الصوت عند ضغطة الزر ليعمل بدون قيود النظام
+      if ('Notification' in window && Notification.permission !== 'granted') {
+        Notification.requestPermission();
+      }
+      const audio = document.getElementById('alertAudio');
+      if (audio) {
+        audio.play().then(() => { audio.pause(); audio.currentTime = 0; }).catch(() => {});
+      }
+
       const u = (document.getElementById('logUser').value || '').trim().toLowerCase();
       const p = (document.getElementById('logPass').value || '').trim();
       const remember = document.getElementById('rememberMe').checked;
@@ -408,8 +425,7 @@
         } else {
           document.getElementById('screenTech').classList.remove('hidden');
           document.getElementById('techHeaderName').innerText = currentUser.name;
-          const myPending = appOrders.filter(o => o.tech === currentUser.name && o.status === 'pending');
-          lastSeenOrdersCount = myPending.length;
+          isInitialLoad = true;
           renderTech();
         }
       } else {
@@ -419,7 +435,7 @@
 
     function logoutNow() {
       currentUser = null;
-      lastSeenOrdersCount = -1;
+      isInitialLoad = true;
       closeNotifModal();
       localStorage.removeItem('auto_logged_user');
       document.getElementById('screenAdmin').classList.add('hidden');
