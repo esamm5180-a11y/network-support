@@ -39,40 +39,56 @@
     
     .container { width: 100%; max-width: 520px; margin: 0 auto; padding: 16px; }
     
-    /* شريط التحديث اللحظي العائم فوق جميع الواجهات */
-    #updateBannerBar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      width: 100%;
-      z-index: 10000;
-      background: linear-gradient(135deg, #059669, #10b981);
-      color: #ffffff;
-      padding: 12px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);
-      animation: slideDownBanner 0.35s ease-out;
-    }
-    @keyframes slideDownBanner {
-      from { transform: translateY(-100%); }
-      to { transform: translateY(0); }
-    }
-    .btn-update-now {
-      background: #ffffff;
-      color: #059669;
-      border: none;
+    /* تصميم زر التحديث العلوي مع إشعار النقطة الحمراء */
+    .btn-header-update {
+      position: relative;
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 6px 14px;
-      font-size: 13px;
+      padding: 6px 12px;
+      font-size: 12px;
       font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      transition: transform 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
     }
-    .btn-update-now:active { transform: scale(0.95); }
+    .btn-header-update:active { transform: scale(0.95); }
+
+    /* مظهر الزر عندما يكون هناك تحديث متاح */
+    .btn-header-update.has-update {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1.5px solid #10b981;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+      animation: pulse-update-btn 2s infinite;
+    }
+
+    .update-badge-dot {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #e11d48;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 1px 5px;
+      border-radius: 20px;
+      border: 2px solid #fff;
+      animation: bounceDot 1s infinite alternate;
+    }
+
+    @keyframes pulse-update-btn {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+    @keyframes bounceDot {
+      from { transform: translateY(0); }
+      to { transform: translateY(-3px); }
+    }
 
     .card {
       background: var(--card-bg);
@@ -137,10 +153,10 @@
     .btn-secondary { background: #f1f5f9; color: var(--slate); border: 1px solid var(--border); }
 
     .header {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-      padding: 14px 18px;
+      padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -228,15 +244,6 @@
 </head>
 <body onclick="unlockAudioSystem()">
 
-  <!-- شريط التحديث اللحظي العائم الشامل لجميع الواجهات -->
-  <div id="updateBannerBar" class="hidden">
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <span style="font-size: 18px;">🚀</span>
-      <span style="font-size: 13px; font-weight: 800;">تحديث جديد متوفر للمنظومة!</span>
-    </div>
-    <button type="button" onclick="performInstantUpdate()" class="btn-update-now">تحديث الآن ⚡</button>
-  </div>
-
   <div class="status-badge">
     <div id="cloudDot" class="dot"></div>
     <span id="cloudStatusText">متصل بالسحابة ✓</span>
@@ -298,10 +305,17 @@
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
-        <h3 style="font-size: 16px; font-weight: 900; color: var(--dark);">أعطالي - لوحة المدير</h3>
+        <h3 style="font-size: 16px; font-weight: 900; color: var(--dark);">لوحة المدير</h3>
         <span id="adminDateBadge" style="font-size: 11px; color: var(--slate); font-weight: 600;"></span>
       </div>
-      <button type="button" onclick="logoutNow()" class="btn btn-danger" style="width: auto; padding: 7px 14px; font-size: 12px; border-radius: 10px;">خروج</button>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <!-- زر التحديث الذكي مع إشعار التحديث الجديد -->
+        <button type="button" id="btnAdminUpdate" onclick="performInstantUpdate()" class="btn-header-update">
+          <span>🔄 تحديث</span>
+          <span id="adminUpdateBadge" class="update-badge-dot hidden">جديد!</span>
+        </button>
+        <button type="button" onclick="logoutNow()" class="btn btn-danger" style="width: auto; padding: 6px 12px; font-size: 12px; border-radius: 10px;">خروج</button>
+      </div>
     </header>
 
     <div class="container">
@@ -415,7 +429,14 @@
         <h3 id="techHeaderName" style="font-size: 16px; font-weight: 900; color: var(--dark);">الفني</h3>
         <span style="font-size: 11px; color: var(--slate); font-weight: 600;">أعطالي الميدانية</span>
       </div>
-      <button type="button" onclick="logoutNow()" class="btn btn-danger" style="width: auto; padding: 7px 14px; font-size: 12px; border-radius: 10px;">خروج</button>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <!-- زر التحديث الذكي عند الفني مع إشعار التحديث الجديد -->
+        <button type="button" id="btnTechUpdate" onclick="performInstantUpdate()" class="btn-header-update">
+          <span>🔄 تحديث</span>
+          <span id="techUpdateBadge" class="update-badge-dot hidden">جديد!</span>
+        </button>
+        <button type="button" onclick="logoutNow()" class="btn btn-danger" style="width: auto; padding: 6px 12px; font-size: 12px; border-radius: 10px;">خروج</button>
+      </div>
     </header>
 
     <div class="container">
@@ -498,8 +519,8 @@
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار الحالي
-    const APP_CURRENT_VERSION = 5;
+    // الإصدار الحالي للكود
+    const APP_CURRENT_VERSION = 6;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -528,17 +549,33 @@
       return 'تم حل المشكلة ✓';
     }
 
-    // فحص دوري للإصدار يظهر للجميع فوراً
+    // إظهار إشعار النقطة الحمراء وتلوين زر التحديث للأدمن والفني
     function verifyAppVersionUpdate(serverVer) {
-      const banner = document.getElementById('updateBannerBar');
-      if (banner && serverVer && Number(serverVer) > APP_CURRENT_VERSION) {
-        banner.classList.remove('hidden');
+      const isNew = serverVer && Number(serverVer) > APP_CURRENT_VERSION;
+      
+      const adminBtn = document.getElementById('btnAdminUpdate');
+      const adminBadge = document.getElementById('adminUpdateBadge');
+      const techBtn = document.getElementById('btnTechUpdate');
+      const techBadge = document.getElementById('techUpdateBadge');
+
+      if (isNew) {
+        if (adminBtn) adminBtn.classList.add('has-update');
+        if (adminBadge) adminBadge.classList.remove('hidden');
+        if (techBtn) techBtn.classList.add('has-update');
+        if (techBadge) techBadge.classList.remove('hidden');
+      } else {
+        if (adminBtn) adminBtn.classList.remove('has-update');
+        if (adminBadge) adminBadge.classList.add('hidden');
+        if (techBtn) techBtn.classList.remove('has-update');
+        if (techBadge) techBadge.classList.add('hidden');
       }
     }
 
     function performInstantUpdate() {
-      const banner = document.getElementById('updateBannerBar');
-      if (banner) banner.innerHTML = '<span style="font-size:13px; font-weight:800; padding:6px 0;">جارِ تنزيل أحدث نسخة للمنظومة... ⏳</span>';
+      const adminBtn = document.getElementById('btnAdminUpdate');
+      const techBtn = document.getElementById('btnTechUpdate');
+      if (adminBtn) adminBtn.innerText = 'جارِ التحديث... ⏳';
+      if (techBtn) techBtn.innerText = 'جارِ التحديث... ⏳';
       
       try {
         if ('caches' in window) {
@@ -551,7 +588,7 @@
       setTimeout(() => {
         const freshUrl = window.location.origin + window.location.pathname + '?v=' + Date.now();
         window.location.replace(freshUrl);
-      }, 400);
+      }, 350);
     }
 
     function unlockAudioSystem() {
@@ -752,13 +789,11 @@
       document.getElementById('screenLogin').classList.remove('hidden');
     }
 
-    // سحب البيانات وفحص الإصدار لكل الشاشات (الفني والأدمن)
     function syncCloudDown() {
       fetch(`${FIREBASE_DB}/network_data.json`)
         .then(res => res.json())
         .then(data => {
           if (data) {
-            // التحقق من الإصدار في جميع الأجهزة فوراً
             if (data.latestAppVersion) {
               verifyAppVersionUpdate(data.latestAppVersion);
             }
@@ -790,7 +825,6 @@
         });
     }
 
-    // رفع البيانات مع تثبيت رقم الإصدار دائماً في السحابة
     function syncCloudUp() {
       fetch(`${FIREBASE_DB}/network_data.json`, {
         method: 'PATCH',
@@ -803,7 +837,6 @@
       }).catch(() => {});
     }
 
-    // تحديث رقم الإصدار في السحابة تلقائياً عند فتح الأدمن
     function broadcastVersion() {
       fetch(`${FIREBASE_DB}/network_data/latestAppVersion.json`, {
         method: 'PUT',
