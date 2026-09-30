@@ -56,6 +56,21 @@
     }
     .btn-header-update:active { transform: scale(0.95); }
 
+    .btn-header-bell {
+      position: relative;
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 15px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-header-bell:active { transform: scale(0.95); }
+
     .btn-header-update.has-update {
       background: #ecfdf5;
       color: #059669;
@@ -269,7 +284,7 @@
     </div>
   </div>
 
-  <!-- نافذة إشعار نزول بونص جديد للفني -->
+  <!-- نافذة إشعار نزول بونص جديد للفني (تظهر مرة واحدة فقط عند كل بونص جديد) -->
   <div id="bonusAlertModal" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid var(--success);">
       <div class="bell-animate" style="font-size: 44px; margin-bottom: 8px;">🎁</div>
@@ -282,7 +297,23 @@
         <span id="bonusAlertReason" style="font-size: 12px; color: #065f46; font-weight: 600; display: block; margin-top: 4px;"></span>
       </div>
 
-      <button type="button" onclick="closeBonusAlertModal()" class="btn btn-success">تم، استلام الرصيد ✓</button>
+      <button type="button" onclick="dismissBonusAlertModal()" class="btn btn-success">تم، استلام الرصيد ✓</button>
+    </div>
+  </div>
+
+  <!-- نافذة مركز وسجل الإشعارات للفني -->
+  <div id="modalNotificationsList" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h4 style="font-size: 16px; font-weight: 900;">🔔 مركز الإشعارات</h4>
+        <button type="button" onclick="closeNotificationsModal()" style="border: none; background: transparent; font-size: 18px; cursor: pointer;">✕</button>
+      </div>
+      
+      <div id="notificationsItemsContainer" style="max-height: 350px; overflow-y: auto; padding-right: 2px;">
+        <!-- يتم ملؤها ديناميكياً -->
+      </div>
+
+      <button type="button" onclick="closeNotificationsModal()" class="btn btn-secondary" style="margin-top: 14px;">إغلاق</button>
     </div>
   </div>
 
@@ -333,7 +364,6 @@
     </header>
 
     <div class="container">
-      <!-- حسابات وبونص الفنيين -->
       <div class="card">
         <h4 class="card-title">💰 أرصدة وحسابات الفنيين</h4>
         <div id="techFinancialList"></div>
@@ -439,6 +469,12 @@
         <span style="font-size: 11px; color: var(--slate); font-weight: 600;">أعطالي الميدانية</span>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
+        <!-- زر أيقونة الإشعارات (الجرس) للفني -->
+        <button type="button" id="btnTechBell" onclick="openNotificationsModal()" class="btn-header-bell" title="الإشعارات">
+          <span>🔔</span>
+          <span id="techBellBadge" class="update-badge-dot hidden">1</span>
+        </button>
+
         <button type="button" id="btnTechUpdate" onclick="performInstantUpdate()" class="btn-header-update">
           <span>🔄 تحديث</span>
           <span id="techUpdateBadge" class="update-badge-dot hidden">جديد!</span>
@@ -448,7 +484,6 @@
     </header>
 
     <div class="container">
-      <!-- كارت إجمالي البونص التراكمي المعتمد من المدير فقط -->
       <div class="card" style="background: linear-gradient(135deg, #2563eb, #1e40af); color: #fff; padding: 24px; box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35); border: none;">
         <span style="font-size: 12px; font-weight: 700; opacity: 0.9;">إجمالي بونصك المستحق التراكمي</span>
         <h2 id="techTotalBonus" style="font-size: 34px; font-weight: 900; margin: 6px 0;">0 ج</h2>
@@ -554,7 +589,7 @@
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
     // الإصدار الحالي
-    const APP_CURRENT_VERSION = 9;
+    const APP_CURRENT_VERSION = 10;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -571,7 +606,7 @@
     let repeatAlarmTimer = null;
     let globalAudioCtx = null;
     let lastHandledPingId = null;
-    let lastHandledBonusId = null;
+    let currentActiveBonusData = null;
 
     function getToday() {
       const d = new Date();
@@ -757,15 +792,22 @@
       }
     }
 
+    // فحص إشعار البونص ومنع تكراره تلقائياً بعد استلامه
     function checkTechBonusAlert(bonusData) {
       if (!currentUser || currentUser.role !== 'tech' || !bonusData) return;
 
-      if (bonusData.targetTech === currentUser.name && bonusData.bonusId !== lastHandledBonusId) {
-        lastHandledBonusId = bonusData.bonusId;
+      currentActiveBonusData = bonusData;
+      const lastDismissedId = localStorage.getItem('dismissed_bonus_id_' + currentUser.name);
 
+      // يفتح التنبيه والرنين فقط إذا كان بونصاً جديداً لم يُستلم من قبل
+      if (bonusData.targetTech === currentUser.name && bonusData.bonusId !== lastDismissedId) {
         document.getElementById('bonusAlertAmount').innerText = `+${bonusData.amount} ج`;
         document.getElementById('bonusAlertReason').innerText = bonusData.reason || 'تم إيداع بونص جديد في حسابك';
         document.getElementById('bonusAlertModal').classList.remove('hidden');
+
+        // إظهار الشارة على جرس الإشعارات
+        const bellBadge = document.getElementById('techBellBadge');
+        if (bellBadge) bellBadge.classList.remove('hidden');
 
         startContinuousAlarm();
 
@@ -786,9 +828,67 @@
       document.getElementById('techNotificationModal').classList.add('hidden');
     }
 
-    function closeBonusAlertModal() {
+    // إغلاق إشعار البونص وحفظه لمنع ظهوره تلقائياً مجدداً
+    function dismissBonusAlertModal() {
       stopContinuousAlarm();
+      if (currentActiveBonusData && currentUser) {
+        localStorage.setItem('dismissed_bonus_id_' + currentUser.name, currentActiveBonusData.bonusId);
+      }
+      const bellBadge = document.getElementById('techBellBadge');
+      if (bellBadge) bellBadge.classList.add('hidden');
       document.getElementById('bonusAlertModal').classList.add('hidden');
+    }
+
+    /* ================= دوال نافذة الإشعارات للفني ================= */
+    function openNotificationsModal() {
+      const container = document.getElementById('notificationsItemsContainer');
+      container.innerHTML = '';
+
+      let hasItems = false;
+
+      // إظهار آخر بونص في قائمة الإشعارات
+      if (currentActiveBonusData && currentUser && currentActiveBonusData.targetTech === currentUser.name) {
+        hasItems = true;
+        container.innerHTML += `
+          <div style="background: var(--success-light); border: 1px solid rgba(5,150,105,0.2); border-radius: 14px; padding: 12px; margin-bottom: 8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="color:var(--success); font-size:14px;">🎁 بونص جديد</strong>
+              <span style="font-weight:900; color:var(--success); font-size:15px;">+${currentActiveBonusData.amount} ج</span>
+            </div>
+            <p style="font-size:12px; color:#065f46; margin-top:4px;">${currentActiveBonusData.reason || 'مكافأة معتمدة من الإدارة'}</p>
+          </div>
+        `;
+      }
+
+      // إظهار الأعطال المنجزة مؤخراً
+      const myDones = appOrders.filter(o => o.tech === currentUser.name && o.status === 'done').slice(0, 5);
+      if (myDones.length > 0) {
+        hasItems = true;
+        myDones.forEach(o => {
+          container.innerHTML += `
+            <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:10px; margin-bottom:6px; font-size:12px;">
+              <div style="display:flex; justify-content:space-between;">
+                <strong>✓ تم إنجاز: ${o.customer}</strong>
+                <span style="color:var(--slate); font-size:10px;">${o.finishedDate || ''}</span>
+              </div>
+              <p style="color:var(--slate); margin-top:3px;">${o.desc}</p>
+              ${o.awardedBonus ? `<span style="color:var(--success); font-weight:800; display:block; margin-top:3px;">+${o.awardedBonus} ج بونص</span>` : ''}
+            </div>
+          `;
+        });
+      }
+
+      if (!hasItems) {
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:13px; padding:20px;">لا توجد إشعارات سابقة</p>';
+      }
+
+      const bellBadge = document.getElementById('techBellBadge');
+      if (bellBadge) bellBadge.classList.add('hidden');
+      document.getElementById('modalNotificationsList').classList.remove('hidden');
+    }
+
+    function closeNotificationsModal() {
+      document.getElementById('modalNotificationsList').classList.add('hidden');
     }
 
     function autoLoginCheck() {
@@ -864,7 +964,7 @@
       currentUser = null;
       isInitialLoad = true;
       closeNotifModal();
-      closeBonusAlertModal();
+      document.getElementById('bonusAlertModal').classList.add('hidden');
       localStorage.removeItem('auto_logged_user');
       document.getElementById('screenAdmin').classList.add('hidden');
       document.getElementById('screenTech').classList.add('hidden');
@@ -1273,7 +1373,6 @@
       }
     }
 
-    /* ================= دوال إضافة بونص داخل كارت العطل مباشرة ================= */
     function openOrderBonusModal(orderId, techName, customer) {
       document.getElementById('orderBonusOrderId').value = orderId;
       document.getElementById('orderBonusTechName').value = techName;
@@ -1306,7 +1405,6 @@
         techObj.accumulatedBonus = Number(techObj.accumulatedBonus || 0) + amount;
         ord.awardedBonus = amount;
 
-        // إرسال الإشعار التلقائي للفني مباشرة مع اسم العميل
         const autoReason = `بونص إنجاز عطل العميل: ${customer}`;
         const bonusPayload = {
           bonusId: 'BONUS-' + Date.now(),
@@ -1453,7 +1551,6 @@
       }
     }
 
-    /* ================= دوال تأجيل العطل ================= */
     function openPostponeModal(id) {
       document.getElementById('postponeId').value = id;
       document.getElementById('postponeReasonText').value = '';
