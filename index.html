@@ -248,7 +248,7 @@
     <span id="cloudStatusText">متصل بالسحابة ✓</span>
   </div>
 
-  <!-- نافذة التنبيه الفوري بمهمة للفني (بدون إظهار البونص) -->
+  <!-- نافذة التنبيه الفوري بمهمة للفني -->
   <div id="techNotificationModal" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid var(--primary);">
       <div class="bell-animate" style="font-size: 42px; margin-bottom: 10px;">🔔</div>
@@ -279,10 +279,10 @@
       <div style="background: var(--success-light); border: 1px solid rgba(5,150,105,0.25); border-radius: 16px; padding: 16px; margin-bottom: 16px;">
         <span style="font-size: 12px; color: #065f46; font-weight: 700; display: block;">المبلغ المضاف:</span>
         <h2 id="bonusAlertAmount" style="font-size: 32px; font-weight: 900; color: var(--success); margin: 4px 0;">+0 ج</h2>
-        <span id="bonusAlertReason" style="font-size: 12px; color: #065f46; font-weight: 600;"></span>
+        <span id="bonusAlertReason" style="font-size: 12px; color: #065f46; font-weight: 600; display: block; margin-top: 4px;"></span>
       </div>
 
-      <button type="button" onclick="closeBonusAlertModal()" class="btn btn-success">شكراً، استلام الرصيد ✓</button>
+      <button type="button" onclick="closeBonusAlertModal()" class="btn btn-success">تم، استلام الرصيد ✓</button>
     </div>
   </div>
 
@@ -333,9 +333,9 @@
     </header>
 
     <div class="container">
-      <!-- حسابات وبونص الفنيين مع إمكانية إضافة بونص يدوي من الأدمن -->
+      <!-- حسابات وبونص الفنيين -->
       <div class="card">
-        <h4 class="card-title">💰 حسابات وتنزيل بونص الفنيين</h4>
+        <h4 class="card-title">💰 أرصدة وحسابات الفنيين</h4>
         <div id="techFinancialList"></div>
       </div>
 
@@ -464,25 +464,27 @@
     </div>
   </div>
 
-  <!-- نافذة تنزيل بونص يدوي من الأدمن -->
-  <div id="modalAddBonus" class="modal-overlay hidden">
+  <!-- نافذة إضافة بونص داخل كارت العطل مباشرة -->
+  <div id="modalOrderBonus" class="modal-overlay hidden">
     <div class="modal-content">
-      <h4 style="font-size: 16px; font-weight: 900; margin-bottom: 14px; color: var(--success);">🎁 تنزيل بونص للفني</h4>
-      <input type="hidden" id="bonusTechName">
-      <p style="font-size: 13px; color: var(--slate); margin-bottom: 12px;">تنزيل مكافأة فورية في حساب: <strong id="bonusTargetTechLabel" style="color: var(--dark);"></strong></p>
+      <h4 style="font-size: 16px; font-weight: 900; margin-bottom: 10px; color: var(--success);">🎁 تنزيل بونص لإنجاز العطل</h4>
+      <input type="hidden" id="orderBonusOrderId">
+      <input type="hidden" id="orderBonusTechName">
+      <input type="hidden" id="orderBonusCustomer">
+
+      <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; margin-bottom: 14px; font-size: 12px; line-height: 1.6;">
+        <div><strong>الفني المستحق:</strong> <span id="labelOrderBonusTech" style="color: var(--primary); font-weight: 800;"></span></div>
+        <div><strong>العميل:</strong> <span id="labelOrderBonusCustomer" style="color: var(--dark); font-weight: 700;"></span></div>
+      </div>
       
       <div class="input-group">
         <label>قيمة البونص (جنيه)</label>
-        <input type="number" id="manualBonusAmount" placeholder="مثال: 50" class="input-control">
-      </div>
-      <div class="input-group">
-        <label>سبب أو ملاحظة البونص (اختياري)</label>
-        <input type="text" id="manualBonusReason" placeholder="مثلاً: بونص عطل العميل فلان، إنجاز سريع..." class="input-control">
+        <input type="number" id="orderBonusInputAmount" placeholder="أدخل المبلغ (مثلاً: 50)" class="input-control" autofocus>
       </div>
 
       <div class="grid-2" style="margin-top: 18px;">
-        <button type="button" onclick="confirmAddBonus()" class="btn btn-success">إرسال وتنزيل البونص ⚡</button>
-        <button type="button" onclick="closeAddBonusModal()" class="btn btn-secondary">إلغاء</button>
+        <button type="button" onclick="confirmOrderBonusDirect()" class="btn btn-success">تأكيد ونزول البونص فوراً ⚡</button>
+        <button type="button" onclick="closeOrderBonusModal()" class="btn btn-secondary">إلغاء</button>
       </div>
     </div>
   </div>
@@ -552,7 +554,7 @@
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
     // الإصدار الحالي
-    const APP_CURRENT_VERSION = 8;
+    const APP_CURRENT_VERSION = 9;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -688,7 +690,6 @@
       clearInterval(repeatAlarmTimer);
     }
 
-    // إظهار نافذة العطل للفني بدون إظهار البونص
     function showTechAlertModal(order, isPing = false) {
       document.getElementById('notifTitleText').innerText = isPing ? '⚠️ تنبيه واستعجال من الإدارة!' : 'عطل جديد مسند إليك الآن!';
       document.getElementById('notifSubtitleText').innerText = isPing ? 'تنبيه عاجل لسرعة التوجه وإنهاء هذا العطل' : 'يرن هاتفك لتنبيهك بالمهمة الجديدة';
@@ -756,7 +757,6 @@
       }
     }
 
-    // فحص إشعار البونص اليدوي القادم من الأدمن
     function checkTechBonusAlert(bonusData) {
       if (!currentUser || currentUser.role !== 'tech' || !bonusData) return;
 
@@ -764,7 +764,7 @@
         lastHandledBonusId = bonusData.bonusId;
 
         document.getElementById('bonusAlertAmount').innerText = `+${bonusData.amount} ج`;
-        document.getElementById('bonusAlertReason').innerText = bonusData.reason ? `السبب: ${bonusData.reason}` : '';
+        document.getElementById('bonusAlertReason').innerText = bonusData.reason || 'تم إيداع بونص جديد في حسابك';
         document.getElementById('bonusAlertModal').classList.remove('hidden');
 
         startContinuousAlarm();
@@ -772,7 +772,7 @@
         if ('Notification' in window && Notification.permission === 'granted') {
           try {
             new Notification(`🎁 مبروك! نزل لك بونص جديد: +${bonusData.amount} ج`, {
-              body: bonusData.reason || 'قام المدير بإضافة مكافأة جديدة إلى حسابك',
+              body: bonusData.reason || 'تم إيداع بونص جديد في حسابك',
               icon: 'https://cdn-icons-png.flaticon.com/512/893/893505.png',
               vibrate: [300, 150, 300, 150, 600]
             });
@@ -1001,9 +1001,8 @@
             </div>
             <div style="text-align:left;">
               <span style="font-size:15px; font-weight:900; color:var(--success);">${currentBonus} ج</span>
-              <div style="display:flex; gap:4px; margin-top:4px;">
-                <button type="button" onclick="openAddBonusModal('${t.name}')" class="btn btn-success" style="width:auto; padding:4px 8px; font-size:10px; border-radius:8px;">➕ إضافة بونص</button>
-                <button type="button" onclick="settleTech('${t.name}')" class="btn btn-secondary" style="width:auto; padding:4px 8px; font-size:10px; border-radius:8px;">تقفيل</button>
+              <div>
+                <button type="button" onclick="settleTech('${t.name}')" class="btn btn-secondary" style="width:auto; padding:4px 10px; font-size:11px; margin-top:4px; border-radius:8px;">تقفيل الحساب</button>
               </div>
             </div>
           </div>
@@ -1081,8 +1080,15 @@
               </div>
             ` : ''}
 
-            <div style="text-align:left; margin-top:10px; display:flex; justify-content:flex-end; gap:6px;">
+            ${isDone && o.awardedBonus ? `
+              <div style="margin-top:6px; font-size:12px; color:#065f46; font-weight:800;">
+                ✓ تم صرف بونص: ${o.awardedBonus} ج لهذا العطل
+              </div>
+            ` : ''}
+
+            <div style="text-align:left; margin-top:10px; display:flex; justify-content:flex-end; gap:6px; flex-wrap:wrap;">
               ${!isDone ? `<button type="button" onclick="pingTechnicianForOrder('${o.id}', '${o.tech}')" class="badge btn-notify" style="border:none; cursor:pointer;">🔔 تنبيه الفني</button>` : ''}
+              ${isDone && !o.awardedBonus ? `<button type="button" onclick="openOrderBonusModal('${o.id}', '${o.tech}', '${o.customer}')" class="badge badge-done" style="border:none; cursor:pointer; background:#10b981; color:#fff;">🎁 إضافة بونص</button>` : ''}
               ${isDone ? `<button type="button" onclick="repeatOrder('${o.id}')" class="badge badge-repeat" style="border:none; cursor:pointer;">عطل تاني</button>` : ''}
               <button type="button" onclick="deleteOrder('${o.id}')" class="badge" style="background:var(--danger-light); color:var(--danger); border:none; cursor:pointer;">حذف</button>
             </div>
@@ -1121,7 +1127,8 @@
         finishedDate: '',
         settledMonth: false,
         reason: '',
-        postponeReason: ''
+        postponeReason: '',
+        awardedBonus: 0
       });
 
       document.getElementById('newCustomer').value = '';
@@ -1250,7 +1257,8 @@
           finishedDate: '',
           settledMonth: false,
           reason: '',
-          postponeReason: ''
+          postponeReason: '',
+          awardedBonus: 0
         });
         renderAdmin();
         syncCloudUp();
@@ -1265,39 +1273,46 @@
       }
     }
 
-    /* ================= دوال إضافة بونص يدوي من الأدمن ================= */
-    function openAddBonusModal(techName) {
-      document.getElementById('bonusTechName').value = techName;
-      document.getElementById('bonusTargetTechLabel').innerText = techName;
-      document.getElementById('manualBonusAmount').value = '';
-      document.getElementById('manualBonusReason').value = '';
-      document.getElementById('modalAddBonus').classList.remove('hidden');
+    /* ================= دوال إضافة بونص داخل كارت العطل مباشرة ================= */
+    function openOrderBonusModal(orderId, techName, customer) {
+      document.getElementById('orderBonusOrderId').value = orderId;
+      document.getElementById('orderBonusTechName').value = techName;
+      document.getElementById('orderBonusCustomer').value = customer;
+      document.getElementById('labelOrderBonusTech').innerText = techName;
+      document.getElementById('labelOrderBonusCustomer').innerText = customer;
+      document.getElementById('orderBonusInputAmount').value = '';
+      document.getElementById('modalOrderBonus').classList.remove('hidden');
     }
 
-    function closeAddBonusModal() {
-      document.getElementById('modalAddBonus').classList.add('hidden');
+    function closeOrderBonusModal() {
+      document.getElementById('modalOrderBonus').classList.add('hidden');
     }
 
-    function confirmAddBonus() {
-      const techName = document.getElementById('bonusTechName').value;
-      const amount = Number(document.getElementById('manualBonusAmount').value);
-      const reason = document.getElementById('manualBonusReason').value.trim();
+    function confirmOrderBonusDirect() {
+      const orderId = document.getElementById('orderBonusOrderId').value;
+      const techName = document.getElementById('orderBonusTechName').value;
+      const customer = document.getElementById('orderBonusCustomer').value;
+      const amount = Number(document.getElementById('orderBonusInputAmount').value);
 
       if (!amount || amount <= 0) {
         alert('يرجى إدخال مبلغ بونص صحيح');
         return;
       }
 
+      const ord = appOrders.find(o => o.id === orderId);
       const techObj = appAccounts.find(a => a.name === techName);
-      if (techObj) {
-        techObj.accumulatedBonus = Number(techObj.accumulatedBonus || 0) + amount;
 
-        // إرسال إشعار لحظي للفني عبر السحابة
+      if (techObj && ord) {
+        techObj.accumulatedBonus = Number(techObj.accumulatedBonus || 0) + amount;
+        ord.awardedBonus = amount;
+
+        // إرسال الإشعار التلقائي للفني مباشرة مع اسم العميل
+        const autoReason = `بونص إنجاز عطل العميل: ${customer}`;
         const bonusPayload = {
           bonusId: 'BONUS-' + Date.now(),
           targetTech: techName,
           amount: amount,
-          reason: reason,
+          reason: autoReason,
           sentAt: Date.now()
         };
 
@@ -1307,14 +1322,14 @@
           body: JSON.stringify(bonusPayload)
         }).catch(() => {});
 
-        closeAddBonusModal();
+        closeOrderBonusModal();
         renderAdmin();
         syncCloudUp();
-        alert(`تمت إضافة ${amount} ج لحساب الفني (${techName}) وتم إرسال الإشعار له بنجاح 🎁`);
+        alert(`تم تنزيل ${amount} ج بونص للفني (${techName}) وإرسال الإشعار له بنجاح 🎁`);
       }
     }
 
-    /* ================= دوال الفني (بدون إظهار البونص) ================= */
+    /* ================= دوال الفني ================= */
     function renderTech() {
       const today = getToday();
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
@@ -1323,7 +1338,6 @@
       const pendingAndPostponed = myOrders.filter(o => o.status === 'pending' || o.status === 'postponed');
       const done = myOrders.filter(o => o.status === 'done');
 
-      // يظهر فقط إجمالي البونص التراكمي المعتمد من المدير
       document.getElementById('techTotalBonus').innerText = `${Number(me.accumulatedBonus || 0)} ج`;
       document.getElementById('techDoneToday').innerText = `إنجاز اليوم: ${done.filter(o => o.finishedDate === today).length} مهمة`;
 
