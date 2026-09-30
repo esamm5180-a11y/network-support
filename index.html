@@ -39,7 +39,6 @@
     
     .container { width: 100%; max-width: 520px; margin: 0 auto; padding: 16px; }
     
-    /* زر التحديث العلوي مع إشعار النقطة الحمراء */
     .btn-header-update {
       position: relative;
       background: #f1f5f9;
@@ -249,7 +248,7 @@
     <span id="cloudStatusText">متصل بالسحابة ✓</span>
   </div>
 
-  <!-- نافذة التنبيه الفوري بمهمة أو استعجال للفني -->
+  <!-- نافذة التنبيه الفوري بمهمة للفني (بدون إظهار البونص) -->
   <div id="techNotificationModal" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid var(--primary);">
       <div class="bell-animate" style="font-size: 42px; margin-bottom: 10px;">🔔</div>
@@ -261,13 +260,29 @@
         <div><strong style="color: var(--slate);">الهاتف:</strong> <span id="notifPhone" style="font-weight: 700; direction: ltr; display: inline-block;"></span></div>
         <div><strong style="color: var(--slate);">العنوان:</strong> <span id="notifAddress"></span></div>
         <div><strong style="color: var(--slate);">التفاصيل:</strong> <span id="notifDesc"></span></div>
-        <div><strong style="color: var(--slate);">البونص:</strong> <span id="notifBonus" style="color: var(--success); font-weight: 900;"></span></div>
       </div>
 
       <div class="grid-2">
         <a id="notifCallLink" href="tel:" onclick="closeNotifModal()" class="btn btn-primary">📞 اتصال بالعميل</a>
         <button type="button" onclick="closeNotifModal()" class="btn btn-secondary">إيقاف الرنين</button>
       </div>
+    </div>
+  </div>
+
+  <!-- نافذة إشعار نزول بونص جديد للفني -->
+  <div id="bonusAlertModal" class="modal-overlay hidden">
+    <div class="modal-content" style="text-align: center; border: 2px solid var(--success);">
+      <div class="bell-animate" style="font-size: 44px; margin-bottom: 8px;">🎁</div>
+      <h3 style="font-size: 19px; font-weight: 900; color: var(--success); margin-bottom: 6px;">مبروك! نزل لك بونص جديد</h3>
+      <p style="font-size: 13px; color: var(--slate); margin-bottom: 16px;">قام المدير بإضافة مكافأة إلى رصيدك التراكمي</p>
+
+      <div style="background: var(--success-light); border: 1px solid rgba(5,150,105,0.25); border-radius: 16px; padding: 16px; margin-bottom: 16px;">
+        <span style="font-size: 12px; color: #065f46; font-weight: 700; display: block;">المبلغ المضاف:</span>
+        <h2 id="bonusAlertAmount" style="font-size: 32px; font-weight: 900; color: var(--success); margin: 4px 0;">+0 ج</h2>
+        <span id="bonusAlertReason" style="font-size: 12px; color: #065f46; font-weight: 600;"></span>
+      </div>
+
+      <button type="button" onclick="closeBonusAlertModal()" class="btn btn-success">شكراً، استلام الرصيد ✓</button>
     </div>
   </div>
 
@@ -318,8 +333,9 @@
     </header>
 
     <div class="container">
+      <!-- حسابات وبونص الفنيين مع إمكانية إضافة بونص يدوي من الأدمن -->
       <div class="card">
-        <h4 class="card-title">💰 حسابات وبونص الفنيين</h4>
+        <h4 class="card-title">💰 حسابات وتنزيل بونص الفنيين</h4>
         <div id="techFinancialList"></div>
       </div>
 
@@ -339,18 +355,12 @@
           <label>العنوان بالتفصيل</label>
           <input type="text" id="newAddress" placeholder="المنطقة، الشارع، علامة مميزة" class="input-control">
         </div>
-        <div class="grid-2">
-          <div class="input-group">
-            <label>نوع الطلب</label>
-            <select id="newType" class="input-control">
-              <option value="عطل وصيانة">عطل وصيانة</option>
-              <option value="تركيب جديد">تركيب جديد</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label>قيمة البونص (ج)</label>
-            <input type="number" id="newBonus" value="50" class="input-control">
-          </div>
+        <div class="input-group">
+          <label>نوع الطلب</label>
+          <select id="newType" class="input-control">
+            <option value="عطل وصيانة">عطل وصيانة</option>
+            <option value="تركيب جديد">تركيب جديد</option>
+          </select>
         </div>
         <div class="input-group">
           <label>التفاصيل والمشكلة</label>
@@ -438,8 +448,9 @@
     </header>
 
     <div class="container">
+      <!-- كارت إجمالي البونص التراكمي المعتمد من المدير فقط -->
       <div class="card" style="background: linear-gradient(135deg, #2563eb, #1e40af); color: #fff; padding: 24px; box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35); border: none;">
-        <span style="font-size: 12px; font-weight: 700; opacity: 0.9;">بونصك المستحق التراكمي</span>
+        <span style="font-size: 12px; font-weight: 700; opacity: 0.9;">إجمالي بونصك المستحق التراكمي</span>
         <h2 id="techTotalBonus" style="font-size: 34px; font-weight: 900; margin: 6px 0;">0 ج</h2>
         <span id="techDoneToday" style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-weight: 700; display: inline-block;">إنجاز اليوم: 0 مهمة</span>
       </div>
@@ -450,6 +461,29 @@
       </div>
 
       <div id="techFeed"></div>
+    </div>
+  </div>
+
+  <!-- نافذة تنزيل بونص يدوي من الأدمن -->
+  <div id="modalAddBonus" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h4 style="font-size: 16px; font-weight: 900; margin-bottom: 14px; color: var(--success);">🎁 تنزيل بونص للفني</h4>
+      <input type="hidden" id="bonusTechName">
+      <p style="font-size: 13px; color: var(--slate); margin-bottom: 12px;">تنزيل مكافأة فورية في حساب: <strong id="bonusTargetTechLabel" style="color: var(--dark);"></strong></p>
+      
+      <div class="input-group">
+        <label>قيمة البونص (جنيه)</label>
+        <input type="number" id="manualBonusAmount" placeholder="مثال: 50" class="input-control">
+      </div>
+      <div class="input-group">
+        <label>سبب أو ملاحظة البونص (اختياري)</label>
+        <input type="text" id="manualBonusReason" placeholder="مثلاً: بونص عطل العميل فلان، إنجاز سريع..." class="input-control">
+      </div>
+
+      <div class="grid-2" style="margin-top: 18px;">
+        <button type="button" onclick="confirmAddBonus()" class="btn btn-success">إرسال وتنزيل البونص ⚡</button>
+        <button type="button" onclick="closeAddBonusModal()" class="btn btn-secondary">إلغاء</button>
+      </div>
     </div>
   </div>
 
@@ -517,8 +551,8 @@
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // رقم الإصدار
-    const APP_CURRENT_VERSION = 7;
+    // الإصدار الحالي
+    const APP_CURRENT_VERSION = 8;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -535,6 +569,7 @@
     let repeatAlarmTimer = null;
     let globalAudioCtx = null;
     let lastHandledPingId = null;
+    let lastHandledBonusId = null;
 
     function getToday() {
       const d = new Date();
@@ -653,7 +688,7 @@
       clearInterval(repeatAlarmTimer);
     }
 
-    // إظهار نافذة التنبيه للفني
+    // إظهار نافذة العطل للفني بدون إظهار البونص
     function showTechAlertModal(order, isPing = false) {
       document.getElementById('notifTitleText').innerText = isPing ? '⚠️ تنبيه واستعجال من الإدارة!' : 'عطل جديد مسند إليك الآن!';
       document.getElementById('notifSubtitleText').innerText = isPing ? 'تنبيه عاجل لسرعة التوجه وإنهاء هذا العطل' : 'يرن هاتفك لتنبيهك بالمهمة الجديدة';
@@ -661,7 +696,6 @@
       document.getElementById('notifPhone').innerText = order.phone;
       document.getElementById('notifAddress').innerText = order.address;
       document.getElementById('notifDesc').innerText = order.desc;
-      document.getElementById('notifBonus').innerText = `${order.bonus} جنيه`;
       document.getElementById('notifCallLink').href = `tel:${order.phone}`;
       document.getElementById('techNotificationModal').classList.remove('hidden');
 
@@ -683,7 +717,6 @@
       }
     }
 
-    // فحص نزول أوردرات جديدة
     function checkTechNewTasks(ordersList) {
       if (!currentUser || currentUser.role !== 'tech') return;
 
@@ -711,7 +744,6 @@
       }
     }
 
-    // فحص إشارات الاستدعاء المباشرة الموجهة للفني بعطل معين
     function checkTechSpecificPing(pingData) {
       if (!currentUser || currentUser.role !== 'tech' || !pingData) return;
 
@@ -724,9 +756,39 @@
       }
     }
 
+    // فحص إشعار البونص اليدوي القادم من الأدمن
+    function checkTechBonusAlert(bonusData) {
+      if (!currentUser || currentUser.role !== 'tech' || !bonusData) return;
+
+      if (bonusData.targetTech === currentUser.name && bonusData.bonusId !== lastHandledBonusId) {
+        lastHandledBonusId = bonusData.bonusId;
+
+        document.getElementById('bonusAlertAmount').innerText = `+${bonusData.amount} ج`;
+        document.getElementById('bonusAlertReason').innerText = bonusData.reason ? `السبب: ${bonusData.reason}` : '';
+        document.getElementById('bonusAlertModal').classList.remove('hidden');
+
+        startContinuousAlarm();
+
+        if ('Notification' in window && Notification.permission === 'granted') {
+          try {
+            new Notification(`🎁 مبروك! نزل لك بونص جديد: +${bonusData.amount} ج`, {
+              body: bonusData.reason || 'قام المدير بإضافة مكافأة جديدة إلى حسابك',
+              icon: 'https://cdn-icons-png.flaticon.com/512/893/893505.png',
+              vibrate: [300, 150, 300, 150, 600]
+            });
+          } catch(e){}
+        }
+      }
+    }
+
     function closeNotifModal() {
       stopContinuousAlarm();
       document.getElementById('techNotificationModal').classList.add('hidden');
+    }
+
+    function closeBonusAlertModal() {
+      stopContinuousAlarm();
+      document.getElementById('bonusAlertModal').classList.add('hidden');
     }
 
     function autoLoginCheck() {
@@ -802,6 +864,7 @@
       currentUser = null;
       isInitialLoad = true;
       closeNotifModal();
+      closeBonusAlertModal();
       localStorage.removeItem('auto_logged_user');
       document.getElementById('screenAdmin').classList.add('hidden');
       document.getElementById('screenTech').classList.add('hidden');
@@ -830,6 +893,9 @@
             }
             if (data.directAlertPing) {
               checkTechSpecificPing(data.directAlertPing);
+            }
+            if (data.latestBonusAlert) {
+              checkTechBonusAlert(data.latestBonusAlert);
             }
           }
           document.getElementById('cloudStatusText').innerText = "متصل بالسحابة ✓";
@@ -867,7 +933,6 @@
       }).catch(() => {});
     }
 
-    // إرسال تنبيه مخصص لفني بعطل محدد
     function pingTechnicianForOrder(orderId, techName) {
       if (!confirm(`هل تريد إرسال تنبيه ورنين فوري للفني (${techName}) بخصوص هذا العطل؟`)) return;
 
@@ -936,8 +1001,9 @@
             </div>
             <div style="text-align:left;">
               <span style="font-size:15px; font-weight:900; color:var(--success);">${currentBonus} ج</span>
-              <div>
-                <button type="button" onclick="settleTech('${t.name}')" class="btn btn-secondary" style="width:auto; padding:4px 10px; font-size:11px; margin-top:4px; border-radius:8px;">تقفيل الحساب</button>
+              <div style="display:flex; gap:4px; margin-top:4px;">
+                <button type="button" onclick="openAddBonusModal('${t.name}')" class="btn btn-success" style="width:auto; padding:4px 8px; font-size:10px; border-radius:8px;">➕ إضافة بونص</button>
+                <button type="button" onclick="settleTech('${t.name}')" class="btn btn-secondary" style="width:auto; padding:4px 8px; font-size:10px; border-radius:8px;">تقفيل</button>
               </div>
             </div>
           </div>
@@ -987,7 +1053,7 @@
           badgeText = '⏳ مؤجل';
         } else if (o.isRepeat) {
           badgeClass = 'badge-repeat';
-          badgeText = 'متكرر (0ج)';
+          badgeText = 'متكرر';
         }
 
         feed.innerHTML += `
@@ -1000,7 +1066,7 @@
             
             <div style="display:flex; justify-content:space-between; color:var(--slate); font-size:12px; border-top:1px solid #f1f5f9; padding-top:8px;">
               <span>الفني: <strong style="color:var(--primary); font-weight:800;">${o.tech}</strong></span>
-              <span>البونص: <strong style="color:var(--success); font-weight:900;">${o.bonus} ج</strong></span>
+              <span>النوع: <strong>${o.type}</strong></span>
             </div>
 
             ${isPostponed && o.postponeReason ? `
@@ -1017,7 +1083,7 @@
 
             <div style="text-align:left; margin-top:10px; display:flex; justify-content:flex-end; gap:6px;">
               ${!isDone ? `<button type="button" onclick="pingTechnicianForOrder('${o.id}', '${o.tech}')" class="badge btn-notify" style="border:none; cursor:pointer;">🔔 تنبيه الفني</button>` : ''}
-              ${isDone ? `<button type="button" onclick="repeatOrder('${o.id}')" class="badge badge-repeat" style="border:none; cursor:pointer;">عطل تاني (0ج)</button>` : ''}
+              ${isDone ? `<button type="button" onclick="repeatOrder('${o.id}')" class="badge badge-repeat" style="border:none; cursor:pointer;">عطل تاني</button>` : ''}
               <button type="button" onclick="deleteOrder('${o.id}')" class="badge" style="background:var(--danger-light); color:var(--danger); border:none; cursor:pointer;">حذف</button>
             </div>
           </div>
@@ -1047,7 +1113,6 @@
         phone: phone,
         address: addr,
         type: document.getElementById('newType').value,
-        bonus: Number(document.getElementById('newBonus').value) || 0,
         desc: desc,
         tech: document.getElementById('newTechSelect').value,
         status: 'pending',
@@ -1177,7 +1242,6 @@
           phone: ord.phone,
           address: ord.address,
           type: 'إعادة صيانة (عطل متكرر)',
-          bonus: 0,
           desc: `عطل متكرر (${ord.desc})`,
           tech: ord.tech,
           status: 'pending',
@@ -1194,14 +1258,63 @@
     }
 
     function deleteOrder(id) {
-      if (confirm('حذف الطلب من السجل؟ (لن ينقص من بونص الفني)')) {
+      if (confirm('حذف الطلب من السجل؟')) {
         appOrders = appOrders.filter(o => o.id !== id);
         renderAdmin();
         syncCloudUp();
       }
     }
 
-    /* ================= دوال الفني ================= */
+    /* ================= دوال إضافة بونص يدوي من الأدمن ================= */
+    function openAddBonusModal(techName) {
+      document.getElementById('bonusTechName').value = techName;
+      document.getElementById('bonusTargetTechLabel').innerText = techName;
+      document.getElementById('manualBonusAmount').value = '';
+      document.getElementById('manualBonusReason').value = '';
+      document.getElementById('modalAddBonus').classList.remove('hidden');
+    }
+
+    function closeAddBonusModal() {
+      document.getElementById('modalAddBonus').classList.add('hidden');
+    }
+
+    function confirmAddBonus() {
+      const techName = document.getElementById('bonusTechName').value;
+      const amount = Number(document.getElementById('manualBonusAmount').value);
+      const reason = document.getElementById('manualBonusReason').value.trim();
+
+      if (!amount || amount <= 0) {
+        alert('يرجى إدخال مبلغ بونص صحيح');
+        return;
+      }
+
+      const techObj = appAccounts.find(a => a.name === techName);
+      if (techObj) {
+        techObj.accumulatedBonus = Number(techObj.accumulatedBonus || 0) + amount;
+
+        // إرسال إشعار لحظي للفني عبر السحابة
+        const bonusPayload = {
+          bonusId: 'BONUS-' + Date.now(),
+          targetTech: techName,
+          amount: amount,
+          reason: reason,
+          sentAt: Date.now()
+        };
+
+        fetch(`${FIREBASE_DB}/network_data/latestBonusAlert.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bonusPayload)
+        }).catch(() => {});
+
+        closeAddBonusModal();
+        renderAdmin();
+        syncCloudUp();
+        alert(`تمت إضافة ${amount} ج لحساب الفني (${techName}) وتم إرسال الإشعار له بنجاح 🎁`);
+      }
+    }
+
+    /* ================= دوال الفني (بدون إظهار البونص) ================= */
     function renderTech() {
       const today = getToday();
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
@@ -1210,6 +1323,7 @@
       const pendingAndPostponed = myOrders.filter(o => o.status === 'pending' || o.status === 'postponed');
       const done = myOrders.filter(o => o.status === 'done');
 
+      // يظهر فقط إجمالي البونص التراكمي المعتمد من المدير
       document.getElementById('techTotalBonus').innerText = `${Number(me.accumulatedBonus || 0)} ج`;
       document.getElementById('techDoneToday').innerText = `إنجاز اليوم: ${done.filter(o => o.finishedDate === today).length} مهمة`;
 
@@ -1249,7 +1363,6 @@
                 <h4 style="font-size:16px; font-weight:900; color:var(--dark);">${o.customer}</h4>
                 <span class="badge ${badgeClass}" style="margin-top:4px;">${badgeText}</span>
               </div>
-              <span style="font-size:16px; font-weight:900; color:var(--success);">${o.bonus} ج</span>
             </div>
             <p style="font-size:13px; color:var(--slate); margin-bottom:6px;">📍 <strong>${o.address}</strong></p>
             <p style="font-size:12px; background:#f8fafc; border:1px solid var(--border); padding:8px 10px; border-radius:10px; margin-bottom:12px; color:var(--dark); font-weight:600;">${o.desc}</p>
@@ -1320,11 +1433,6 @@
         ord.finishedDate = getToday();
         ord.reason = reasonVal;
 
-        const techObj = appAccounts.find(a => a.name === ord.tech);
-        if (techObj) {
-          techObj.accumulatedBonus = Number(techObj.accumulatedBonus || 0) + Number(ord.bonus || 0);
-        }
-
         closeOrderModal();
         renderTech();
         syncCloudUp();
@@ -1359,7 +1467,7 @@
         closePostponeModal();
         renderTech();
         syncCloudUp();
-        alert('تم تأجيل العطل وحفظ السبب، ولم يُحسب أي بونص لحين حله.');
+        alert('تم حفظ سبب التأجيل بنجاح');
       }
     }
   </script>
