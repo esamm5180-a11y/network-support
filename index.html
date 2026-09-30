@@ -284,7 +284,7 @@
     </div>
   </div>
 
-  <!-- نافذة إشعار نزول بونص جديد للفني (تظهر مرة واحدة فقط عند كل بونص جديد) -->
+  <!-- نافذة إشعار نزول بونص جديد للفني -->
   <div id="bonusAlertModal" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid var(--success);">
       <div class="bell-animate" style="font-size: 44px; margin-bottom: 8px;">🎁</div>
@@ -310,7 +310,6 @@
       </div>
       
       <div id="notificationsItemsContainer" style="max-height: 350px; overflow-y: auto; padding-right: 2px;">
-        <!-- يتم ملؤها ديناميكياً -->
       </div>
 
       <button type="button" onclick="closeNotificationsModal()" class="btn btn-secondary" style="margin-top: 14px;">إغلاق</button>
@@ -369,21 +368,22 @@
         <div id="techFinancialList"></div>
       </div>
 
+      <!-- بطاقة إسناد الأوردر مع جعل باقي البيانات اختيارية -->
       <div class="card">
         <h4 class="card-title">➕ إسناد عطل أو تركيب جديد</h4>
         <div class="grid-2">
           <div class="input-group">
-            <label>اسم العميل</label>
-            <input type="text" id="newCustomer" placeholder="الاسم ثلاثي" class="input-control">
+            <label>اسم العميل <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="newCustomer" placeholder="الاسم" class="input-control">
           </div>
           <div class="input-group">
-            <label>رقم الهاتف</label>
+            <label>رقم الهاتف <span style="color:var(--danger)">*</span></label>
             <input type="tel" id="newPhone" placeholder="010xxxxxxxx" class="input-control">
           </div>
         </div>
         <div class="input-group">
-          <label>العنوان بالتفصيل</label>
-          <input type="text" id="newAddress" placeholder="المنطقة، الشارع، علامة مميزة" class="input-control">
+          <label>العنوان <small style="color:var(--slate); font-weight:normal;">(اختياري)</small></label>
+          <input type="text" id="newAddress" placeholder="الشارع أو المنطقة (اختياري)" class="input-control">
         </div>
         <div class="input-group">
           <label>نوع الطلب</label>
@@ -393,8 +393,8 @@
           </select>
         </div>
         <div class="input-group">
-          <label>التفاصيل والمشكلة</label>
-          <input type="text" id="newDesc" placeholder="وصف حالة العطل" class="input-control">
+          <label>التفاصيل والمشكلة <small style="color:var(--slate); font-weight:normal;">(اختياري)</small></label>
+          <input type="text" id="newDesc" placeholder="تفاصيل العطل (اختياري)" class="input-control">
         </div>
         <div class="input-group">
           <label>إسناد إلى الفني</label>
@@ -469,7 +469,6 @@
         <span style="font-size: 11px; color: var(--slate); font-weight: 600;">أعطالي الميدانية</span>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
-        <!-- زر أيقونة الإشعارات (الجرس) للفني -->
         <button type="button" id="btnTechBell" onclick="openNotificationsModal()" class="btn-header-bell" title="الإشعارات">
           <span>🔔</span>
           <span id="techBellBadge" class="update-badge-dot hidden">1</span>
@@ -589,7 +588,7 @@
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
     // الإصدار الحالي
-    const APP_CURRENT_VERSION = 10;
+    const APP_CURRENT_VERSION = 11;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -730,8 +729,8 @@
       document.getElementById('notifSubtitleText').innerText = isPing ? 'تنبيه عاجل لسرعة التوجه وإنهاء هذا العطل' : 'يرن هاتفك لتنبيهك بالمهمة الجديدة';
       document.getElementById('notifCustomer').innerText = order.customer;
       document.getElementById('notifPhone').innerText = order.phone;
-      document.getElementById('notifAddress').innerText = order.address;
-      document.getElementById('notifDesc').innerText = order.desc;
+      document.getElementById('notifAddress').innerText = order.address || 'غير محدد';
+      document.getElementById('notifDesc').innerText = order.desc || 'عطل اعتيادي';
       document.getElementById('notifCallLink').href = `tel:${order.phone}`;
       document.getElementById('techNotificationModal').classList.remove('hidden');
 
@@ -740,7 +739,7 @@
       if ('Notification' in window && Notification.permission === 'granted') {
         try {
           const notif = new Notification(`🔔 ${isPing ? 'استعجال عطل' : order.type}: ${order.customer}`, {
-            body: `${order.address}\nالتفاصيل: ${order.desc}`,
+            body: `${order.address || 'العنوان غير محدد'}\nالتفاصيل: ${order.desc || 'بدون تفاصيل'}`,
             icon: 'https://cdn-icons-png.flaticon.com/512/893/893505.png',
             requireInteraction: true,
             vibrate: [300, 150, 300, 150, 600]
@@ -792,20 +791,17 @@
       }
     }
 
-    // فحص إشعار البونص ومنع تكراره تلقائياً بعد استلامه
     function checkTechBonusAlert(bonusData) {
       if (!currentUser || currentUser.role !== 'tech' || !bonusData) return;
 
       currentActiveBonusData = bonusData;
       const lastDismissedId = localStorage.getItem('dismissed_bonus_id_' + currentUser.name);
 
-      // يفتح التنبيه والرنين فقط إذا كان بونصاً جديداً لم يُستلم من قبل
       if (bonusData.targetTech === currentUser.name && bonusData.bonusId !== lastDismissedId) {
         document.getElementById('bonusAlertAmount').innerText = `+${bonusData.amount} ج`;
         document.getElementById('bonusAlertReason').innerText = bonusData.reason || 'تم إيداع بونص جديد في حسابك';
         document.getElementById('bonusAlertModal').classList.remove('hidden');
 
-        // إظهار الشارة على جرس الإشعارات
         const bellBadge = document.getElementById('techBellBadge');
         if (bellBadge) bellBadge.classList.remove('hidden');
 
@@ -828,7 +824,6 @@
       document.getElementById('techNotificationModal').classList.add('hidden');
     }
 
-    // إغلاق إشعار البونص وحفظه لمنع ظهوره تلقائياً مجدداً
     function dismissBonusAlertModal() {
       stopContinuousAlarm();
       if (currentActiveBonusData && currentUser) {
@@ -839,14 +834,12 @@
       document.getElementById('bonusAlertModal').classList.add('hidden');
     }
 
-    /* ================= دوال نافذة الإشعارات للفني ================= */
     function openNotificationsModal() {
       const container = document.getElementById('notificationsItemsContainer');
       container.innerHTML = '';
 
       let hasItems = false;
 
-      // إظهار آخر بونص في قائمة الإشعارات
       if (currentActiveBonusData && currentUser && currentActiveBonusData.targetTech === currentUser.name) {
         hasItems = true;
         container.innerHTML += `
@@ -860,7 +853,6 @@
         `;
       }
 
-      // إظهار الأعطال المنجزة مؤخراً
       const myDones = appOrders.filter(o => o.tech === currentUser.name && o.status === 'done').slice(0, 5);
       if (myDones.length > 0) {
         hasItems = true;
@@ -1202,14 +1194,15 @@
       renderAdmin();
     }
 
+    // تم تعديل الإرسال ليكتفي بالاسم ورقم الهاتف فقط وباقي البيانات اختيارية تماماً
     function submitNewOrder() {
       const cust = document.getElementById('newCustomer').value.trim();
       const phone = document.getElementById('newPhone').value.trim();
-      const addr = document.getElementById('newAddress').value.trim();
-      const desc = document.getElementById('newDesc').value.trim();
+      const addr = document.getElementById('newAddress').value.trim() || 'العنوان غير محدد';
+      const desc = document.getElementById('newDesc').value.trim() || 'عطل وصيانة';
 
-      if (!cust || !phone || !addr) {
-        alert('يرجى ملء بيانات العميل كاملة');
+      if (!cust || !phone) {
+        alert('يرجى كتابة اسم العميل ورقم الهاتف على الأقل');
         return;
       }
 
