@@ -18,6 +18,7 @@
       --success: #059669;
       --success-light: #ecfdf5;
       --warning: #d97706;
+      --warning-light: #fffbeb;
       --danger: #e11d48;
       --danger-light: #fff1f2;
       --dark: #0f172a;
@@ -256,7 +257,7 @@
     <span id="cloudStatusText">متصل بالسحابة ✓</span>
   </div>
 
-  <!-- نافذة إشعار البونص اللحظي للفني -->
+  <!-- نافذة إشعار البونص للفني -->
   <div id="bonusAlertModal" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid var(--success);">
       <div class="bell-animate" style="font-size: 44px; margin-bottom: 8px;">🎁</div>
@@ -320,7 +321,7 @@
     </div>
   </div>
 
-  <!-- 2. واجهة المدير (إدارة البونص فقط) -->
+  <!-- 2. واجهة المدير -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -369,9 +370,29 @@
         </div>
         <div class="input-group">
           <label>سبب المكافأة / الملاحظة</label>
-          <input type="text" id="bonusReasonInput" placeholder="مثلاً: إنجاز صيانة فلان، هدف أسبوعي..." class="input-control">
+          <input type="text" id="bonusReasonInput" placeholder="مثلاً: إنجاز سريع، عمل إضافي..." class="input-control">
         </div>
         <button type="button" onclick="submitDirectBonus()" class="btn btn-success">إرسال وتنزيل البونص فوراً 🎁</button>
+      </div>
+
+      <!-- كارت إدارة عدد أوردرات الفنيين المباشر (الجديد) -->
+      <div class="card" style="border: 1.5px solid #cbd5e1;">
+        <h4 class="card-title">📊 تحديث إحصائيات أوردرات الفني</h4>
+        <div class="input-group">
+          <label>اختر الفني لتحديث أوردراته</label>
+          <select id="statsTargetTechSelect" onchange="loadTechOrdersStatsInputs()" class="input-control"></select>
+        </div>
+        <div class="grid-2">
+          <div class="input-group">
+            <label>أوردرات خلصت (المنجزة)</label>
+            <input type="number" id="statsInputDone" placeholder="0" class="input-control">
+          </div>
+          <div class="input-group">
+            <label>أوردرات لسه مخلصتش (المتبقية)</label>
+            <input type="number" id="statsInputPending" placeholder="0" class="input-control">
+          </div>
+        </div>
+        <button type="button" onclick="saveTechOrdersStats()" class="btn btn-primary">حفظ وتحديث عدد الأوردرات للفني 💾</button>
       </div>
 
       <!-- كارت أرصدة وحسابات الفنيين الحالية -->
@@ -445,7 +466,7 @@
     </div>
   </div>
 
-  <!-- 3. واجهة الفني (استعراض البونص الخاص به فقط) -->
+  <!-- 3. واجهة الفني -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -466,10 +487,23 @@
     </header>
 
     <div class="container">
+
+      <!-- كارت إحصائيات الأوردرات السريع للفني (خلصت / لسه مخلصتش بدون تفاصيل) -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+        <div style="background:#ffffff; border-radius:18px; padding:14px; text-align:center; border:1.5px solid #a7f3d0; box-shadow:var(--shadow-sm);">
+          <span style="font-size:12px; font-weight:800; color:#047857; display:block; margin-bottom:2px;">✅ خلصت (منجزة)</span>
+          <strong id="techDoneOrdersCount" style="font-size:26px; font-weight:900; color:#059669;">0</strong>
+        </div>
+        <div style="background:#ffffff; border-radius:18px; padding:14px; text-align:center; border:1.5px solid #fed7aa; box-shadow:var(--shadow-sm);">
+          <span style="font-size:12px; font-weight:800; color:#c2410c; display:block; margin-bottom:2px;">⏳ لسه مخلصتش</span>
+          <strong id="techPendingOrdersCount" style="font-size:26px; font-weight:900; color:#ea580c;">0</strong>
+        </div>
+      </div>
+
       <!-- كارت الرصيد التراكمي -->
-      <div class="card" style="background: linear-gradient(135deg, #10b981, #047857); color: #fff; padding: 24px; box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35); border: none;">
+      <div class="card" style="background: linear-gradient(135deg, #10b981, #047857); color: #fff; padding: 22px; box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35); border: none;">
         <span style="font-size: 12px; font-weight: 700; opacity: 0.9;">إجمالي البونص المستحق لك حالياً</span>
-        <h2 id="techTotalBonus" style="font-size: 36px; font-weight: 900; margin: 6px 0;">0 ج</h2>
+        <h2 id="techTotalBonus" style="font-size: 34px; font-weight: 900; margin: 6px 0;">0 ج</h2>
         <span id="techBonusToday" style="font-size: 12px; background: rgba(255,255,255,0.25); padding: 4px 12px; border-radius: 20px; font-weight: 700; display: inline-block;">مكافآت اليوم: 0 ج</span>
       </div>
 
@@ -510,19 +544,18 @@
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار المحدث لمنظومة البونص
-    const APP_CURRENT_VERSION = 13;
+    // رقم الإصدار
+    const APP_CURRENT_VERSION = 14;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
-      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0 },
-      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0 }
+      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0, ordersDone: 0, ordersPending: 0 },
+      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0, ordersDone: 0, ordersPending: 0 }
     ];
 
     let bonusRecords = [];
     let currentUser = null;
     let currentAdminFilter = 'today';
-    let repeatAlarmTimer = null;
     let globalAudioCtx = null;
     let currentActiveBonusData = null;
 
@@ -583,56 +616,49 @@
       } catch(e) {}
     }
 
-    function playMelodicTone(freq, startTime, duration) {
+    // تشغيل نغمة هادئة جداً (Soft Chimes)
+    function playCalmChimeSingle(startTime) {
       if (!globalAudioCtx) return;
-      const osc = globalAudioCtx.createOscillator();
-      const gain = globalAudioCtx.createGain();
+      
+      const freqs = [523.25, 659.25, 783.99]; // نغمات موسيقية هادئة ناعمة
+      freqs.forEach((freq, idx) => {
+        const osc = globalAudioCtx.createOscillator();
+        const gain = globalAudioCtx.createGain();
 
-      osc.connect(gain);
-      gain.connect(globalAudioCtx.destination);
+        osc.connect(gain);
+        gain.connect(globalAudioCtx.destination);
 
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, startTime);
+        osc.type = 'triangle'; // موجة مثلثية ناعمة شبيهة بأجراس الصندوق الموسيقي
+        osc.frequency.setValueAtTime(freq, startTime + (idx * 0.1));
 
-      gain.gain.setValueAtTime(0, startTime);
-      gain.gain.linearRampToValueAtTime(0.4, startTime + 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+        const noteStart = startTime + (idx * 0.1);
+        gain.gain.setValueAtTime(0, noteStart);
+        gain.gain.linearRampToValueAtTime(0.2, noteStart + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, noteStart + 0.6);
 
-      osc.start(startTime);
-      osc.stop(startTime + duration);
+        osc.start(noteStart);
+        osc.stop(noteStart + 0.65);
+      });
     }
 
-    function playSynthesizedBeep() {
+    // تشغيل النغمة الهادئة 3 مرات فقط وتتوقف ذاتياً
+    function playCalmAlertThreeTimes() {
       try {
         unlockAudioSystem();
         if (!globalAudioCtx) return;
 
-        const now = globalAudioCtx.currentTime;
-        playMelodicTone(659.25, now, 0.22);
-        playMelodicTone(830.61, now + 0.12, 0.22);
-        playMelodicTone(987.77, now + 0.24, 0.25);
-        playMelodicTone(1318.51, now + 0.38, 0.45);
-      } catch(e) {}
-    }
+        const baseTime = globalAudioCtx.currentTime;
+        // الرنة الأولى
+        playCalmChimeSingle(baseTime);
+        // الرنة الثانية بعد ثانية
+        playCalmChimeSingle(baseTime + 1.1);
+        // الرنة الثالثة بعد ثانيتين
+        playCalmChimeSingle(baseTime + 2.2);
 
-    function startContinuousAlarm() {
-      playSynthesizedBeep();
-
-      if (navigator.vibrate) {
-        try { navigator.vibrate([300, 150, 300, 150, 600]); } catch(e){}
-      }
-
-      clearInterval(repeatAlarmTimer);
-      repeatAlarmTimer = setInterval(() => {
-        playSynthesizedBeep();
         if (navigator.vibrate) {
-          try { navigator.vibrate([300, 150, 300]); } catch(e){}
+          try { navigator.vibrate([200, 150, 200, 150, 200]); } catch(e){}
         }
-      }, 1800);
-    }
-
-    function stopContinuousAlarm() {
-      clearInterval(repeatAlarmTimer);
+      } catch(e) {}
     }
 
     function checkTechBonusAlert(bonusData) {
@@ -649,14 +675,15 @@
         const bellBadge = document.getElementById('techBellBadge');
         if (bellBadge) bellBadge.classList.remove('hidden');
 
-        startContinuousAlarm();
+        // نغمة هادئة تعمل 3 مرات فقط وتتوقف ذاتياً
+        playCalmAlertThreeTimes();
 
         if ('Notification' in window && Notification.permission === 'granted') {
           try {
             new Notification(`🎁 مبروك! نزل لك بونص جديد: +${bonusData.amount} ج`, {
               body: bonusData.reason || 'قام المدير بإيداع بونص جديد في حسابك',
               icon: 'https://cdn-icons-png.flaticon.com/512/893/893505.png',
-              vibrate: [300, 150, 300, 150, 600]
+              vibrate: [200, 150, 200]
             });
           } catch(e){}
         }
@@ -664,7 +691,6 @@
     }
 
     function dismissBonusAlertModal() {
-      stopContinuousAlarm();
       if (currentActiveBonusData && currentUser) {
         localStorage.setItem('dismissed_bonus_id_' + currentUser.name, currentActiveBonusData.bonusId);
       }
@@ -792,7 +818,6 @@
 
     function logoutNow() {
       currentUser = null;
-      stopContinuousAlarm();
       document.getElementById('bonusAlertModal').classList.add('hidden');
       localStorage.removeItem('auto_logged_user');
       document.getElementById('screenAdmin').classList.add('hidden');
@@ -810,8 +835,10 @@
             }
             if (Array.isArray(data.accounts)) {
               appAccounts = data.accounts.map(acc => {
-                if (acc.role === 'tech' && typeof acc.accumulatedBonus === 'undefined') {
-                  acc.accumulatedBonus = 0;
+                if (acc.role === 'tech') {
+                  if (typeof acc.accumulatedBonus === 'undefined') acc.accumulatedBonus = 0;
+                  if (typeof acc.ordersDone === 'undefined') acc.ordersDone = 0;
+                  if (typeof acc.ordersPending === 'undefined') acc.ordersPending = 0;
                 }
                 return acc;
               });
@@ -865,7 +892,7 @@
       broadcastVersion();
     };
 
-    /* ================= دوال الأدمن (إدارة البونص فقط) ================= */
+    /* ================= دوال الأدمن ================= */
     function renderAdmin() {
       const today = getToday();
       const adminAcc = appAccounts.find(a => a.role === 'admin');
@@ -876,7 +903,6 @@
 
       const techs = appAccounts.filter(a => a.role === 'tech');
       
-      // الإحصائيات
       const totalPaid = bonusRecords.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
       const todayPaid = bonusRecords.filter(b => b.date === today).reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
@@ -884,12 +910,23 @@
       document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
       document.getElementById('statTechsCount').innerText = techs.length;
 
-      // اختيار الفني للبونص المباشر
+      // اختيار الفني للبونص
       const select = document.getElementById('bonusTechSelect');
+      const statsTechSelect = document.getElementById('statsTargetTechSelect');
+      
+      const currentSelectedBonus = select.value;
+      const currentSelectedStats = statsTechSelect.value;
+
       select.innerHTML = '';
+      statsTechSelect.innerHTML = '';
+
       techs.forEach(t => {
-        select.innerHTML += `<option value="${t.name}">${t.name}</option>`;
+        select.innerHTML += `<option value="${t.name}" ${currentSelectedBonus === t.name ? 'selected' : ''}>${t.name}</option>`;
+        statsTechSelect.innerHTML += `<option value="${t.name}" ${currentSelectedStats === t.name ? 'selected' : ''}>${t.name}</option>`;
       });
+
+      // تحميل قيم الأوردرات في الحقول
+      loadTechOrdersStatsInputs();
 
       // فلتر الفنيين
       const filterSelect = document.getElementById('filterByTechSelect');
@@ -907,12 +944,17 @@
 
       techs.forEach(t => {
         const currentBonus = Number(t.accumulatedBonus || 0);
+        const doneOrders = Number(t.ordersDone || 0);
+        const pendingOrders = Number(t.ordersPending || 0);
 
         finList.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:12px 14px; border-radius:16px; margin-bottom:8px; border:1px solid var(--border);">
             <div>
               <strong style="font-size:14px; color:var(--dark);">${t.name}</strong>
-              <span style="font-size:11px; color:var(--slate); display:block; font-weight:600;">اليوزر: ${t.username}</span>
+              <div style="font-size:11px; color:var(--slate); margin-top:2px;">
+                <span>خلصت: <strong style="color:var(--success)">${doneOrders}</strong></span> | 
+                <span>متبقي: <strong style="color:var(--warning)">${pendingOrders}</strong></span>
+              </div>
             </div>
             <div style="text-align:left;">
               <span style="font-size:16px; font-weight:900; color:var(--success);">${currentBonus} ج</span>
@@ -972,12 +1014,40 @@
       });
     }
 
+    // تعبئة حقول أعداد الأوردرات عند تغيير اسم الفني في الأدمن
+    function loadTechOrdersStatsInputs() {
+      const select = document.getElementById('statsTargetTechSelect');
+      if (!select || !select.value) return;
+      const targetTech = appAccounts.find(a => a.name === select.value);
+      if (targetTech) {
+        document.getElementById('statsInputDone').value = targetTech.ordersDone || 0;
+        document.getElementById('statsInputPending').value = targetTech.ordersPending || 0;
+      }
+    }
+
+    // حفظ أعداد الأوردرات الجديدة للفني من الأدمن
+    function saveTechOrdersStats() {
+      const select = document.getElementById('statsTargetTechSelect');
+      if (!select || !select.value) return;
+      const techName = select.value;
+      const doneVal = Math.max(0, parseInt(document.getElementById('statsInputDone').value, 10) || 0);
+      const pendingVal = Math.max(0, parseInt(document.getElementById('statsInputPending').value, 10) || 0);
+
+      const targetTech = appAccounts.find(a => a.name === techName);
+      if (targetTech) {
+        targetTech.ordersDone = doneVal;
+        targetTech.ordersPending = pendingVal;
+        renderAdmin();
+        syncCloudUp();
+        alert(`تم تحديث أوردرات الفني (${techName}) بنجاح:\n- خلصت: ${doneVal}\n- لسه مخلصتش: ${pendingVal}`);
+      }
+    }
+
     function changeAdminFilter(type) {
       currentAdminFilter = type;
       renderAdmin();
     }
 
-    // تنزيل بونص مباشر
     function submitDirectBonus() {
       const techName = document.getElementById('bonusTechSelect').value;
       const amount = Number(document.getElementById('bonusAmountInput').value);
@@ -1003,7 +1073,6 @@
 
         bonusRecords.unshift(newBonusRecord);
 
-        // إرسال إشعار لحظي للفني
         const bonusPayload = {
           bonusId: 'BONUS-' + Date.now(),
           targetTech: techName,
@@ -1072,7 +1141,7 @@
         return;
       }
 
-      appAccounts.push({ id: Date.now(), role: 'tech', name, username: user, pass, accumulatedBonus: 0 });
+      appAccounts.push({ id: Date.now(), role: 'tech', name, username: user, pass, accumulatedBonus: 0, ordersDone: 0, ordersPending: 0 });
       document.getElementById('techNameIn').value = '';
       document.getElementById('techUserIn').value = '';
       document.getElementById('techPassIn').value = '';
@@ -1141,6 +1210,11 @@
 
       const todayAmount = myBonuses.filter(b => b.date === today).reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
+      // تحديث كارت أعداد الأوردرات السريع
+      document.getElementById('techDoneOrdersCount').innerText = me.ordersDone || 0;
+      document.getElementById('techPendingOrdersCount').innerText = me.ordersPending || 0;
+
+      // تحديث كارت البونص
       document.getElementById('techTotalBonus').innerText = `${Number(me.accumulatedBonus || 0)} ج`;
       document.getElementById('techBonusToday').innerText = `مكافآت اليوم: ${todayAmount} ج`;
 
