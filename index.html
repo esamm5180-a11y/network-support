@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>بونص - منظومة الحوافز</title>
+  <title>بونص - منظومة الحوافز والواتساب</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -17,6 +17,7 @@
       --primary-light: #eff6ff;
       --success: #059669;
       --success-light: #ecfdf5;
+      --whatsapp: #16a34a;
       --warning: #d97706;
       --warning-light: #fffbeb;
       --danger: #e11d48;
@@ -166,6 +167,7 @@
     }
     .btn:active { transform: scale(0.98); }
     .btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
+    .btn-whatsapp { background: linear-gradient(135deg, #22c55e, #16a34a); color: #ffffff; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25); }
     .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
     .btn-danger { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #ffffff; }
     .btn-secondary { background: #f8fafc; color: var(--slate); border: 1px solid var(--border); }
@@ -325,7 +327,7 @@
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
-        <h3 style="font-size: 16px; font-weight: 900; color: var(--dark);">إدارة الحوافز والبونص</h3>
+        <h3 style="font-size: 16px; font-weight: 900; color: var(--dark);">إدارة الحوافز والواتساب</h3>
         <span id="adminDateBadge" style="font-size: 11px; color: var(--slate); font-weight: 600;"></span>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
@@ -339,7 +341,7 @@
 
     <div class="container">
       
-      <!-- إحصائيات الحوافز -->
+      <!-- إحصائيات سريعة -->
       <div class="stats-grid">
         <div class="stat-card">
           <span>💰 إجمالي المصروف</span>
@@ -353,6 +355,38 @@
           <span>👷 الفنيين</span>
           <strong id="statTechsCount" style="color:var(--dark);">0</strong>
         </div>
+      </div>
+
+      <!-- ميزة إرسال العطل للواتساب وزيادة عداد الأوردرات المتبقية تلقائياً -->
+      <div class="card" style="border: 1.5px solid #86efac; background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);">
+        <h4 class="card-title" style="color:#15803d;">
+          <span>📲</span> إرسال عطل للفني على الواتساب
+        </h4>
+        <div class="grid-2">
+          <div class="input-group">
+            <label>اسم العميل <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="waCustomer" placeholder="اسم العميل" class="input-control">
+          </div>
+          <div class="input-group">
+            <label>رقم هاتف العميل <span style="color:var(--danger)">*</span></label>
+            <input type="tel" id="waPhone" placeholder="010xxxxxxxx" class="input-control">
+          </div>
+        </div>
+        <div class="input-group">
+          <label>العنوان / المكان <small style="color:var(--slate)">(اختياري)</small></label>
+          <input type="text" id="waAddress" placeholder="الشارع أو المنطقة" class="input-control">
+        </div>
+        <div class="input-group">
+          <label>المشكلة والتفاصيل <small style="color:var(--slate)">(اختياري)</small></label>
+          <input type="text" id="waDesc" placeholder="مثلاً: راوتر فاصل، سلك مقطوع..." class="input-control">
+        </div>
+        <div class="input-group">
+          <label>إرسال إلى الفني</label>
+          <select id="waTargetTechSelect" class="input-control" style="background:#fff;"></select>
+        </div>
+        <button type="button" onclick="sendOrderViaWhatsApp()" class="btn btn-whatsapp" style="font-size:14px;">
+          📲 إرسال العطل عبر واتساب + زيادة العداد 🚀
+        </button>
       </div>
 
       <!-- كارت إضافة بونص فوري لفني -->
@@ -370,16 +404,16 @@
         </div>
         <div class="input-group">
           <label>سبب المكافأة / الملاحظة</label>
-          <input type="text" id="bonusReasonInput" placeholder="مثلاً: إنجاز سريع، عمل إضافي..." class="input-control">
+          <input type="text" id="bonusReasonInput" placeholder="مثلاً: إنجاز سريع، عطل رقم #..." class="input-control">
         </div>
         <button type="button" onclick="submitDirectBonus()" class="btn btn-success">إرسال وتنزيل البونص فوراً 🎁</button>
       </div>
 
-      <!-- كارت إدارة عدد أوردرات الفنيين المباشر (الجديد) -->
-      <div class="card" style="border: 1.5px solid #cbd5e1;">
-        <h4 class="card-title">📊 تحديث إحصائيات أوردرات الفني</h4>
+      <!-- كارت إدارة عدد أوردرات الفنيين المباشر -->
+      <div class="card">
+        <h4 class="card-title">📊 ضبط أوردرات الفني يدوياً</h4>
         <div class="input-group">
-          <label>اختر الفني لتحديث أوردراته</label>
+          <label>اختر الفني</label>
           <select id="statsTargetTechSelect" onchange="loadTechOrdersStatsInputs()" class="input-control"></select>
         </div>
         <div class="grid-2">
@@ -392,7 +426,7 @@
             <input type="number" id="statsInputPending" placeholder="0" class="input-control">
           </div>
         </div>
-        <button type="button" onclick="saveTechOrdersStats()" class="btn btn-primary">حفظ وتحديث عدد الأوردرات للفني 💾</button>
+        <button type="button" onclick="saveTechOrdersStats()" class="btn btn-primary">حفظ وتحديث العداد للفني 💾</button>
       </div>
 
       <!-- كارت أرصدة وحسابات الفنيين الحالية -->
@@ -440,12 +474,18 @@
         <button type="button" onclick="updateAdminCredentials()" class="btn btn-secondary">حفظ بيانات المدير</button>
       </div>
 
-      <!-- إضافة وإدارة الفنيين -->
+      <!-- إضافة وإدارة الفنيين مع رقم واتساب -->
       <div class="card">
         <h4 class="card-title">👷 إضافة فني جديد</h4>
-        <div class="input-group">
-          <label>اسم الفني</label>
-          <input type="text" id="techNameIn" placeholder="الاسم بالكامل" class="input-control">
+        <div class="grid-2">
+          <div class="input-group">
+            <label>اسم الفني</label>
+            <input type="text" id="techNameIn" placeholder="الاسم" class="input-control">
+          </div>
+          <div class="input-group">
+            <label>رقم واتساب الفني</label>
+            <input type="tel" id="techWhatsAppIn" placeholder="010xxxxxxxx" class="input-control">
+          </div>
         </div>
         <div class="grid-2">
           <div class="input-group">
@@ -488,7 +528,7 @@
 
     <div class="container">
 
-      <!-- كارت إحصائيات الأوردرات السريع للفني (خلصت / لسه مخلصتش بدون تفاصيل) -->
+      <!-- كارت إحصائيات الأوردرات السريع للفني -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
         <div style="background:#ffffff; border-radius:18px; padding:14px; text-align:center; border:1.5px solid #a7f3d0; box-shadow:var(--shadow-sm);">
           <span style="font-size:12px; font-weight:800; color:#047857; display:block; margin-bottom:2px;">✅ خلصت (منجزة)</span>
@@ -519,9 +559,15 @@
     <div class="modal-content">
       <h4 style="font-size: 16px; font-weight: 900; margin-bottom: 16px;">تعديل بيانات الفني</h4>
       <input type="hidden" id="editTechId">
-      <div class="input-group">
-        <label>الاسم</label>
-        <input type="text" id="editTechName" class="input-control">
+      <div class="grid-2">
+        <div class="input-group">
+          <label>الاسم</label>
+          <input type="text" id="editTechName" class="input-control">
+        </div>
+        <div class="input-group">
+          <label>رقم واتساب الفني</label>
+          <input type="tel" id="editTechWhatsApp" class="input-control">
+        </div>
       </div>
       <div class="grid-2">
         <div class="input-group">
@@ -544,13 +590,13 @@
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // رقم الإصدار
-    const APP_CURRENT_VERSION = 14;
+    // الإصدار 15 المحدث بميزة الواتساب التفاعلية
+    const APP_CURRENT_VERSION = 15;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
-      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0, ordersDone: 0, ordersPending: 0 },
-      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0, ordersDone: 0, ordersPending: 0 }
+      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', whatsapp: '01000000001', accumulatedBonus: 0, ordersDone: 0, ordersPending: 0 },
+      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', whatsapp: '01000000002', accumulatedBonus: 0, ordersDone: 0, ordersPending: 0 }
     ];
 
     let bonusRecords = [];
@@ -616,11 +662,9 @@
       } catch(e) {}
     }
 
-    // تشغيل نغمة هادئة جداً (Soft Chimes)
     function playCalmChimeSingle(startTime) {
       if (!globalAudioCtx) return;
-      
-      const freqs = [523.25, 659.25, 783.99]; // نغمات موسيقية هادئة ناعمة
+      const freqs = [523.25, 659.25, 783.99];
       freqs.forEach((freq, idx) => {
         const osc = globalAudioCtx.createOscillator();
         const gain = globalAudioCtx.createGain();
@@ -628,7 +672,7 @@
         osc.connect(gain);
         gain.connect(globalAudioCtx.destination);
 
-        osc.type = 'triangle'; // موجة مثلثية ناعمة شبيهة بأجراس الصندوق الموسيقي
+        osc.type = 'triangle';
         osc.frequency.setValueAtTime(freq, startTime + (idx * 0.1));
 
         const noteStart = startTime + (idx * 0.1);
@@ -641,18 +685,14 @@
       });
     }
 
-    // تشغيل النغمة الهادئة 3 مرات فقط وتتوقف ذاتياً
     function playCalmAlertThreeTimes() {
       try {
         unlockAudioSystem();
         if (!globalAudioCtx) return;
 
         const baseTime = globalAudioCtx.currentTime;
-        // الرنة الأولى
         playCalmChimeSingle(baseTime);
-        // الرنة الثانية بعد ثانية
         playCalmChimeSingle(baseTime + 1.1);
-        // الرنة الثالثة بعد ثانيتين
         playCalmChimeSingle(baseTime + 2.2);
 
         if (navigator.vibrate) {
@@ -675,7 +715,6 @@
         const bellBadge = document.getElementById('techBellBadge');
         if (bellBadge) bellBadge.classList.remove('hidden');
 
-        // نغمة هادئة تعمل 3 مرات فقط وتتوقف ذاتياً
         playCalmAlertThreeTimes();
 
         if ('Notification' in window && Notification.permission === 'granted') {
@@ -839,6 +878,7 @@
                   if (typeof acc.accumulatedBonus === 'undefined') acc.accumulatedBonus = 0;
                   if (typeof acc.ordersDone === 'undefined') acc.ordersDone = 0;
                   if (typeof acc.ordersPending === 'undefined') acc.ordersPending = 0;
+                  if (typeof acc.whatsapp === 'undefined') acc.whatsapp = '';
                 }
                 return acc;
               });
@@ -892,6 +932,65 @@
       broadcastVersion();
     };
 
+    /* ================= إرسال العطل عبر واتساب المباشر ================= */
+    function sendOrderViaWhatsApp() {
+      const cust = document.getElementById('waCustomer').value.trim();
+      const phone = document.getElementById('waPhone').value.trim();
+      const addr = document.getElementById('waAddress').value.trim() || 'العنوان غير محدد';
+      const desc = document.getElementById('waDesc').value.trim() || 'عطل وصيانة';
+      const techName = document.getElementById('waTargetTechSelect').value;
+
+      if (!cust || !phone) {
+        alert('يرجى إدخال اسم العميل ورقم الهاتف على الأقل');
+        return;
+      }
+
+      const targetTech = appAccounts.find(a => a.name === techName);
+      if (!targetTech) return;
+
+      const orderCode = '#' + Date.now().toString().slice(-4);
+
+      // زيادة عداد الأوردرات المتبقية (لسه مخلصتش) تلقائياً عند الفني
+      targetTech.ordersPending = Number(targetTech.ordersPending || 0) + 1;
+
+      // تنسيق نص الرسالة المرسلة للواتساب
+      const messageText = 
+`🔔 *عطل جديد مسند إليك* ${orderCode}
+👤 *العميل:* ${cust}
+📞 *الهاتف:* ${phone}
+📍 *المكان:* ${addr}
+🛠️ *المشكلة:* ${desc}
+
+_يرجى الرد بـ "تم ${orderCode}" فور الإنجاز لحساب البونص._`;
+
+      renderAdmin();
+      syncCloudUp();
+
+      // مسح الحقول
+      document.getElementById('waCustomer').value = '';
+      document.getElementById('waPhone').value = '';
+      document.getElementById('waAddress').value = '';
+      document.getElementById('waDesc').value = '';
+
+      // فتح محادثة واتساب
+      let waNumber = (targetTech.whatsapp || '').replace(/[^0-9]/g, '');
+      if (waNumber.startsWith('01')) {
+        waNumber = '20' + waNumber.substring(1); // تحويل الرقم للصيغة الدولية لمصر
+      }
+
+      const encodedMsg = encodeURIComponent(messageText);
+      let waUrl = '';
+
+      if (waNumber.length >= 10) {
+        waUrl = `https://wa.me/${waNumber}?text=${encodedMsg}`;
+      } else {
+        // إذا لم يكن رقم الفني مسجلاً، يفتح شاشة المشاركة العامة لواتساب لاختياره
+        waUrl = `https://api.whatsapp.com/send?text=${encodedMsg}`;
+      }
+
+      window.open(waUrl, '_blank');
+    }
+
     /* ================= دوال الأدمن ================= */
     function renderAdmin() {
       const today = getToday();
@@ -910,25 +1009,27 @@
       document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
       document.getElementById('statTechsCount').innerText = techs.length;
 
-      // اختيار الفني للبونص
+      // القوائم المنسدلة
       const select = document.getElementById('bonusTechSelect');
       const statsTechSelect = document.getElementById('statsTargetTechSelect');
+      const waTechSelect = document.getElementById('waTargetTechSelect');
       
       const currentSelectedBonus = select.value;
       const currentSelectedStats = statsTechSelect.value;
+      const currentSelectedWa = waTechSelect.value;
 
       select.innerHTML = '';
       statsTechSelect.innerHTML = '';
+      waTechSelect.innerHTML = '';
 
       techs.forEach(t => {
         select.innerHTML += `<option value="${t.name}" ${currentSelectedBonus === t.name ? 'selected' : ''}>${t.name}</option>`;
         statsTechSelect.innerHTML += `<option value="${t.name}" ${currentSelectedStats === t.name ? 'selected' : ''}>${t.name}</option>`;
+        waTechSelect.innerHTML += `<option value="${t.name}" ${currentSelectedWa === t.name ? 'selected' : ''}>${t.name} (${t.whatsapp || 'بدون رقم'})</option>`;
       });
 
-      // تحميل قيم الأوردرات في الحقول
       loadTechOrdersStatsInputs();
 
-      // فلتر الفنيين
       const filterSelect = document.getElementById('filterByTechSelect');
       const selectedFilterTech = filterSelect ? filterSelect.value : 'ALL';
       filterSelect.innerHTML = '<option value="ALL">عرض جميع الفنيين</option>';
@@ -936,7 +1037,6 @@
         filterSelect.innerHTML += `<option value="${t.name}" ${selectedFilterTech === t.name ? 'selected' : ''}>${t.name}</option>`;
       });
 
-      // قائمة الأرصدة
       const finList = document.getElementById('techFinancialList');
       const manageList = document.getElementById('techListManage');
       finList.innerHTML = '';
@@ -967,7 +1067,10 @@
 
         manageList.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:10px 14px; border-radius:14px; margin-bottom:8px; border:1px solid var(--border); font-size:13px;">
-            <span><strong style="color:var(--dark);">${t.name}</strong> <small style="color:var(--slate);">(${t.username})</small></span>
+            <div>
+              <strong style="color:var(--dark);">${t.name}</strong> 
+              <span style="color:var(--slate); font-size:11px; display:block;">واتساب: ${t.whatsapp || 'غير مسجل'}</span>
+            </div>
             <div style="display:flex; gap:6px;">
               <button type="button" onclick="openEditModal(${t.id})" class="badge" style="background:#d1fae5; color:#047857; border:none; cursor:pointer;">تعديل</button>
               <button type="button" onclick="deleteTech(${t.id})" class="badge" style="border:none; cursor:pointer; background:var(--danger-light); color:var(--danger);">حذف</button>
@@ -976,7 +1079,6 @@
         `;
       });
 
-      // سجل حركات البونص
       const feed = document.getElementById('bonusTransactionsFeed');
       feed.innerHTML = '';
       
@@ -1014,7 +1116,6 @@
       });
     }
 
-    // تعبئة حقول أعداد الأوردرات عند تغيير اسم الفني في الأدمن
     function loadTechOrdersStatsInputs() {
       const select = document.getElementById('statsTargetTechSelect');
       if (!select || !select.value) return;
@@ -1025,7 +1126,6 @@
       }
     }
 
-    // حفظ أعداد الأوردرات الجديدة للفني من الأدمن
     function saveTechOrdersStats() {
       const select = document.getElementById('statsTargetTechSelect');
       if (!select || !select.value) return;
@@ -1107,7 +1207,7 @@
     }
 
     function deleteBonusRecord(id) {
-      if (confirm('هل تريد حذف هذا القيد من السجل؟ (لن ينقص من الرصيد المتراكم)')) {
+      if (confirm('هل تريد حذف هذا القيد من السجل؟')) {
         bonusRecords = bonusRecords.filter(b => b.id !== id);
         renderAdmin();
         syncCloudUp();
@@ -1133,6 +1233,7 @@
 
     function addNewTech() {
       const name = document.getElementById('techNameIn').value.trim();
+      const whatsapp = document.getElementById('techWhatsAppIn').value.trim();
       const user = document.getElementById('techUserIn').value.trim();
       const pass = document.getElementById('techPassIn').value.trim();
 
@@ -1141,8 +1242,20 @@
         return;
       }
 
-      appAccounts.push({ id: Date.now(), role: 'tech', name, username: user, pass, accumulatedBonus: 0, ordersDone: 0, ordersPending: 0 });
+      appAccounts.push({ 
+        id: Date.now(), 
+        role: 'tech', 
+        name, 
+        whatsapp,
+        username: user, 
+        pass, 
+        accumulatedBonus: 0, 
+        ordersDone: 0, 
+        ordersPending: 0 
+      });
+
       document.getElementById('techNameIn').value = '';
+      document.getElementById('techWhatsAppIn').value = '';
       document.getElementById('techUserIn').value = '';
       document.getElementById('techPassIn').value = '';
       renderAdmin();
@@ -1155,6 +1268,7 @@
       if (!t) return;
       document.getElementById('editTechId').value = t.id;
       document.getElementById('editTechName').value = t.name;
+      document.getElementById('editTechWhatsApp').value = t.whatsapp || '';
       document.getElementById('editTechUser').value = t.username;
       document.getElementById('editTechPass').value = t.pass;
       document.getElementById('modalEditTech').classList.remove('hidden');
@@ -1167,6 +1281,7 @@
     function saveTechEdit() {
       const id = Number(document.getElementById('editTechId').value);
       const name = document.getElementById('editTechName').value.trim();
+      const whatsapp = document.getElementById('editTechWhatsApp').value.trim();
       const user = document.getElementById('editTechUser').value.trim();
       const pass = document.getElementById('editTechPass').value.trim();
 
@@ -1174,6 +1289,7 @@
       if (t && name && user && pass) {
         const oldName = t.name;
         t.name = name;
+        t.whatsapp = whatsapp;
         t.username = user;
         t.pass = pass;
         if (oldName !== name) {
@@ -1210,11 +1326,9 @@
 
       const todayAmount = myBonuses.filter(b => b.date === today).reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
-      // تحديث كارت أعداد الأوردرات السريع
       document.getElementById('techDoneOrdersCount').innerText = me.ordersDone || 0;
       document.getElementById('techPendingOrdersCount').innerText = me.ordersPending || 0;
 
-      // تحديث كارت البونص
       document.getElementById('techTotalBonus').innerText = `${Number(me.accumulatedBonus || 0)} ج`;
       document.getElementById('techBonusToday').innerText = `مكافآت اليوم: ${todayAmount} ج`;
 
