@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>بونص - منظومة الحوافز والواتساب</title>
+  <title>بونص - الحصالة السريعة</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -14,22 +14,18 @@
     :root {
       --primary: #2563eb;
       --primary-dark: #1d4ed8;
-      --primary-light: #eff6ff;
       --success: #059669;
       --success-light: #ecfdf5;
-      --whatsapp: #16a34a;
       --warning: #d97706;
-      --warning-light: #fffbeb;
       --danger: #e11d48;
       --danger-light: #fff1f2;
       --dark: #0f172a;
       --slate: #475569;
-      --bg: #f1f5f9;
+      --bg: #f8fafc;
       --card-bg: #ffffff;
       --border: #e2e8f0;
       --shadow-sm: 0 2px 4px rgba(0,0,0,0.03);
       --shadow-md: 0 8px 20px rgba(0,0,0,0.06);
-      --shadow-lg: 0 14px 28px rgba(0,0,0,0.09);
     }
 
     * { box-sizing: border-box; font-family: 'Cairo', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
@@ -97,40 +93,49 @@
     .card {
       background: var(--card-bg);
       border-radius: 22px;
-      padding: 20px;
-      margin-bottom: 16px;
-      border: 1px solid rgba(226, 232, 240, 0.8);
+      padding: 18px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(226, 232, 240, 0.9);
       box-shadow: var(--shadow-md);
     }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .stat-card {
+    .tech-card {
       background: #ffffff;
-      border-radius: 16px;
-      padding: 12px;
-      text-align: center;
-      border: 1px solid var(--border);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 12px;
       box-shadow: var(--shadow-sm);
     }
-    .stat-card span { font-size: 11px; font-weight: 700; color: var(--slate); display: block; margin-bottom: 4px; }
-    .stat-card strong { font-size: 18px; font-weight: 900; color: var(--dark); }
 
-    .card-title {
-      font-size: 15px;
-      font-weight: 900;
-      color: var(--dark);
+    .quick-bonus-bar {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 14px;
+      gap: 6px;
+      margin-top: 10px;
+      flex-wrap: wrap;
     }
 
-    .input-group { margin-bottom: 14px; text-align: right; }
+    .btn-quick {
+      flex: 1;
+      min-width: 54px;
+      background: #f0fdf4;
+      color: #15803d;
+      border: 1.5px solid #86efac;
+      padding: 8px 4px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+    .btn-quick:active {
+      transform: scale(0.92);
+      background: #22c55e;
+      color: #fff;
+    }
+
+    .input-group { margin-bottom: 12px; text-align: right; }
     .input-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: var(--slate); }
     .input-control {
       width: 100%;
@@ -142,12 +147,10 @@
       outline: none;
       background: #f8fafc;
       color: var(--dark);
-      transition: all 0.2s ease;
     }
     .input-control:focus {
       border-color: var(--primary);
       background: #fff;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     }
 
     .btn {
@@ -163,17 +166,14 @@
       justify-content: center;
       gap: 6px;
       transition: all 0.15s ease;
-      text-decoration: none;
     }
     .btn:active { transform: scale(0.98); }
-    .btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
-    .btn-whatsapp { background: linear-gradient(135deg, #22c55e, #16a34a); color: #ffffff; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25); }
-    .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
+    .btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; }
     .btn-danger { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #ffffff; }
     .btn-secondary { background: #f8fafc; color: var(--slate); border: 1px solid var(--border); }
 
     .header {
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(226, 232, 240, 0.8);
       padding: 12px 16px;
@@ -221,7 +221,7 @@
       max-width: 420px;
       border-radius: 24px;
       padding: 24px;
-      box-shadow: var(--shadow-lg);
+      box-shadow: var(--shadow-md);
     }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -238,10 +238,9 @@
     .bonus-box {
       background: #ffffff;
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px 16px;
-      margin-bottom: 10px;
-      box-shadow: var(--shadow-sm);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
     }
 
     @keyframes pulse-ring {
@@ -259,20 +258,20 @@
     <span id="cloudStatusText">متصل بالسحابة ✓</span>
   </div>
 
-  <!-- نافذة إشعار البونص للفني -->
+  <!-- نافذة إشعار البونص اللحظي للفني -->
   <div id="bonusAlertModal" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid var(--success);">
       <div class="bell-animate" style="font-size: 44px; margin-bottom: 8px;">🎁</div>
-      <h3 style="font-size: 19px; font-weight: 900; color: var(--success); margin-bottom: 6px;">مبروك! نزل لك بونص جديد</h3>
-      <p style="font-size: 13px; color: var(--slate); margin-bottom: 16px;">قام المدير بإضافة مكافأة إلى رصيدك</p>
+      <h3 style="font-size: 20px; font-weight: 900; color: var(--success); margin-bottom: 4px;">مبروك! نزل لك بونص جديد</h3>
+      <p style="font-size: 12px; color: var(--slate); margin-bottom: 14px;">تم إيداع مكافأة نقدية في رصيدك</p>
 
       <div style="background: var(--success-light); border: 1px solid rgba(5,150,105,0.25); border-radius: 16px; padding: 16px; margin-bottom: 16px;">
         <span style="font-size: 12px; color: #065f46; font-weight: 700; display: block;">المبلغ المضاف:</span>
-        <h2 id="bonusAlertAmount" style="font-size: 34px; font-weight: 900; color: var(--success); margin: 4px 0;">+0 ج</h2>
-        <span id="bonusAlertReason" style="font-size: 12px; color: #065f46; font-weight: 600; display: block; margin-top: 4px;"></span>
+        <h2 id="bonusAlertAmount" style="font-size: 36px; font-weight: 900; color: var(--success); margin: 4px 0;">+0 ج</h2>
+        <span id="bonusAlertTime" style="font-size: 11px; color: #065f46; font-weight: 600; display: block;"></span>
       </div>
 
-      <button type="button" onclick="dismissBonusAlertModal()" class="btn btn-success">تم، استلام الرصيد ✓</button>
+      <button type="button" onclick="dismissBonusAlertModal()" class="btn btn-primary" style="background:var(--success);">استلام الرصيد ✓</button>
     </div>
   </div>
 
@@ -282,7 +281,7 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
         <div style="display:flex; align-items:center; gap:6px;">
           <span style="font-size: 18px;">🔔</span>
-          <h4 style="font-size: 16px; font-weight: 900;">سجل الإشعارات</h4>
+          <h4 style="font-size: 16px; font-weight: 900;">سجل المكافآت</h4>
         </div>
         <button type="button" onclick="clearTechNotifications()" class="badge" style="background: var(--danger-light); color: var(--danger); border: none; cursor: pointer;">🗑️ مسح الكل</button>
       </div>
@@ -299,8 +298,8 @@
       <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #059669, #10b981); color: #fff; border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 32px; box-shadow: 0 10px 22px rgba(5, 150, 105, 0.35);">
         💰
       </div>
-      <h2 style="font-size: 22px; font-weight: 900; margin-bottom: 6px;">بونص</h2>
-      <p style="font-size: 13px; color: var(--slate); margin-bottom: 24px;">منظومة إدارة ومتابعة الحوافز الميدانية</p>
+      <h2 style="font-size: 22px; font-weight: 900; margin-bottom: 4px;">بونص</h2>
+      <p style="font-size: 13px; color: var(--slate); margin-bottom: 24px;">الحصالة السريعة للمكافآت الميدانية</p>
 
       <div class="input-group">
         <label>اسم المستخدم</label>
@@ -318,16 +317,16 @@
       </div>
 
       <button type="button" onclick="loginNow()" class="btn btn-primary" style="padding: 14px; font-size: 15px;">
-        تسجيل الدخول الآن 🚀
+        تسجيل الدخول 🚀
       </button>
     </div>
   </div>
 
-  <!-- 2. واجهة المدير -->
+  <!-- 2. واجهة المدير السريعة (أزرار بونص مباشرة) -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
-        <h3 style="font-size: 16px; font-weight: 900; color: var(--dark);">إدارة الحوافز والواتساب</h3>
+        <h3 style="font-size: 16px; font-weight: 900; color: var(--dark);">لوحة البونص السريع</h3>
         <span id="adminDateBadge" style="font-size: 11px; color: var(--slate); font-weight: 600;"></span>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
@@ -341,177 +340,66 @@
 
     <div class="container">
       
-      <!-- إحصائيات سريعة -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <span>💰 إجمالي المصروف</span>
-          <strong id="statTotalPaid" style="color:var(--primary);">0 ج</strong>
+      <!-- إجمالي المصروف السريع -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+        <div style="background:#ffffff; border-radius:18px; padding:14px; text-align:center; border:1px solid var(--border);">
+          <span style="font-size:11px; font-weight:700; color:var(--slate); display:block; margin-bottom:2px;">📅 بونص اليوم</span>
+          <strong id="statTodayPaid" style="font-size:22px; font-weight:900; color:var(--success);">0 ج</strong>
         </div>
-        <div class="stat-card">
-          <span>📅 بونص اليوم</span>
-          <strong id="statTodayPaid" style="color:var(--success);">0 ج</strong>
-        </div>
-        <div class="stat-card">
-          <span>👷 الفنيين</span>
-          <strong id="statTechsCount" style="color:var(--dark);">0</strong>
+        <div style="background:#ffffff; border-radius:18px; padding:14px; text-align:center; border:1px solid var(--border);">
+          <span style="font-size:11px; font-weight:700; color:var(--slate); display:block; margin-bottom:2px;">💰 إجمالي الشهر</span>
+          <strong id="statTotalPaid" style="font-size:22px; font-weight:900; color:var(--primary);">0 ج</strong>
         </div>
       </div>
 
-      <!-- ميزة إرسال العطل للواتساب وزيادة عداد الأوردرات المتبقية تلقائياً -->
-      <div class="card" style="border: 1.5px solid #86efac; background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);">
-        <h4 class="card-title" style="color:#15803d;">
-          <span>📲</span> إرسال عطل للفني على الواتساب
-        </h4>
-        <div class="grid-2">
-          <div class="input-group">
-            <label>اسم العميل <span style="color:var(--danger)">*</span></label>
-            <input type="text" id="waCustomer" placeholder="اسم العميل" class="input-control">
-          </div>
-          <div class="input-group">
-            <label>رقم هاتف العميل <span style="color:var(--danger)">*</span></label>
-            <input type="tel" id="waPhone" placeholder="010xxxxxxxx" class="input-control">
-          </div>
-        </div>
-        <div class="input-group">
-          <label>العنوان / المكان <small style="color:var(--slate)">(اختياري)</small></label>
-          <input type="text" id="waAddress" placeholder="الشارع أو المنطقة" class="input-control">
-        </div>
-        <div class="input-group">
-          <label>المشكلة والتفاصيل <small style="color:var(--slate)">(اختياري)</small></label>
-          <input type="text" id="waDesc" placeholder="مثلاً: راوتر فاصل، سلك مقطوع..." class="input-control">
-        </div>
-        <div class="input-group">
-          <label>إرسال إلى الفني</label>
-          <select id="waTargetTechSelect" class="input-control" style="background:#fff;"></select>
-        </div>
-        <button type="button" onclick="sendOrderViaWhatsApp()" class="btn btn-whatsapp" style="font-size:14px;">
-          📲 إرسال العطل عبر واتساب + زيادة العداد 🚀
-        </button>
+      <!-- كروت الفنيين بالأزرار السريعة -->
+      <div style="margin-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
+        <h4 style="font-size:15px; font-weight:900; color:var(--dark);">⚡ تنزيل بونص فوري بضغطة واحدة:</h4>
       </div>
 
-      <!-- كارت إضافة بونص فوري لفني -->
-      <div class="card">
-        <h4 class="card-title">⚡ إضافة وتنزيل بونص لفني</h4>
-        <div class="grid-2">
-          <div class="input-group">
-            <label>اختر الفني</label>
-            <select id="bonusTechSelect" class="input-control"></select>
-          </div>
-          <div class="input-group">
-            <label>قيمة البونص (جنيه)</label>
-            <input type="number" id="bonusAmountInput" placeholder="مثلاً: 50" class="input-control">
-          </div>
-        </div>
-        <div class="input-group">
-          <label>سبب المكافأة / الملاحظة</label>
-          <input type="text" id="bonusReasonInput" placeholder="مثلاً: إنجاز سريع، عطل رقم #..." class="input-control">
-        </div>
-        <button type="button" onclick="submitDirectBonus()" class="btn btn-success">إرسال وتنزيل البونص فوراً 🎁</button>
-      </div>
+      <div id="techQuickActionList"></div>
 
-      <!-- كارت إدارة عدد أوردرات الفنيين المباشر -->
-      <div class="card">
-        <h4 class="card-title">📊 ضبط أوردرات الفني يدوياً</h4>
-        <div class="input-group">
-          <label>اختر الفني</label>
-          <select id="statsTargetTechSelect" onchange="loadTechOrdersStatsInputs()" class="input-control"></select>
+      <!-- سجل آخر العمليات -->
+      <div class="card" style="margin-top: 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h4 style="font-size:14px; font-weight:900; color:var(--dark);">📜 آخر العمليات المنفذة اليوم</h4>
+          <span id="txCountBadge" class="badge" style="background:#f1f5f9; color:var(--slate);">0 حركة</span>
         </div>
-        <div class="grid-2">
-          <div class="input-group">
-            <label>أوردرات خلصت (المنجزة)</label>
-            <input type="number" id="statsInputDone" placeholder="0" class="input-control">
-          </div>
-          <div class="input-group">
-            <label>أوردرات لسه مخلصتش (المتبقية)</label>
-            <input type="number" id="statsInputPending" placeholder="0" class="input-control">
-          </div>
-        </div>
-        <button type="button" onclick="saveTechOrdersStats()" class="btn btn-primary">حفظ وتحديث العداد للفني 💾</button>
-      </div>
-
-      <!-- كارت أرصدة وحسابات الفنيين الحالية -->
-      <div class="card">
-        <h4 class="card-title">👥 أرصدة الفنيين الحالية</h4>
-        <div id="techFinancialList"></div>
-      </div>
-
-      <!-- كارت فلترة السجل المالي -->
-      <div style="background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%); border: 1.5px solid #bfdbfe; border-radius: 20px; padding: 16px 18px; margin-bottom: 14px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <h4 style="font-size:14px; font-weight:900; color:var(--primary);">🔍 فلترة العمليات</h4>
-          <div style="display: flex; gap: 6px;">
-            <button type="button" id="btnFilterToday" onclick="changeAdminFilter('today')" class="badge" style="background:#d1fae5; color:#047857; border:none; cursor:pointer;">اليوم</button>
-            <button type="button" id="btnFilterAll" onclick="changeAdminFilter('all')" class="badge" style="background:#fef3c7; color:#b45309; border:none; cursor:pointer;">الكل</button>
-          </div>
-        </div>
-        <div class="input-group" style="margin-bottom:0;">
-          <label style="font-size:11px; font-weight:800; color:var(--dark);">عرض بونص فني محدد:</label>
-          <select id="filterByTechSelect" onchange="renderAdmin()" class="input-control" style="border-color:#93c5fd; background:#fff; font-weight:700;">
-            <option value="ALL">عرض جميع الفنيين</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- سجل عمليات البونص -->
-      <div class="card">
-        <h4 class="card-title">📋 سجل حركات ومكافآت البونص</h4>
         <div id="bonusTransactionsFeed"></div>
       </div>
 
-      <!-- إدارة بيانات المدير -->
+      <!-- إضافة فني وإدارة الحسابات -->
       <div class="card">
-        <h4 class="card-title">⚙️ حساب المدير</h4>
-        <div class="grid-2">
-          <div class="input-group">
-            <label>اسم المستخدم</label>
-            <input type="text" id="adminUserVal" class="input-control">
-          </div>
-          <div class="input-group">
-            <label>كلمة المرور</label>
-            <input type="text" id="adminPassVal" class="input-control">
-          </div>
-        </div>
-        <button type="button" onclick="updateAdminCredentials()" class="btn btn-secondary">حفظ بيانات المدير</button>
-      </div>
-
-      <!-- إضافة وإدارة الفنيين مع رقم واتساب -->
-      <div class="card">
-        <h4 class="card-title">👷 إضافة فني جديد</h4>
+        <h4 style="font-size:14px; font-weight:900; margin-bottom:12px;">👷 إضافة فني جديد</h4>
         <div class="grid-2">
           <div class="input-group">
             <label>اسم الفني</label>
             <input type="text" id="techNameIn" placeholder="الاسم" class="input-control">
           </div>
           <div class="input-group">
-            <label>رقم واتساب الفني</label>
-            <input type="tel" id="techWhatsAppIn" placeholder="010xxxxxxxx" class="input-control">
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="input-group">
             <label>اسم المستخدم</label>
             <input type="text" id="techUserIn" class="input-control">
           </div>
-          <div class="input-group">
-            <label>كلمة المرور</label>
-            <input type="text" id="techPassIn" class="input-control">
-          </div>
         </div>
-        <button type="button" onclick="addNewTech()" class="btn btn-primary" style="margin-bottom: 16px;">إضافة الفني</button>
+        <div class="input-group">
+          <label>كلمة المرور</label>
+          <input type="text" id="techPassIn" class="input-control">
+        </div>
+        <button type="button" onclick="addNewTech()" class="btn btn-primary" style="margin-bottom:12px;">إضافة الفني</button>
 
-        <h4 style="font-size: 13px; font-weight: 800; color: var(--slate); margin-bottom: 8px;">الفنيين الحاليين:</h4>
+        <h4 style="font-size:12px; font-weight:800; color:var(--slate); margin-bottom:6px;">الفنيين الحاليين:</h4>
         <div id="techListManage"></div>
       </div>
 
     </div>
   </div>
 
-  <!-- 3. واجهة الفني -->
+  <!-- 3. واجهة الفني (الحصالة البسيطة) -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
         <h3 id="techHeaderName" style="font-size: 16px; font-weight: 900; color: var(--dark);">الفني</h3>
-        <span style="font-size: 11px; color: var(--slate); font-weight: 600;">لوحة الأرباح والمكافآت</span>
+        <span style="font-size: 11px; color: var(--slate); font-weight: 600;">حصالة المكافآت</span>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
         <button type="button" id="btnTechBell" onclick="openNotificationsModal()" class="btn-header-bell" title="الإشعارات">
@@ -527,81 +415,35 @@
     </header>
 
     <div class="container">
-
-      <!-- كارت إحصائيات الأوردرات السريع للفني -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
-        <div style="background:#ffffff; border-radius:18px; padding:14px; text-align:center; border:1.5px solid #a7f3d0; box-shadow:var(--shadow-sm);">
-          <span style="font-size:12px; font-weight:800; color:#047857; display:block; margin-bottom:2px;">✅ خلصت (منجزة)</span>
-          <strong id="techDoneOrdersCount" style="font-size:26px; font-weight:900; color:#059669;">0</strong>
-        </div>
-        <div style="background:#ffffff; border-radius:18px; padding:14px; text-align:center; border:1.5px solid #fed7aa; box-shadow:var(--shadow-sm);">
-          <span style="font-size:12px; font-weight:800; color:#c2410c; display:block; margin-bottom:2px;">⏳ لسه مخلصتش</span>
-          <strong id="techPendingOrdersCount" style="font-size:26px; font-weight:900; color:#ea580c;">0</strong>
-        </div>
-      </div>
-
-      <!-- كارت الرصيد التراكمي -->
-      <div class="card" style="background: linear-gradient(135deg, #10b981, #047857); color: #fff; padding: 22px; box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35); border: none;">
-        <span style="font-size: 12px; font-weight: 700; opacity: 0.9;">إجمالي البونص المستحق لك حالياً</span>
-        <h2 id="techTotalBonus" style="font-size: 34px; font-weight: 900; margin: 6px 0;">0 ج</h2>
-        <span id="techBonusToday" style="font-size: 12px; background: rgba(255,255,255,0.25); padding: 4px 12px; border-radius: 20px; font-weight: 700; display: inline-block;">مكافآت اليوم: 0 ج</span>
+      <!-- كارت الرصيد التراكمي المباشر -->
+      <div class="card" style="background: linear-gradient(135deg, #10b981, #047857); color: #fff; padding: 26px 20px; box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35); border: none; text-align: center;">
+        <span style="font-size: 13px; font-weight: 700; opacity: 0.9;">إجمالي رصيد البونص المستحق لك</span>
+        <h2 id="techTotalBonus" style="font-size: 44px; font-weight: 900; margin: 8px 0;">0 ج</h2>
+        <span id="techBonusToday" style="font-size: 12px; background: rgba(255,255,255,0.22); padding: 5px 16px; border-radius: 20px; font-weight: 800; display: inline-block;">مكافآت اليوم: 0 ج</span>
       </div>
 
       <div class="card">
-        <h4 class="card-title">📜 سجل مكافآتك بالتفصيل</h4>
+        <h4 style="font-size: 14px; font-weight: 900; margin-bottom: 12px;">📜 سجل المكافآت بالتفصيل</h4>
         <div id="techBonusList"></div>
       </div>
     </div>
   </div>
 
-  <!-- نافذة تعديل بيانات فني -->
-  <div id="modalEditTech" class="modal-overlay hidden">
-    <div class="modal-content">
-      <h4 style="font-size: 16px; font-weight: 900; margin-bottom: 16px;">تعديل بيانات الفني</h4>
-      <input type="hidden" id="editTechId">
-      <div class="grid-2">
-        <div class="input-group">
-          <label>الاسم</label>
-          <input type="text" id="editTechName" class="input-control">
-        </div>
-        <div class="input-group">
-          <label>رقم واتساب الفني</label>
-          <input type="tel" id="editTechWhatsApp" class="input-control">
-        </div>
-      </div>
-      <div class="grid-2">
-        <div class="input-group">
-          <label>اسم المستخدم</label>
-          <input type="text" id="editTechUser" class="input-control">
-        </div>
-        <div class="input-group">
-          <label>كلمة المرور</label>
-          <input type="text" id="editTechPass" class="input-control">
-        </div>
-      </div>
-      <div class="grid-2" style="margin-top: 18px;">
-        <button type="button" onclick="saveTechEdit()" class="btn btn-primary">حفظ التعديل</button>
-        <button type="button" onclick="closeEditModal()" class="btn btn-secondary">إلغاء</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- المحرك البرمجي -->
+  <!-- المحرك البرمجي السريع -->
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار 15 المحدث بميزة الواتساب التفاعلية
-    const APP_CURRENT_VERSION = 15;
+    // الإصدار 16: المنظومة الفورية السريعة
+    const APP_CURRENT_VERSION = 16;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
-      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', whatsapp: '01000000001', accumulatedBonus: 0, ordersDone: 0, ordersPending: 0 },
-      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', whatsapp: '01000000002', accumulatedBonus: 0, ordersDone: 0, ordersPending: 0 }
+      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0 },
+      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0 }
     ];
 
     let bonusRecords = [];
     let currentUser = null;
-    let currentAdminFilter = 'today';
     let globalAudioCtx = null;
     let currentActiveBonusData = null;
 
@@ -709,23 +551,13 @@
 
       if (bonusData.targetTech === currentUser.name && bonusData.bonusId !== lastDismissedId) {
         document.getElementById('bonusAlertAmount').innerText = `+${bonusData.amount} ج`;
-        document.getElementById('bonusAlertReason').innerText = bonusData.reason || 'مكافأة مباشرة من الإدارة';
+        document.getElementById('bonusAlertTime').innerText = `الوقت: ${bonusData.time || getTimeNow()}`;
         document.getElementById('bonusAlertModal').classList.remove('hidden');
 
         const bellBadge = document.getElementById('techBellBadge');
         if (bellBadge) bellBadge.classList.remove('hidden');
 
         playCalmAlertThreeTimes();
-
-        if ('Notification' in window && Notification.permission === 'granted') {
-          try {
-            new Notification(`🎁 مبروك! نزل لك بونص جديد: +${bonusData.amount} ج`, {
-              body: bonusData.reason || 'قام المدير بإيداع بونص جديد في حسابك',
-              icon: 'https://cdn-icons-png.flaticon.com/512/893/893505.png',
-              vibrate: [200, 150, 200]
-            });
-          } catch(e){}
-        }
       }
     }
 
@@ -753,11 +585,10 @@
             container.innerHTML += `
               <div style="background: var(--success-light); border: 1px solid rgba(5,150,105,0.2); border-radius: 14px; padding: 12px; margin-bottom: 8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <strong style="color:var(--success); font-size:14px;">🎁 إضافة بونص</strong>
+                  <strong style="color:var(--success); font-size:14px;">🎁 مكافأة</strong>
                   <span style="font-weight:900; color:var(--success); font-size:15px;">+${b.amount} ج</span>
                 </div>
-                <p style="font-size:12px; color:#065f46; margin-top:4px;">${b.reason || 'مكافأة'}</p>
-                <span style="font-size:10px; color:var(--slate); display:block; margin-top:2px;">${b.date} - ${b.time}</span>
+                <span style="font-size:10px; color:var(--slate); display:block; margin-top:4px;">${b.date} - ${b.time}</span>
               </div>
             `;
           });
@@ -819,10 +650,6 @@
     function loginNow() {
       unlockAudioSystem();
 
-      if ('Notification' in window && Notification.permission !== 'granted') {
-        Notification.requestPermission();
-      }
-
       const u = (document.getElementById('logUser').value || '').trim().toLowerCase();
       const p = (document.getElementById('logPass').value || '').trim();
       const remember = document.getElementById('rememberMe').checked;
@@ -874,11 +701,8 @@
             }
             if (Array.isArray(data.accounts)) {
               appAccounts = data.accounts.map(acc => {
-                if (acc.role === 'tech') {
-                  if (typeof acc.accumulatedBonus === 'undefined') acc.accumulatedBonus = 0;
-                  if (typeof acc.ordersDone === 'undefined') acc.ordersDone = 0;
-                  if (typeof acc.ordersPending === 'undefined') acc.ordersPending = 0;
-                  if (typeof acc.whatsapp === 'undefined') acc.whatsapp = '';
+                if (acc.role === 'tech' && typeof acc.accumulatedBonus === 'undefined') {
+                  acc.accumulatedBonus = 0;
                 }
                 return acc;
               });
@@ -932,74 +756,52 @@
       broadcastVersion();
     };
 
-    /* ================= إرسال العطل عبر واتساب المباشر ================= */
-    function sendOrderViaWhatsApp() {
-      const cust = document.getElementById('waCustomer').value.trim();
-      const phone = document.getElementById('waPhone').value.trim();
-      const addr = document.getElementById('waAddress').value.trim() || 'العنوان غير محدد';
-      const desc = document.getElementById('waDesc').value.trim() || 'عطل وصيانة';
-      const techName = document.getElementById('waTargetTechSelect').value;
+    /* ================= ميزة الإيداع السريع بضغطة زر واحدة ================= */
+    function quickAddBonus(techName, amount) {
+      const techObj = appAccounts.find(a => a.name === techName);
+      if (!techObj) return;
 
-      if (!cust || !phone) {
-        alert('يرجى إدخال اسم العميل ورقم الهاتف على الأقل');
-        return;
-      }
+      techObj.accumulatedBonus = Number(techObj.accumulatedBonus || 0) + Number(amount);
 
-      const targetTech = appAccounts.find(a => a.name === techName);
-      if (!targetTech) return;
+      const newBonusRecord = {
+        id: 'BN-' + Date.now().toString().slice(-6),
+        tech: techName,
+        amount: Number(amount),
+        date: getToday(),
+        time: getTimeNow()
+      };
 
-      const orderCode = '#' + Date.now().toString().slice(-4);
+      bonusRecords.unshift(newBonusRecord);
 
-      // زيادة عداد الأوردرات المتبقية (لسه مخلصتش) تلقائياً عند الفني
-      targetTech.ordersPending = Number(targetTech.ordersPending || 0) + 1;
+      // إرسال تنبيه فوري للفني
+      const bonusPayload = {
+        bonusId: 'BONUS-' + Date.now(),
+        targetTech: techName,
+        amount: Number(amount),
+        time: getTimeNow(),
+        sentAt: Date.now()
+      };
 
-      // تنسيق نص الرسالة المرسلة للواتساب
-      const messageText = 
-`🔔 *عطل جديد مسند إليك* ${orderCode}
-👤 *العميل:* ${cust}
-📞 *الهاتف:* ${phone}
-📍 *المكان:* ${addr}
-🛠️ *المشكلة:* ${desc}
-
-_يرجى الرد بـ "تم ${orderCode}" فور الإنجاز لحساب البونص._`;
+      fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bonusPayload)
+      }).catch(() => {});
 
       renderAdmin();
       syncCloudUp();
+    }
 
-      // مسح الحقول
-      document.getElementById('waCustomer').value = '';
-      document.getElementById('waPhone').value = '';
-      document.getElementById('waAddress').value = '';
-      document.getElementById('waDesc').value = '';
-
-      // فتح محادثة واتساب
-      let waNumber = (targetTech.whatsapp || '').replace(/[^0-9]/g, '');
-      if (waNumber.startsWith('01')) {
-        waNumber = '20' + waNumber.substring(1); // تحويل الرقم للصيغة الدولية لمصر
+    function customAddBonusPrompt(techName) {
+      const val = prompt(`أدخل مبلغ البونص المخصص للفني (${techName}):`, '50');
+      if (val && Number(val) > 0) {
+        quickAddBonus(techName, Number(val));
       }
-
-      const encodedMsg = encodeURIComponent(messageText);
-      let waUrl = '';
-
-      if (waNumber.length >= 10) {
-        waUrl = `https://wa.me/${waNumber}?text=${encodedMsg}`;
-      } else {
-        // إذا لم يكن رقم الفني مسجلاً، يفتح شاشة المشاركة العامة لواتساب لاختياره
-        waUrl = `https://api.whatsapp.com/send?text=${encodedMsg}`;
-      }
-
-      window.open(waUrl, '_blank');
     }
 
     /* ================= دوال الأدمن ================= */
     function renderAdmin() {
       const today = getToday();
-      const adminAcc = appAccounts.find(a => a.role === 'admin');
-      if (adminAcc) {
-        document.getElementById('adminUserVal').value = adminAcc.username;
-        document.getElementById('adminPassVal').value = adminAcc.pass;
-      }
-
       const techs = appAccounts.filter(a => a.role === 'tech');
       
       const totalPaid = bonusRecords.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
@@ -1007,238 +809,105 @@ _يرجى الرد بـ "تم ${orderCode}" فور الإنجاز لحساب ا�
 
       document.getElementById('statTotalPaid').innerText = `${totalPaid} ج`;
       document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
-      document.getElementById('statTechsCount').innerText = techs.length;
 
-      // القوائم المنسدلة
-      const select = document.getElementById('bonusTechSelect');
-      const statsTechSelect = document.getElementById('statsTargetTechSelect');
-      const waTechSelect = document.getElementById('waTargetTechSelect');
-      
-      const currentSelectedBonus = select.value;
-      const currentSelectedStats = statsTechSelect.value;
-      const currentSelectedWa = waTechSelect.value;
-
-      select.innerHTML = '';
-      statsTechSelect.innerHTML = '';
-      waTechSelect.innerHTML = '';
-
-      techs.forEach(t => {
-        select.innerHTML += `<option value="${t.name}" ${currentSelectedBonus === t.name ? 'selected' : ''}>${t.name}</option>`;
-        statsTechSelect.innerHTML += `<option value="${t.name}" ${currentSelectedStats === t.name ? 'selected' : ''}>${t.name}</option>`;
-        waTechSelect.innerHTML += `<option value="${t.name}" ${currentSelectedWa === t.name ? 'selected' : ''}>${t.name} (${t.whatsapp || 'بدون رقم'})</option>`;
-      });
-
-      loadTechOrdersStatsInputs();
-
-      const filterSelect = document.getElementById('filterByTechSelect');
-      const selectedFilterTech = filterSelect ? filterSelect.value : 'ALL';
-      filterSelect.innerHTML = '<option value="ALL">عرض جميع الفنيين</option>';
-      techs.forEach(t => {
-        filterSelect.innerHTML += `<option value="${t.name}" ${selectedFilterTech === t.name ? 'selected' : ''}>${t.name}</option>`;
-      });
-
-      const finList = document.getElementById('techFinancialList');
-      const manageList = document.getElementById('techListManage');
-      finList.innerHTML = '';
-      manageList.innerHTML = '';
+      // كروت الفنيين بالأزرار السريعة
+      const quickContainer = document.getElementById('techQuickActionList');
+      quickContainer.innerHTML = '';
 
       techs.forEach(t => {
         const currentBonus = Number(t.accumulatedBonus || 0);
-        const doneOrders = Number(t.ordersDone || 0);
-        const pendingOrders = Number(t.ordersPending || 0);
 
-        finList.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:12px 14px; border-radius:16px; margin-bottom:8px; border:1px solid var(--border);">
-            <div>
-              <strong style="font-size:14px; color:var(--dark);">${t.name}</strong>
-              <div style="font-size:11px; color:var(--slate); margin-top:2px;">
-                <span>خلصت: <strong style="color:var(--success)">${doneOrders}</strong></span> | 
-                <span>متبقي: <strong style="color:var(--warning)">${pendingOrders}</strong></span>
-              </div>
-            </div>
-            <div style="text-align:left;">
-              <span style="font-size:16px; font-weight:900; color:var(--success);">${currentBonus} ج</span>
+        quickContainer.innerHTML += `
+          <div class="tech-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <button type="button" onclick="settleTech('${t.name}')" class="btn btn-secondary" style="width:auto; padding:4px 10px; font-size:11px; margin-top:4px; border-radius:8px;">تقفيل الحساب</button>
+                <strong style="font-size:15px; color:var(--dark);">${t.name}</strong>
+                <span style="font-size:11px; color:var(--slate); display:block;">حسابه التراكمي الآن</span>
+              </div>
+              <div style="text-align:left;">
+                <span style="font-size:18px; font-weight:900; color:var(--success);">${currentBonus} ج</span>
+                <div>
+                  <button type="button" onclick="settleTech('${t.name}')" style="background:#f1f5f9; color:var(--slate); border:1px solid var(--border); border-radius:8px; padding:2px 8px; font-size:10px; font-weight:800; cursor:pointer;">تقفيل وتصفير</button>
+                </div>
               </div>
             </div>
-          </div>
-        `;
 
-        manageList.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:10px 14px; border-radius:14px; margin-bottom:8px; border:1px solid var(--border); font-size:13px;">
-            <div>
-              <strong style="color:var(--dark);">${t.name}</strong> 
-              <span style="color:var(--slate); font-size:11px; display:block;">واتساب: ${t.whatsapp || 'غير مسجل'}</span>
-            </div>
-            <div style="display:flex; gap:6px;">
-              <button type="button" onclick="openEditModal(${t.id})" class="badge" style="background:#d1fae5; color:#047857; border:none; cursor:pointer;">تعديل</button>
-              <button type="button" onclick="deleteTech(${t.id})" class="badge" style="border:none; cursor:pointer; background:var(--danger-light); color:var(--danger);">حذف</button>
+            <!-- صف الأزرار السريعة بضغطة زر واحدة -->
+            <div class="quick-bonus-bar">
+              <button type="button" onclick="quickAddBonus('${t.name}', 30)" class="btn-quick">+30</button>
+              <button type="button" onclick="quickAddBonus('${t.name}', 40)" class="btn-quick">+40</button>
+              <button type="button" onclick="quickAddBonus('${t.name}', 50)" class="btn-quick">+50</button>
+              <button type="button" onclick="quickAddBonus('${t.name}', 70)" class="btn-quick">+70</button>
+              <button type="button" onclick="quickAddBonus('${t.name}', 100)" class="btn-quick">+100</button>
+              <button type="button" onclick="customAddBonusPrompt('${t.name}')" class="btn-quick" style="background:#eff6ff; color:var(--primary); border-color:#bfdbfe;">مبلغ آخر</button>
             </div>
           </div>
         `;
       });
 
+      // سجل حركات اليوم
       const feed = document.getElementById('bonusTransactionsFeed');
       feed.innerHTML = '';
       
-      let list = bonusRecords;
+      const todayRecords = bonusRecords.filter(b => b.date === today);
+      document.getElementById('txCountBadge').innerText = `${todayRecords.length} حركة`;
 
-      if (currentAdminFilter === 'today') {
-        list = list.filter(b => b.date === today);
-      }
-
-      if (filterSelect && filterSelect.value !== 'ALL') {
-        list = list.filter(b => b.tech === filterSelect.value);
-      }
-
-      if (list.length === 0) {
-        feed.innerHTML = '<p style="text-align:center; font-size:13px; color:#94a3b8; padding:30px; font-weight:700;">لا توجد عمليات بونص لعرضها</p>';
-        return;
-      }
-
-      list.forEach(b => {
-        feed.innerHTML += `
-          <div class="bonus-box">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+      if (todayRecords.length === 0) {
+        feed.innerHTML = '<p style="text-align:center; font-size:12px; color:#94a3b8; padding:16px; font-weight:700;">لم يتم تنزيل بونص اليوم حتى الآن</p>';
+      } else {
+        todayRecords.slice(0, 15).forEach(b => {
+          feed.innerHTML += `
+            <div class="bonus-box" style="display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <strong style="font-size:14px; color:var(--dark);">الفني: ${b.tech}</strong>
-                <span style="font-size:11px; color:var(--slate); display:block;">${b.date} - ${b.time}</span>
+                <strong style="font-size:13px; color:var(--dark);">الفني: ${b.tech}</strong>
+                <span style="font-size:10px; color:var(--slate); display:block;">الساعة: ${b.time}</span>
               </div>
-              <span style="font-size:16px; font-weight:900; color:var(--success);">+${b.amount} ج</span>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:15px; font-weight:900; color:var(--success);">+${b.amount} ج</span>
+                <button type="button" onclick="deleteBonusRecord('${b.id}')" style="border:none; background:transparent; color:#94a3b8; cursor:pointer; font-size:13px;" title="حذف القيد">✕</button>
+              </div>
             </div>
-            <p style="color:var(--slate); font-size:12px; margin-top:4px;">${b.reason || 'مكافأة'}</p>
-            <div style="text-align:left; margin-top:6px;">
-              <button type="button" onclick="deleteBonusRecord('${b.id}')" class="badge" style="background:var(--danger-light); color:var(--danger); border:none; cursor:pointer;">حذف القيد</button>
-            </div>
+          `;
+        });
+      }
+
+      // قائمة إدارة الفنيين
+      const manageList = document.getElementById('techListManage');
+      manageList.innerHTML = '';
+      techs.forEach(t => {
+        manageList.innerHTML += `
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:12px; margin-bottom:6px; border:1px solid var(--border); font-size:12px;">
+            <span><strong>${t.name}</strong> (${t.username})</span>
+            <button type="button" onclick="deleteTech(${t.id})" style="background:var(--danger-light); color:var(--danger); border:none; border-radius:6px; padding:3px 8px; font-size:10px; cursor:pointer; font-weight:800;">حذف</button>
           </div>
         `;
       });
-    }
-
-    function loadTechOrdersStatsInputs() {
-      const select = document.getElementById('statsTargetTechSelect');
-      if (!select || !select.value) return;
-      const targetTech = appAccounts.find(a => a.name === select.value);
-      if (targetTech) {
-        document.getElementById('statsInputDone').value = targetTech.ordersDone || 0;
-        document.getElementById('statsInputPending').value = targetTech.ordersPending || 0;
-      }
-    }
-
-    function saveTechOrdersStats() {
-      const select = document.getElementById('statsTargetTechSelect');
-      if (!select || !select.value) return;
-      const techName = select.value;
-      const doneVal = Math.max(0, parseInt(document.getElementById('statsInputDone').value, 10) || 0);
-      const pendingVal = Math.max(0, parseInt(document.getElementById('statsInputPending').value, 10) || 0);
-
-      const targetTech = appAccounts.find(a => a.name === techName);
-      if (targetTech) {
-        targetTech.ordersDone = doneVal;
-        targetTech.ordersPending = pendingVal;
-        renderAdmin();
-        syncCloudUp();
-        alert(`تم تحديث أوردرات الفني (${techName}) بنجاح:\n- خلصت: ${doneVal}\n- لسه مخلصتش: ${pendingVal}`);
-      }
-    }
-
-    function changeAdminFilter(type) {
-      currentAdminFilter = type;
-      renderAdmin();
-    }
-
-    function submitDirectBonus() {
-      const techName = document.getElementById('bonusTechSelect').value;
-      const amount = Number(document.getElementById('bonusAmountInput').value);
-      const reason = document.getElementById('bonusReasonInput').value.trim() || 'مكافأة مباشرة';
-
-      if (!amount || amount <= 0) {
-        alert('يرجى كتابة مبلغ بونص صحيح');
-        return;
-      }
-
-      const techObj = appAccounts.find(a => a.name === techName);
-      if (techObj) {
-        techObj.accumulatedBonus = Number(techObj.accumulatedBonus || 0) + amount;
-
-        const newBonusRecord = {
-          id: 'BN-' + Date.now().toString().slice(-6),
-          tech: techName,
-          amount: amount,
-          reason: reason,
-          date: getToday(),
-          time: getTimeNow()
-        };
-
-        bonusRecords.unshift(newBonusRecord);
-
-        const bonusPayload = {
-          bonusId: 'BONUS-' + Date.now(),
-          targetTech: techName,
-          amount: amount,
-          reason: reason,
-          sentAt: Date.now()
-        };
-
-        fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(bonusPayload)
-        }).catch(() => {});
-
-        document.getElementById('bonusAmountInput').value = '';
-        document.getElementById('bonusReasonInput').value = '';
-
-        renderAdmin();
-        syncCloudUp();
-        alert(`تم إيداع ${amount} ج لحساب الفني (${techName}) بنجاح 🎁`);
-      }
     }
 
     function settleTech(name) {
       const techObj = appAccounts.find(a => a.name === name);
-      if (techObj && confirm(`هل تريد تقفيل حساب الفني (${name}) وتصفير رصيده بعد المحاسبة؟`)) {
+      if (techObj && confirm(`هل تريد تقفيل حساب الفني (${name}) وتصفير رصيده بعد المحاسبة كاش؟`)) {
         techObj.accumulatedBonus = 0;
         renderAdmin();
         syncCloudUp();
-        alert('تم تصفير رصيد الفني بنجاح لبدء فترة جديدة.');
       }
     }
 
     function deleteBonusRecord(id) {
-      if (confirm('هل تريد حذف هذا القيد من السجل؟')) {
+      if (confirm('حذف هذا القيد من السجل؟')) {
         bonusRecords = bonusRecords.filter(b => b.id !== id);
         renderAdmin();
         syncCloudUp();
       }
     }
 
-    function updateAdminCredentials() {
-      const u = document.getElementById('adminUserVal').value.trim();
-      const p = document.getElementById('adminPassVal').value.trim();
-      const adm = appAccounts.find(a => a.role === 'admin');
-      if (adm && u && p) {
-        adm.username = u;
-        adm.pass = p;
-        if (currentUser && currentUser.role === 'admin') {
-          currentUser.username = u;
-          currentUser.pass = p;
-          localStorage.setItem('auto_logged_user', JSON.stringify(currentUser));
-        }
-        syncCloudUp();
-        alert('تم تحديث بيانات المدير');
-      }
-    }
-
     function addNewTech() {
       const name = document.getElementById('techNameIn').value.trim();
-      const whatsapp = document.getElementById('techWhatsAppIn').value.trim();
       const user = document.getElementById('techUserIn').value.trim();
       const pass = document.getElementById('techPassIn').value.trim();
 
       if (!name || !user || !pass) {
-        alert('يرجى كتابة الاسم واليوزر والباسورد');
+        alert('يرجى ملء الاسم واليوزر والباسورد');
         return;
       }
 
@@ -1246,75 +915,26 @@ _يرجى الرد بـ "تم ${orderCode}" فور الإنجاز لحساب ا�
         id: Date.now(), 
         role: 'tech', 
         name, 
-        whatsapp,
         username: user, 
         pass, 
-        accumulatedBonus: 0, 
-        ordersDone: 0, 
-        ordersPending: 0 
+        accumulatedBonus: 0 
       });
 
       document.getElementById('techNameIn').value = '';
-      document.getElementById('techWhatsAppIn').value = '';
       document.getElementById('techUserIn').value = '';
       document.getElementById('techPassIn').value = '';
       renderAdmin();
       syncCloudUp();
-      alert('تمت إضافة الفني بنجاح');
-    }
-
-    function openEditModal(id) {
-      const t = appAccounts.find(a => a.id === id);
-      if (!t) return;
-      document.getElementById('editTechId').value = t.id;
-      document.getElementById('editTechName').value = t.name;
-      document.getElementById('editTechWhatsApp').value = t.whatsapp || '';
-      document.getElementById('editTechUser').value = t.username;
-      document.getElementById('editTechPass').value = t.pass;
-      document.getElementById('modalEditTech').classList.remove('hidden');
-    }
-
-    function closeEditModal() {
-      document.getElementById('modalEditTech').classList.add('hidden');
-    }
-
-    function saveTechEdit() {
-      const id = Number(document.getElementById('editTechId').value);
-      const name = document.getElementById('editTechName').value.trim();
-      const whatsapp = document.getElementById('editTechWhatsApp').value.trim();
-      const user = document.getElementById('editTechUser').value.trim();
-      const pass = document.getElementById('editTechPass').value.trim();
-
-      const t = appAccounts.find(a => a.id === id);
-      if (t && name && user && pass) {
-        const oldName = t.name;
-        t.name = name;
-        t.whatsapp = whatsapp;
-        t.username = user;
-        t.pass = pass;
-        if (oldName !== name) {
-          bonusRecords.forEach(b => { if (b.tech === oldName) b.tech = name; });
-        }
-        if (currentUser && currentUser.id === id) {
-          currentUser = t;
-          localStorage.setItem('auto_logged_user', JSON.stringify(currentUser));
-        }
-        closeEditModal();
-        renderAdmin();
-        syncCloudUp();
-        alert('تم تعديل بيانات الفني');
-      }
     }
 
     function deleteTech(id) {
       const targetTech = appAccounts.find(a => a.id === id);
       if (!targetTech) return;
 
-      if (confirm(`هل أنت متأكد من حذف الفني (${targetTech.name}) نهائياً؟`)) {
+      if (confirm(`هل أنت متأكد من حذف الفني (${targetTech.name})؟`)) {
         appAccounts = appAccounts.filter(a => a.id !== id);
         renderAdmin();
         syncCloudUp();
-        alert('تم حذف الفني نهائياً');
       }
     }
 
@@ -1326,9 +946,6 @@ _يرجى الرد بـ "تم ${orderCode}" فور الإنجاز لحساب ا�
 
       const todayAmount = myBonuses.filter(b => b.date === today).reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
-      document.getElementById('techDoneOrdersCount').innerText = me.ordersDone || 0;
-      document.getElementById('techPendingOrdersCount').innerText = me.ordersPending || 0;
-
       document.getElementById('techTotalBonus').innerText = `${Number(me.accumulatedBonus || 0)} ج`;
       document.getElementById('techBonusToday').innerText = `مكافآت اليوم: ${todayAmount} ج`;
 
@@ -1336,7 +953,7 @@ _يرجى الرد بـ "تم ${orderCode}" فور الإنجاز لحساب ا�
       listContainer.innerHTML = '';
 
       if (myBonuses.length === 0) {
-        listContainer.innerHTML = '<p style="text-align:center; font-size:13px; color:#94a3b8; padding:35px; font-weight:700;">لا توجد مكافآت مسجلة لك حتى الآن</p>';
+        listContainer.innerHTML = '<p style="text-align:center; font-size:13px; color:#94a3b8; padding:30px; font-weight:700;">لا توجد مكافآت مسجلة لك حتى الآن</p>';
         return;
       }
 
@@ -1345,7 +962,7 @@ _يرجى الرد بـ "تم ${orderCode}" فور الإنجاز لحساب ا�
           <div class="bonus-box">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <strong style="font-size:14px; color:var(--dark);">${b.reason || 'مكافأة إنجاز'}</strong>
+                <strong style="font-size:13px; color:var(--dark);">مكافأة إنجاز</strong>
                 <span style="font-size:11px; color:var(--slate); display:block; margin-top:2px;">${b.date} - ${b.time}</span>
               </div>
               <span style="font-size:16px; font-weight:900; color:var(--success);">+${b.amount} ج</span>
