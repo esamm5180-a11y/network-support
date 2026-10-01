@@ -169,6 +169,7 @@
     }
     .btn:active { transform: scale(0.98); }
     .btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; }
+    .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; }
     .btn-danger { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #ffffff; }
     .btn-secondary { background: #f8fafc; color: var(--slate); border: 1px solid var(--border); }
 
@@ -263,7 +264,7 @@
     <div class="modal-content" style="text-align: center; border: 2px solid var(--success);">
       <div class="bell-animate" style="font-size: 44px; margin-bottom: 8px;">🎁</div>
       <h3 style="font-size: 20px; font-weight: 900; color: var(--success); margin-bottom: 4px;">مبروك! نزل لك بونص جديد</h3>
-      <p style="font-size: 12px; color: var(--slate); margin-bottom: 14px;">تم إيداع مكافأة نقدية في رصيدك</p>
+      <p id="bonusAlertReasonDisplay" style="font-size: 13px; color: var(--slate); margin-bottom: 12px; font-weight:700;"></p>
 
       <div style="background: var(--success-light); border: 1px solid rgba(5,150,105,0.25); border-radius: 16px; padding: 16px; margin-bottom: 16px;">
         <span style="font-size: 12px; color: #065f46; font-weight: 700; display: block;">المبلغ المضاف:</span>
@@ -272,6 +273,33 @@
       </div>
 
       <button type="button" onclick="dismissBonusAlertModal()" class="btn btn-primary" style="background:var(--success);">استلام الرصيد ✓</button>
+    </div>
+  </div>
+
+  <!-- نافذة تأكيد وكتابة سبب البونص السريع -->
+  <div id="modalBonusReasonPrompt" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h4 style="font-size: 16px; font-weight: 900; margin-bottom: 12px; color: var(--success);">🎁 تنزيل بونص للفني</h4>
+      <input type="hidden" id="promptTargetTech">
+      
+      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin-bottom:12px; font-size:13px;">
+        <div>الفني: <strong id="promptTechNameLabel" style="color:var(--dark);"></strong></div>
+      </div>
+
+      <div class="input-group">
+        <label>المبلغ (جنيه)</label>
+        <input type="number" id="promptBonusAmountInput" class="input-control" style="font-size:18px; font-weight:900; color:var(--success);">
+      </div>
+
+      <div class="input-group">
+        <label>سبب البونص <small style="color:var(--slate); font-weight:normal;">(اختياري)</small></label>
+        <input type="text" id="promptBonusReasonInput" placeholder="مثلاً: عطل فلان، إنجاز سريع..." class="input-control" autofocus>
+      </div>
+
+      <div class="grid-2" style="margin-top: 16px;">
+        <button type="button" onclick="confirmQuickBonusFromModal()" class="btn btn-success">تأكيد ونزول فوراً ⚡</button>
+        <button type="button" onclick="closeBonusReasonPromptModal()" class="btn btn-secondary">إلغاء</button>
+      </div>
     </div>
   </div>
 
@@ -322,7 +350,7 @@
     </div>
   </div>
 
-  <!-- 2. واجهة المدير السريعة (أزرار بونص مباشرة) -->
+  <!-- 2. واجهة المدير السريعة -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -340,7 +368,7 @@
 
     <div class="container">
       
-      <!-- إجمالي المصروف السريع -->
+      <!-- إجمالي المصروف -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
         <div style="background:#ffffff; border-radius:18px; padding:14px; text-align:center; border:1px solid var(--border);">
           <span style="font-size:11px; font-weight:700; color:var(--slate); display:block; margin-bottom:2px;">📅 بونص اليوم</span>
@@ -353,19 +381,35 @@
       </div>
 
       <!-- كروت الفنيين بالأزرار السريعة -->
-      <div style="margin-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
-        <h4 style="font-size:15px; font-weight:900; color:var(--dark);">⚡ تنزيل بونص فوري بضغطة واحدة:</h4>
+      <div style="margin-bottom: 8px;">
+        <h4 style="font-size:15px; font-weight:900; color:var(--dark);">⚡ تنزيل بونص فوري:</h4>
       </div>
 
       <div id="techQuickActionList"></div>
 
-      <!-- سجل آخر العمليات -->
+      <!-- سجل آخر العمليات مع إظهار السبب -->
       <div class="card" style="margin-top: 14px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <h4 style="font-size:14px; font-weight:900; color:var(--dark);">📜 آخر العمليات المنفذة اليوم</h4>
           <span id="txCountBadge" class="badge" style="background:#f1f5f9; color:var(--slate);">0 حركة</span>
         </div>
         <div id="bonusTransactionsFeed"></div>
+      </div>
+
+      <!-- كارت تعديل بيانات المدير -->
+      <div class="card">
+        <h4 style="font-size:14px; font-weight:900; margin-bottom:12px;">⚙️ تعديل بيانات حساب المدير</h4>
+        <div class="grid-2">
+          <div class="input-group">
+            <label>اسم المستخدم للمدير</label>
+            <input type="text" id="adminUserVal" class="input-control">
+          </div>
+          <div class="input-group">
+            <label>كلمة المرور للمدير</label>
+            <input type="text" id="adminPassVal" class="input-control">
+          </div>
+        </div>
+        <button type="button" onclick="updateAdminCredentials()" class="btn btn-secondary">حفظ بيانات المدير 💾</button>
       </div>
 
       <!-- إضافة فني وإدارة الحسابات -->
@@ -394,7 +438,7 @@
     </div>
   </div>
 
-  <!-- 3. واجهة الفني (الحصالة البسيطة) -->
+  <!-- 3. واجهة الفني -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -415,7 +459,6 @@
     </header>
 
     <div class="container">
-      <!-- كارت الرصيد التراكمي المباشر -->
       <div class="card" style="background: linear-gradient(135deg, #10b981, #047857); color: #fff; padding: 26px 20px; box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35); border: none; text-align: center;">
         <span style="font-size: 13px; font-weight: 700; opacity: 0.9;">إجمالي رصيد البونص المستحق لك</span>
         <h2 id="techTotalBonus" style="font-size: 44px; font-weight: 900; margin: 8px 0;">0 ج</h2>
@@ -433,8 +476,8 @@
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار 16: المنظومة الفورية السريعة
-    const APP_CURRENT_VERSION = 16;
+    // الإصدار 17
+    const APP_CURRENT_VERSION = 17;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -551,6 +594,7 @@
 
       if (bonusData.targetTech === currentUser.name && bonusData.bonusId !== lastDismissedId) {
         document.getElementById('bonusAlertAmount').innerText = `+${bonusData.amount} ج`;
+        document.getElementById('bonusAlertReasonDisplay').innerText = bonusData.reason ? `السبب: ${bonusData.reason}` : 'مكافأة إنجاز';
         document.getElementById('bonusAlertTime').innerText = `الوقت: ${bonusData.time || getTimeNow()}`;
         document.getElementById('bonusAlertModal').classList.remove('hidden');
 
@@ -585,7 +629,7 @@
             container.innerHTML += `
               <div style="background: var(--success-light); border: 1px solid rgba(5,150,105,0.2); border-radius: 14px; padding: 12px; margin-bottom: 8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <strong style="color:var(--success); font-size:14px;">🎁 مكافأة</strong>
+                  <strong style="color:var(--success); font-size:14px;">🎁 ${b.reason || 'مكافأة'}</strong>
                   <span style="font-weight:900; color:var(--success); font-size:15px;">+${b.amount} ج</span>
                 </div>
                 <span style="font-size:10px; color:var(--slate); display:block; margin-top:4px;">${b.date} - ${b.time}</span>
@@ -756,28 +800,50 @@
       broadcastVersion();
     };
 
-    /* ================= ميزة الإيداع السريع بضغطة زر واحدة ================= */
-    function quickAddBonus(techName, amount) {
+    /* ================= ميزة كتابة سبب البونص السريع ================= */
+    function promptQuickBonus(techName, defaultAmount) {
+      document.getElementById('promptTargetTech').value = techName;
+      document.getElementById('promptTechNameLabel').innerText = techName;
+      document.getElementById('promptBonusAmountInput').value = defaultAmount;
+      document.getElementById('promptBonusReasonInput').value = '';
+      document.getElementById('modalBonusReasonPrompt').classList.remove('hidden');
+    }
+
+    function closeBonusReasonPromptModal() {
+      document.getElementById('modalBonusReasonPrompt').classList.add('hidden');
+    }
+
+    function confirmQuickBonusFromModal() {
+      const techName = document.getElementById('promptTargetTech').value;
+      const amount = Number(document.getElementById('promptBonusAmountInput').value);
+      const reasonVal = document.getElementById('promptBonusReasonInput').value.trim() || 'مكافأة إنجاز';
+
+      if (!amount || amount <= 0) {
+        alert('يرجى إدخال مبلغ صحيح');
+        return;
+      }
+
       const techObj = appAccounts.find(a => a.name === techName);
       if (!techObj) return;
 
-      techObj.accumulatedBonus = Number(techObj.accumulatedBonus || 0) + Number(amount);
+      techObj.accumulatedBonus = Number(techObj.accumulatedBonus || 0) + amount;
 
       const newBonusRecord = {
         id: 'BN-' + Date.now().toString().slice(-6),
         tech: techName,
-        amount: Number(amount),
+        amount: amount,
+        reason: reasonVal,
         date: getToday(),
         time: getTimeNow()
       };
 
       bonusRecords.unshift(newBonusRecord);
 
-      // إرسال تنبيه فوري للفني
       const bonusPayload = {
         bonusId: 'BONUS-' + Date.now(),
         targetTech: techName,
-        amount: Number(amount),
+        amount: amount,
+        reason: reasonVal,
         time: getTimeNow(),
         sentAt: Date.now()
       };
@@ -788,14 +854,32 @@
         body: JSON.stringify(bonusPayload)
       }).catch(() => {});
 
+      closeBonusReasonPromptModal();
       renderAdmin();
       syncCloudUp();
     }
 
-    function customAddBonusPrompt(techName) {
-      const val = prompt(`أدخل مبلغ البونص المخصص للفني (${techName}):`, '50');
-      if (val && Number(val) > 0) {
-        quickAddBonus(techName, Number(val));
+    /* ================= تعديل بيانات الأدمن ================= */
+    function updateAdminCredentials() {
+      const u = document.getElementById('adminUserVal').value.trim();
+      const p = document.getElementById('adminPassVal').value.trim();
+
+      if (!u || !p) {
+        alert('يرجى إدخال اسم المستخدم وكلمة المرور');
+        return;
+      }
+
+      const adm = appAccounts.find(a => a.role === 'admin');
+      if (adm) {
+        adm.username = u;
+        adm.pass = p;
+        if (currentUser && currentUser.role === 'admin') {
+          currentUser.username = u;
+          currentUser.pass = p;
+          localStorage.setItem('auto_logged_user', JSON.stringify(currentUser));
+        }
+        syncCloudUp();
+        alert('تم تحديث بيانات حساب المدير بنجاح 💾');
       }
     }
 
@@ -804,13 +888,19 @@
       const today = getToday();
       const techs = appAccounts.filter(a => a.role === 'tech');
       
+      const adminAcc = appAccounts.find(a => a.role === 'admin');
+      if (adminAcc) {
+        document.getElementById('adminUserVal').value = adminAcc.username;
+        document.getElementById('adminPassVal').value = adminAcc.pass;
+      }
+
       const totalPaid = bonusRecords.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
       const todayPaid = bonusRecords.filter(b => b.date === today).reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
       document.getElementById('statTotalPaid').innerText = `${totalPaid} ج`;
       document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
 
-      // كروت الفنيين بالأزرار السريعة
+      // كروت الفنيين
       const quickContainer = document.getElementById('techQuickActionList');
       quickContainer.innerHTML = '';
 
@@ -832,20 +922,20 @@
               </div>
             </div>
 
-            <!-- صف الأزرار السريعة بضغطة زر واحدة -->
+            <!-- صف الأزرار السريعة -->
             <div class="quick-bonus-bar">
-              <button type="button" onclick="quickAddBonus('${t.name}', 30)" class="btn-quick">+30</button>
-              <button type="button" onclick="quickAddBonus('${t.name}', 40)" class="btn-quick">+40</button>
-              <button type="button" onclick="quickAddBonus('${t.name}', 50)" class="btn-quick">+50</button>
-              <button type="button" onclick="quickAddBonus('${t.name}', 70)" class="btn-quick">+70</button>
-              <button type="button" onclick="quickAddBonus('${t.name}', 100)" class="btn-quick">+100</button>
-              <button type="button" onclick="customAddBonusPrompt('${t.name}')" class="btn-quick" style="background:#eff6ff; color:var(--primary); border-color:#bfdbfe;">مبلغ آخر</button>
+              <button type="button" onclick="promptQuickBonus('${t.name}', 30)" class="btn-quick">+30</button>
+              <button type="button" onclick="promptQuickBonus('${t.name}', 40)" class="btn-quick">+40</button>
+              <button type="button" onclick="promptQuickBonus('${t.name}', 50)" class="btn-quick">+50</button>
+              <button type="button" onclick="promptQuickBonus('${t.name}', 70)" class="btn-quick">+70</button>
+              <button type="button" onclick="promptQuickBonus('${t.name}', 100)" class="btn-quick">+100</button>
+              <button type="button" onclick="promptQuickBonus('${t.name}', 50)" class="btn-quick" style="background:#eff6ff; color:var(--primary); border-color:#bfdbfe;">مبلغ آخر</button>
             </div>
           </div>
         `;
       });
 
-      // سجل حركات اليوم
+      // سجل حركات اليوم مع السبب
       const feed = document.getElementById('bonusTransactionsFeed');
       feed.innerHTML = '';
       
@@ -860,6 +950,7 @@
             <div class="bonus-box" style="display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <strong style="font-size:13px; color:var(--dark);">الفني: ${b.tech}</strong>
+                <span style="font-size:11px; color:var(--success); font-weight:700; display:block;">السبب: ${b.reason || 'مكافأة إنجاز'}</span>
                 <span style="font-size:10px; color:var(--slate); display:block;">الساعة: ${b.time}</span>
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
@@ -871,7 +962,7 @@
         });
       }
 
-      // قائمة إدارة الفنيين
+      // قائمة الفنيين
       const manageList = document.getElementById('techListManage');
       manageList.innerHTML = '';
       techs.forEach(t => {
@@ -962,7 +1053,7 @@
           <div class="bonus-box">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <strong style="font-size:13px; color:var(--dark);">مكافأة إنجاز</strong>
+                <strong style="font-size:13px; color:var(--dark);">${b.reason || 'مكافأة إنجاز'}</strong>
                 <span style="font-size:11px; color:var(--slate); display:block; margin-top:2px;">${b.date} - ${b.time}</span>
               </div>
               <span style="font-size:16px; font-weight:900; color:var(--success);">+${b.amount} ج</span>
