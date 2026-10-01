@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>أعطالي</title>
+  <title>بونص - منظومة الحوافز</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -18,9 +18,6 @@
       --success: #059669;
       --success-light: #ecfdf5;
       --warning: #d97706;
-      --warning-light: #fffbeb;
-      --postpone: #f59e0b;
-      --postpone-light: #fef3c7;
       --danger: #e11d48;
       --danger-light: #fff1f2;
       --dark: #0f172a;
@@ -52,11 +49,8 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      transition: all 0.2s ease;
       box-shadow: var(--shadow-sm);
     }
-    .btn-header-update:active { transform: scale(0.95); }
-
     .btn-header-bell {
       position: relative;
       background: #ffffff;
@@ -68,10 +62,8 @@
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
       box-shadow: var(--shadow-sm);
     }
-    .btn-header-bell:active { transform: scale(0.95); }
 
     .btn-header-update.has-update {
       background: #ecfdf5;
@@ -92,17 +84,12 @@
       padding: 1px 5px;
       border-radius: 20px;
       border: 2px solid #fff;
-      animation: bounceDot 1s infinite alternate;
     }
 
     @keyframes pulse-update-btn {
       0% { transform: scale(1); }
       50% { transform: scale(1.04); }
       100% { transform: scale(1); }
-    }
-    @keyframes bounceDot {
-      from { transform: translateY(0); }
-      to { transform: translateY(-3px); }
     }
 
     .card {
@@ -112,20 +99,8 @@
       margin-bottom: 16px;
       border: 1px solid rgba(226, 232, 240, 0.8);
       box-shadow: var(--shadow-md);
-      transition: transform 0.2s ease;
     }
 
-    /* كارت فلترة مميز منفصل */
-    .card-filter-special {
-      background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
-      border: 1.5px solid #bfdbfe;
-      border-radius: 20px;
-      padding: 16px 18px;
-      margin-bottom: 14px;
-      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.07);
-    }
-
-    /* كروت إحصائيات الأدمن */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -141,7 +116,7 @@
       box-shadow: var(--shadow-sm);
     }
     .stat-card span { font-size: 11px; font-weight: 700; color: var(--slate); display: block; margin-bottom: 4px; }
-    .stat-card strong { font-size: 20px; font-weight: 900; color: var(--dark); }
+    .stat-card strong { font-size: 18px; font-weight: 900; color: var(--dark); }
 
     .card-title {
       font-size: 15px;
@@ -191,10 +166,8 @@
     .btn:active { transform: scale(0.98); }
     .btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
     .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
-    .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25); }
     .btn-danger { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #ffffff; }
     .btn-secondary { background: #f8fafc; color: var(--slate); border: 1px solid var(--border); }
-    .btn-notify { background: #f3e8ff; color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.2); }
 
     .header {
       background: rgba(255, 255, 255, 0.92);
@@ -249,33 +222,23 @@
     }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     
     .badge {
       display: inline-flex;
       align-items: center;
-      padding: 5px 12px;
-      border-radius: 12px;
+      padding: 4px 10px;
+      border-radius: 10px;
       font-size: 11px;
       font-weight: 800;
     }
-    .badge-pending { background: var(--warning-light); color: var(--warning); border: 1px solid rgba(217, 119, 6, 0.2); }
-    .badge-postponed { background: var(--postpone-light); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.3); }
-    .badge-done { background: var(--success-light); color: var(--success); border: 1px solid rgba(5, 150, 105, 0.2); }
-    .badge-repeat { background: #f5f3ff; color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.2); }
 
-    .order-box {
+    .bonus-box {
       background: #ffffff;
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 12px;
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
       box-shadow: var(--shadow-sm);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    .order-box:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-1px);
     }
 
     @keyframes pulse-ring {
@@ -293,37 +256,16 @@
     <span id="cloudStatusText">متصل بالسحابة ✓</span>
   </div>
 
-  <!-- نافذة التنبيه الفوري بمهمة للفني -->
-  <div id="techNotificationModal" class="modal-overlay hidden">
-    <div class="modal-content" style="text-align: center; border: 2px solid var(--primary);">
-      <div class="bell-animate" style="font-size: 42px; margin-bottom: 10px;">🔔</div>
-      <h3 id="notifTitleText" style="font-size: 18px; font-weight: 900; color: var(--dark); margin-bottom: 4px;">عطل جديد مسند إليك الآن!</h3>
-      <p id="notifSubtitleText" style="font-size: 12px; color: var(--slate); margin-bottom: 16px;">يرن هاتفك لتنبيهك بخصوص هذه المهمة</p>
-
-      <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; padding: 14px; text-align: right; font-size: 13px; line-height: 1.7; margin-bottom: 16px;">
-        <div><strong style="color: var(--slate);">العميل:</strong> <span id="notifCustomer" style="font-weight: 800; color: var(--dark);"></span></div>
-        <div><strong style="color: var(--slate);">الهاتف:</strong> <span id="notifPhone" style="font-weight: 700; direction: ltr; display: inline-block;"></span></div>
-        <div><strong style="color: var(--slate);">العنوان:</strong> <span id="notifAddress"></span></div>
-        <div><strong style="color: var(--slate);">التفاصيل:</strong> <span id="notifDesc"></span></div>
-      </div>
-
-      <div class="grid-2">
-        <a id="notifCallLink" href="tel:" onclick="closeNotifModal()" class="btn btn-primary">📞 اتصال بالعميل</a>
-        <button type="button" onclick="closeNotifModal()" class="btn btn-secondary">إيقاف الرنين</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- نافذة إشعار نزول بونص جديد للفني -->
+  <!-- نافذة إشعار البونص اللحظي للفني -->
   <div id="bonusAlertModal" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid var(--success);">
       <div class="bell-animate" style="font-size: 44px; margin-bottom: 8px;">🎁</div>
       <h3 style="font-size: 19px; font-weight: 900; color: var(--success); margin-bottom: 6px;">مبروك! نزل لك بونص جديد</h3>
-      <p style="font-size: 13px; color: var(--slate); margin-bottom: 16px;">قام المدير بإضافة مكافأة إلى رصيدك التراكمي</p>
+      <p style="font-size: 13px; color: var(--slate); margin-bottom: 16px;">قام المدير بإضافة مكافأة إلى رصيدك</p>
 
       <div style="background: var(--success-light); border: 1px solid rgba(5,150,105,0.25); border-radius: 16px; padding: 16px; margin-bottom: 16px;">
         <span style="font-size: 12px; color: #065f46; font-weight: 700; display: block;">المبلغ المضاف:</span>
-        <h2 id="bonusAlertAmount" style="font-size: 32px; font-weight: 900; color: var(--success); margin: 4px 0;">+0 ج</h2>
+        <h2 id="bonusAlertAmount" style="font-size: 34px; font-weight: 900; color: var(--success); margin: 4px 0;">+0 ج</h2>
         <span id="bonusAlertReason" style="font-size: 12px; color: #065f46; font-weight: 600; display: block; margin-top: 4px;"></span>
       </div>
 
@@ -331,13 +273,13 @@
     </div>
   </div>
 
-  <!-- نافذة مركز وسجل الإشعارات للفني مع زر المسح -->
+  <!-- نافذة مركز الإشعارات للفني -->
   <div id="modalNotificationsList" class="modal-overlay hidden">
     <div class="modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
         <div style="display:flex; align-items:center; gap:6px;">
           <span style="font-size: 18px;">🔔</span>
-          <h4 style="font-size: 16px; font-weight: 900;">مركز الإشعارات</h4>
+          <h4 style="font-size: 16px; font-weight: 900;">سجل الإشعارات</h4>
         </div>
         <button type="button" onclick="clearTechNotifications()" class="badge" style="background: var(--danger-light); color: var(--danger); border: none; cursor: pointer;">🗑️ مسح الكل</button>
       </div>
@@ -351,11 +293,11 @@
   <!-- 1. شاشة تسجيل الدخول -->
   <div id="screenLogin" class="container" style="min-height: 85vh; display: flex; align-items: center; justify-content: center;">
     <div class="card" style="width: 100%; text-align: center; padding: 32px 24px;">
-      <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 30px; box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35);">
-        📶
+      <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #059669, #10b981); color: #fff; border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 32px; box-shadow: 0 10px 22px rgba(5, 150, 105, 0.35);">
+        💰
       </div>
-      <h2 style="font-size: 22px; font-weight: 900; margin-bottom: 6px;">أعطالي</h2>
-      <p style="font-size: 13px; color: var(--slate); margin-bottom: 24px;">منظومة إدارة الدعم الفني والشبكات</p>
+      <h2 style="font-size: 22px; font-weight: 900; margin-bottom: 6px;">بونص</h2>
+      <p style="font-size: 13px; color: var(--slate); margin-bottom: 24px;">منظومة إدارة ومتابعة الحوافز الميدانية</p>
 
       <div class="input-group">
         <label>اسم المستخدم</label>
@@ -378,11 +320,11 @@
     </div>
   </div>
 
-  <!-- 2. واجهة المدير المطورة -->
+  <!-- 2. واجهة المدير (إدارة البونص فقط) -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
-        <h3 style="font-size: 16px; font-weight: 900; color: var(--dark);">لوحة الإدارة الرئيسية</h3>
+        <h3 style="font-size: 16px; font-weight: 900; color: var(--dark);">إدارة الحوافز والبونص</h3>
         <span id="adminDateBadge" style="font-size: 11px; color: var(--slate); font-weight: 600;"></span>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
@@ -396,92 +338,74 @@
 
     <div class="container">
       
-      <!-- إحصائيات سريعة للوحة المدير -->
+      <!-- إحصائيات الحوافز -->
       <div class="stats-grid">
         <div class="stat-card">
-          <span>📋 الإجمالي</span>
-          <strong id="statTotalOrders" style="color:var(--primary);">0</strong>
+          <span>💰 إجمالي المصروف</span>
+          <strong id="statTotalPaid" style="color:var(--primary);">0 ج</strong>
         </div>
         <div class="stat-card">
-          <span>✅ منجز اليوم</span>
-          <strong id="statDoneToday" style="color:var(--success);">0</strong>
+          <span>📅 بونص اليوم</span>
+          <strong id="statTodayPaid" style="color:var(--success);">0 ج</strong>
         </div>
         <div class="stat-card">
-          <span>⏳ المعلق</span>
-          <strong id="statPendingOrders" style="color:var(--warning);">0</strong>
+          <span>👷 الفنيين</span>
+          <strong id="statTechsCount" style="color:var(--dark);">0</strong>
         </div>
       </div>
 
-      <!-- كارت حسابات الفنيين -->
+      <!-- كارت إضافة بونص فوري لفني -->
       <div class="card">
-        <h4 class="card-title">💰 حسابات وبونص الفنيين</h4>
+        <h4 class="card-title">⚡ إضافة وتنزيل بونص لفني</h4>
+        <div class="grid-2">
+          <div class="input-group">
+            <label>اختر الفني</label>
+            <select id="bonusTechSelect" class="input-control"></select>
+          </div>
+          <div class="input-group">
+            <label>قيمة البونص (جنيه)</label>
+            <input type="number" id="bonusAmountInput" placeholder="مثلاً: 50" class="input-control">
+          </div>
+        </div>
+        <div class="input-group">
+          <label>سبب المكافأة / الملاحظة</label>
+          <input type="text" id="bonusReasonInput" placeholder="مثلاً: إنجاز صيانة فلان، هدف أسبوعي..." class="input-control">
+        </div>
+        <button type="button" onclick="submitDirectBonus()" class="btn btn-success">إرسال وتنزيل البونص فوراً 🎁</button>
+      </div>
+
+      <!-- كارت أرصدة وحسابات الفنيين الحالية -->
+      <div class="card">
+        <h4 class="card-title">👥 أرصدة الفنيين الحالية</h4>
         <div id="techFinancialList"></div>
       </div>
 
-      <!-- كارت إسناد أوردر جديد -->
-      <div class="card">
-        <h4 class="card-title">⚡ إسناد عطل أو تركيب جديد</h4>
-        <div class="grid-2">
-          <div class="input-group">
-            <label>اسم العميل <span style="color:var(--danger)">*</span></label>
-            <input type="text" id="newCustomer" placeholder="الاسم" class="input-control">
-          </div>
-          <div class="input-group">
-            <label>رقم الهاتف <span style="color:var(--danger)">*</span></label>
-            <input type="tel" id="newPhone" placeholder="010xxxxxxxx" class="input-control">
-          </div>
-        </div>
-        <div class="input-group">
-          <label>العنوان <small style="color:var(--slate); font-weight:normal;">(اختياري)</small></label>
-          <input type="text" id="newAddress" placeholder="الشارع أو المنطقة" class="input-control">
-        </div>
-        <div class="input-group">
-          <label>نوع الطلب</label>
-          <select id="newType" class="input-control">
-            <option value="عطل وصيانة">عطل وصيانة</option>
-            <option value="تركيب جديد">تركيب جديد</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label>التفاصيل والمشكلة <small style="color:var(--slate); font-weight:normal;">(اختياري)</small></label>
-          <input type="text" id="newDesc" placeholder="تفاصيل العطل" class="input-control">
-        </div>
-        <div class="input-group">
-          <label>إسناد إلى الفني</label>
-          <select id="newTechSelect" class="input-control"></select>
-        </div>
-        <button type="button" onclick="submitNewOrder()" class="btn btn-primary">إرسال الطلب فوراً للفني 🚀</button>
-      </div>
-
-      <!-- كارت الفلترة المنفصل والمميز لاختيار الفني وتحديد نطاق العرض -->
-      <div class="card-filter-special">
+      <!-- كارت فلترة السجل المالي -->
+      <div style="background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%); border: 1.5px solid #bfdbfe; border-radius: 20px; padding: 16px 18px; margin-bottom: 14px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <h4 style="font-size:14px; font-weight:900; color:var(--primary); display:flex; align-items:center; gap:6px;">
-            <span>🔍</span> فلترة وبحث السجل
-          </h4>
+          <h4 style="font-size:14px; font-weight:900; color:var(--primary);">🔍 فلترة العمليات</h4>
           <div style="display: flex; gap: 6px;">
-            <button type="button" id="btnFilterToday" onclick="changeAdminFilter('today')" class="badge badge-done" style="border:none; cursor:pointer;">اليوم</button>
-            <button type="button" id="btnFilterAll" onclick="changeAdminFilter('all')" class="badge badge-pending" style="border:none; cursor:pointer;">الكل</button>
+            <button type="button" id="btnFilterToday" onclick="changeAdminFilter('today')" class="badge" style="background:#d1fae5; color:#047857; border:none; cursor:pointer;">اليوم</button>
+            <button type="button" id="btnFilterAll" onclick="changeAdminFilter('all')" class="badge" style="background:#fef3c7; color:#b45309; border:none; cursor:pointer;">الكل</button>
           </div>
         </div>
-        
         <div class="input-group" style="margin-bottom:0;">
-          <label style="font-size:11px; font-weight:800; color:var(--dark);">عرض سجل فني محدد:</label>
+          <label style="font-size:11px; font-weight:800; color:var(--dark);">عرض بونص فني محدد:</label>
           <select id="filterByTechSelect" onchange="renderAdmin()" class="input-control" style="border-color:#93c5fd; background:#fff; font-weight:700;">
             <option value="ALL">عرض جميع الفنيين</option>
           </select>
         </div>
       </div>
 
-      <!-- كارت سجل الأعطال والمتابعة (المستقل تماماً) -->
+      <!-- سجل عمليات البونص -->
       <div class="card">
-        <h4 class="card-title">📋 سجل الأعطال والمتابعة الميدانية</h4>
-        <div id="adminFeed"></div>
+        <h4 class="card-title">📋 سجل حركات ومكافآت البونص</h4>
+        <div id="bonusTransactionsFeed"></div>
       </div>
 
-      <!-- كارت إدارة حساب المدير -->
+      <!-- إدارة بيانات المدير -->
       <div class="card">
-        <h4 class="card-title">⚙️ بيانات حساب المدير</h4>
+        <h4 class="card-title">⚙️ حساب المدير</h4>
         <div class="grid-2">
           <div class="input-group">
             <label>اسم المستخدم</label>
@@ -495,7 +419,7 @@
         <button type="button" onclick="updateAdminCredentials()" class="btn btn-secondary">حفظ بيانات المدير</button>
       </div>
 
-      <!-- كارت إضافة وإدارة الفنيين -->
+      <!-- إضافة وإدارة الفنيين -->
       <div class="card">
         <h4 class="card-title">👷 إضافة فني جديد</h4>
         <div class="input-group">
@@ -521,19 +445,18 @@
     </div>
   </div>
 
-  <!-- 3. واجهة الفني -->
+  <!-- 3. واجهة الفني (استعراض البونص الخاص به فقط) -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
         <h3 id="techHeaderName" style="font-size: 16px; font-weight: 900; color: var(--dark);">الفني</h3>
-        <span style="font-size: 11px; color: var(--slate); font-weight: 600;">أعطالي الميدانية</span>
+        <span style="font-size: 11px; color: var(--slate); font-weight: 600;">لوحة الأرباح والمكافآت</span>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
         <button type="button" id="btnTechBell" onclick="openNotificationsModal()" class="btn-header-bell" title="الإشعارات">
           <span>🔔</span>
           <span id="techBellBadge" class="update-badge-dot hidden">1</span>
         </button>
-
         <button type="button" id="btnTechUpdate" onclick="performInstantUpdate()" class="btn-header-update">
           <span>🔄 تحديث</span>
           <span id="techUpdateBadge" class="update-badge-dot hidden">جديد!</span>
@@ -543,42 +466,16 @@
     </header>
 
     <div class="container">
-      <div class="card" style="background: linear-gradient(135deg, #2563eb, #1e40af); color: #fff; padding: 24px; box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35); border: none;">
-        <span style="font-size: 12px; font-weight: 700; opacity: 0.9;">إجمالي بونصك المستحق التراكمي</span>
-        <h2 id="techTotalBonus" style="font-size: 34px; font-weight: 900; margin: 6px 0;">0 ج</h2>
-        <span id="techDoneToday" style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-weight: 700; display: inline-block;">إنجاز اليوم: 0 مهمة</span>
+      <!-- كارت الرصيد التراكمي -->
+      <div class="card" style="background: linear-gradient(135deg, #10b981, #047857); color: #fff; padding: 24px; box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35); border: none;">
+        <span style="font-size: 12px; font-weight: 700; opacity: 0.9;">إجمالي البونص المستحق لك حالياً</span>
+        <h2 id="techTotalBonus" style="font-size: 36px; font-weight: 900; margin: 6px 0;">0 ج</h2>
+        <span id="techBonusToday" style="font-size: 12px; background: rgba(255,255,255,0.25); padding: 4px 12px; border-radius: 20px; font-weight: 700; display: inline-block;">مكافآت اليوم: 0 ج</span>
       </div>
 
-      <div style="display: flex; gap: 8px; margin-bottom: 14px;">
-        <button type="button" id="btnTabPending" onclick="switchTechTab('pending')" class="btn btn-primary" style="flex: 1; padding: 10px;">المطلوبة والمؤجلة (<span id="countPending">0</span>)</button>
-        <button type="button" id="btnTabDone" onclick="switchTechTab('done')" class="btn btn-secondary" style="flex: 1; padding: 10px;">المنجزة (<span id="countDone">0</span>)</button>
-      </div>
-
-      <div id="techFeed"></div>
-    </div>
-  </div>
-
-  <!-- نافذة إضافة بونص داخل كارت العطل مباشرة -->
-  <div id="modalOrderBonus" class="modal-overlay hidden">
-    <div class="modal-content">
-      <h4 style="font-size: 16px; font-weight: 900; margin-bottom: 10px; color: var(--success);">🎁 تنزيل بونص لإنجاز العطل</h4>
-      <input type="hidden" id="orderBonusOrderId">
-      <input type="hidden" id="orderBonusTechName">
-      <input type="hidden" id="orderBonusCustomer">
-
-      <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; margin-bottom: 14px; font-size: 12px; line-height: 1.6;">
-        <div><strong>الفني المستحق:</strong> <span id="labelOrderBonusTech" style="color: var(--primary); font-weight: 800;"></span></div>
-        <div><strong>العميل:</strong> <span id="labelOrderBonusCustomer" style="color: var(--dark); font-weight: 700;"></span></div>
-      </div>
-      
-      <div class="input-group">
-        <label>قيمة البونص (جنيه)</label>
-        <input type="number" id="orderBonusInputAmount" placeholder="أدخل المبلغ (مثلاً: 50)" class="input-control" autofocus>
-      </div>
-
-      <div class="grid-2" style="margin-top: 18px;">
-        <button type="button" onclick="confirmOrderBonusDirect()" class="btn btn-success">تأكيد ونزول البونص فوراً ⚡</button>
-        <button type="button" onclick="closeOrderBonusModal()" class="btn btn-secondary">إلغاء</button>
+      <div class="card">
+        <h4 class="card-title">📜 سجل مكافآتك بالتفصيل</h4>
+        <div id="techBonusList"></div>
       </div>
     </div>
   </div>
@@ -592,53 +489,19 @@
         <label>الاسم</label>
         <input type="text" id="editTechName" class="input-control">
       </div>
-      <div class="input-group">
-        <label>اسم المستخدم</label>
-        <input type="text" id="editTechUser" class="input-control">
+      <div class="grid-2">
+        <div class="input-group">
+          <label>اسم المستخدم</label>
+          <input type="text" id="editTechUser" class="input-control">
+        </div>
+        <div class="input-group">
+          <label>كلمة المرور</label>
+          <input type="text" id="editTechPass" class="input-control">
+        </div>
       </div>
-      <div class="input-group">
-        <label>كلمة المرور</label>
-        <input type="text" id="editTechPass" class="input-control">
-      </div>
-      <div class="grid-2" style="margin-top: 20px;">
+      <div class="grid-2" style="margin-top: 18px;">
         <button type="button" onclick="saveTechEdit()" class="btn btn-primary">حفظ التعديل</button>
         <button type="button" onclick="closeEditModal()" class="btn btn-secondary">إلغاء</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- نافذة تقفيل العطل -->
-  <div id="modalCloseOrder" class="modal-overlay hidden">
-    <div class="modal-content">
-      <h4 style="font-size: 16px; font-weight: 900; margin-bottom: 14px;">تقفيل العطل الميداني</h4>
-      <input type="hidden" id="closingId">
-      
-      <div class="input-group">
-        <label>سبب العطل (اكتب ما وجدته فقط)</label>
-        <input type="text" id="closeReasonText" placeholder="مثلاً: قطع في السلك، تلف أرجيه، ضبط راوتر..." class="input-control">
-      </div>
-
-      <div class="grid-2" style="margin-top: 18px;">
-        <button type="button" onclick="confirmOrderDone()" class="btn btn-success">تأكيد الحل ✓</button>
-        <button type="button" onclick="closeOrderModal()" class="btn btn-secondary">إلغاء</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- نافذة تأجيل العطل -->
-  <div id="modalPostponeOrder" class="modal-overlay hidden">
-    <div class="modal-content">
-      <h4 style="font-size: 16px; font-weight: 900; margin-bottom: 14px; color: var(--postpone);">⏳ تأجيل موعد العطل</h4>
-      <input type="hidden" id="postponeId">
-      
-      <div class="input-group">
-        <label>سبب التأجيل (ملاحظة للفني والمدير)</label>
-        <input type="text" id="postponeReasonText" placeholder="مثلاً: العميل غير متواجد، طلب التأجيل لبكرا، التليفون مغلق..." class="input-control">
-      </div>
-
-      <div class="grid-2" style="margin-top: 18px;">
-        <button type="button" onclick="confirmPostponeOrder()" class="btn btn-warning">حفظ التأجيل ⏳</button>
-        <button type="button" onclick="closePostponeModal()" class="btn btn-secondary">إلغاء</button>
       </div>
     </div>
   </div>
@@ -647,8 +510,8 @@
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار الحالي
-    const APP_CURRENT_VERSION = 12;
+    // الإصدار المحدث لمنظومة البونص
+    const APP_CURRENT_VERSION = 13;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -656,15 +519,11 @@
       { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0 }
     ];
 
-    let appOrders = [];
+    let bonusRecords = [];
     let currentUser = null;
     let currentAdminFilter = 'today';
-    let currentTechTab = 'pending';
-    let knownPendingIds = new Set();
-    let isInitialLoad = true;
     let repeatAlarmTimer = null;
     let globalAudioCtx = null;
-    let lastHandledPingId = null;
     let currentActiveBonusData = null;
 
     function getToday() {
@@ -672,16 +531,13 @@
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
-    function getDoneLabel(type) {
-      if (type === 'تركيب جديد') {
-        return 'تم التركيب ✓';
-      }
-      return 'تم حل المشكلة ✓';
+    function getTimeNow() {
+      const d = new Date();
+      return d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
     }
 
     function verifyAppVersionUpdate(serverVer) {
       const isNew = serverVer && Number(serverVer) > APP_CURRENT_VERSION;
-      
       const adminBtn = document.getElementById('btnAdminUpdate');
       const adminBadge = document.getElementById('adminUpdateBadge');
       const techBtn = document.getElementById('btnTechUpdate');
@@ -692,11 +548,6 @@
         if (adminBadge) adminBadge.classList.remove('hidden');
         if (techBtn) techBtn.classList.add('has-update');
         if (techBadge) techBadge.classList.remove('hidden');
-      } else {
-        if (adminBtn) adminBtn.classList.remove('has-update');
-        if (adminBadge) adminBadge.classList.add('hidden');
-        if (techBtn) techBtn.classList.remove('has-update');
-        if (techBadge) techBadge.classList.add('hidden');
       }
     }
 
@@ -784,73 +635,6 @@
       clearInterval(repeatAlarmTimer);
     }
 
-    function showTechAlertModal(order, isPing = false) {
-      document.getElementById('notifTitleText').innerText = isPing ? '⚠️ تنبيه واستعجال من الإدارة!' : 'عطل جديد مسند إليك الآن!';
-      document.getElementById('notifSubtitleText').innerText = isPing ? 'تنبيه عاجل لسرعة التوجه وإنهاء هذا العطل' : 'يرن هاتفك لتنبيهك بالمهمة الجديدة';
-      document.getElementById('notifCustomer').innerText = order.customer;
-      document.getElementById('notifPhone').innerText = order.phone;
-      document.getElementById('notifAddress').innerText = order.address || 'غير محدد';
-      document.getElementById('notifDesc').innerText = order.desc || 'عطل وصيانة';
-      document.getElementById('notifCallLink').href = `tel:${order.phone}`;
-      document.getElementById('techNotificationModal').classList.remove('hidden');
-
-      startContinuousAlarm();
-
-      if ('Notification' in window && Notification.permission === 'granted') {
-        try {
-          const notif = new Notification(`🔔 ${isPing ? 'استعجال عطل' : order.type}: ${order.customer}`, {
-            body: `${order.address || 'العنوان غير محدد'}\nالتفاصيل: ${order.desc || 'بدون تفاصيل'}`,
-            icon: 'https://cdn-icons-png.flaticon.com/512/893/893505.png',
-            requireInteraction: true,
-            vibrate: [300, 150, 300, 150, 600]
-          });
-          notif.onclick = function() {
-            window.focus();
-            notif.close();
-          };
-        } catch(e){}
-      }
-    }
-
-    function checkTechNewTasks(ordersList) {
-      if (!currentUser || currentUser.role !== 'tech') return;
-
-      const currentMyPending = ordersList.filter(o => o.tech === currentUser.name && (o.status === 'pending' || o.status === 'postponed'));
-      const currentIds = new Set(currentMyPending.map(o => o.id));
-
-      if (isInitialLoad) {
-        knownPendingIds = currentIds;
-        isInitialLoad = false;
-        return;
-      }
-
-      let newlyAddedOrder = null;
-      for (const ord of currentMyPending) {
-        if (!knownPendingIds.has(ord.id)) {
-          newlyAddedOrder = ord;
-          break;
-        }
-      }
-
-      knownPendingIds = currentIds;
-
-      if (newlyAddedOrder) {
-        showTechAlertModal(newlyAddedOrder, false);
-      }
-    }
-
-    function checkTechSpecificPing(pingData) {
-      if (!currentUser || currentUser.role !== 'tech' || !pingData) return;
-
-      if (pingData.targetTech === currentUser.name && pingData.pingId !== lastHandledPingId) {
-        lastHandledPingId = pingData.pingId;
-        const targetOrder = appOrders.find(o => o.id === pingData.orderId);
-        if (targetOrder) {
-          showTechAlertModal(targetOrder, true);
-        }
-      }
-    }
-
     function checkTechBonusAlert(bonusData) {
       if (!currentUser || currentUser.role !== 'tech' || !bonusData) return;
 
@@ -859,7 +643,7 @@
 
       if (bonusData.targetTech === currentUser.name && bonusData.bonusId !== lastDismissedId) {
         document.getElementById('bonusAlertAmount').innerText = `+${bonusData.amount} ج`;
-        document.getElementById('bonusAlertReason').innerText = bonusData.reason || 'تم إيداع بونص جديد في حسابك';
+        document.getElementById('bonusAlertReason').innerText = bonusData.reason || 'مكافأة مباشرة من الإدارة';
         document.getElementById('bonusAlertModal').classList.remove('hidden');
 
         const bellBadge = document.getElementById('techBellBadge');
@@ -870,18 +654,13 @@
         if ('Notification' in window && Notification.permission === 'granted') {
           try {
             new Notification(`🎁 مبروك! نزل لك بونص جديد: +${bonusData.amount} ج`, {
-              body: bonusData.reason || 'تم إيداع بونص جديد في حسابك',
+              body: bonusData.reason || 'قام المدير بإيداع بونص جديد في حسابك',
               icon: 'https://cdn-icons-png.flaticon.com/512/893/893505.png',
               vibrate: [300, 150, 300, 150, 600]
             });
           } catch(e){}
         }
       }
-    }
-
-    function closeNotifModal() {
-      stopContinuousAlarm();
-      document.getElementById('techNotificationModal').classList.add('hidden');
     }
 
     function dismissBonusAlertModal() {
@@ -902,31 +681,18 @@
       let hasItems = false;
 
       if (!isCleared) {
-        if (currentActiveBonusData && currentUser && currentActiveBonusData.targetTech === currentUser.name) {
+        const myBonuses = bonusRecords.filter(b => b.tech === currentUser.name).slice(0, 10);
+        if (myBonuses.length > 0) {
           hasItems = true;
-          container.innerHTML += `
-            <div style="background: var(--success-light); border: 1px solid rgba(5,150,105,0.2); border-radius: 14px; padding: 12px; margin-bottom: 8px;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <strong style="color:var(--success); font-size:14px;">🎁 بونص جديد</strong>
-                <span style="font-weight:900; color:var(--success); font-size:15px;">+${currentActiveBonusData.amount} ج</span>
-              </div>
-              <p style="font-size:12px; color:#065f46; margin-top:4px;">${currentActiveBonusData.reason || 'مكافأة معتمدة من الإدارة'}</p>
-            </div>
-          `;
-        }
-
-        const myDones = appOrders.filter(o => o.tech === currentUser.name && o.status === 'done').slice(0, 5);
-        if (myDones.length > 0) {
-          hasItems = true;
-          myDones.forEach(o => {
+          myBonuses.forEach(b => {
             container.innerHTML += `
-              <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:10px; margin-bottom:6px; font-size:12px;">
-                <div style="display:flex; justify-content:space-between;">
-                  <strong>✓ تم إنجاز: ${o.customer}</strong>
-                  <span style="color:var(--slate); font-size:10px;">${o.finishedDate || ''}</span>
+              <div style="background: var(--success-light); border: 1px solid rgba(5,150,105,0.2); border-radius: 14px; padding: 12px; margin-bottom: 8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <strong style="color:var(--success); font-size:14px;">🎁 إضافة بونص</strong>
+                  <span style="font-weight:900; color:var(--success); font-size:15px;">+${b.amount} ج</span>
                 </div>
-                <p style="color:var(--slate); margin-top:3px;">${o.desc}</p>
-                ${o.awardedBonus ? `<span style="color:var(--success); font-weight:800; display:block; margin-top:3px;">+${o.awardedBonus} ج بونص</span>` : ''}
+                <p style="font-size:12px; color:#065f46; margin-top:4px;">${b.reason || 'مكافأة'}</p>
+                <span style="font-size:10px; color:var(--slate); display:block; margin-top:2px;">${b.date} - ${b.time}</span>
               </div>
             `;
           });
@@ -942,9 +708,8 @@
       document.getElementById('modalNotificationsList').classList.remove('hidden');
     }
 
-    // مسح سجل الإشعارات للفني
     function clearTechNotifications() {
-      if (confirm('هل تريد مسح سجل الإشعارات الحالي بالكامل؟')) {
+      if (confirm('هل تريد مسح سجل الإشعارات؟')) {
         localStorage.setItem('cleared_notifs_' + currentUser.name, 'true');
         const container = document.getElementById('notificationsItemsContainer');
         container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:13px; padding:30px; font-weight:700;">سجل الإشعارات فارغ</p>';
@@ -1018,7 +783,6 @@
         } else {
           document.getElementById('screenTech').classList.remove('hidden');
           document.getElementById('techHeaderName').innerText = currentUser.name;
-          isInitialLoad = true;
           renderTech();
         }
       } else {
@@ -1028,8 +792,7 @@
 
     function logoutNow() {
       currentUser = null;
-      isInitialLoad = true;
-      closeNotifModal();
+      stopContinuousAlarm();
       document.getElementById('bonusAlertModal').classList.add('hidden');
       localStorage.removeItem('auto_logged_user');
       document.getElementById('screenAdmin').classList.add('hidden');
@@ -1038,7 +801,7 @@
     }
 
     function syncCloudDown() {
-      fetch(`${FIREBASE_DB}/network_data.json`)
+      fetch(`${FIREBASE_DB}/bonus_system_data.json`)
         .then(res => res.json())
         .then(data => {
           if (data) {
@@ -1053,12 +816,8 @@
                 return acc;
               });
             }
-            if (Array.isArray(data.orders)) {
-              appOrders = data.orders;
-              checkTechNewTasks(data.orders);
-            }
-            if (data.directAlertPing) {
-              checkTechSpecificPing(data.directAlertPing);
+            if (Array.isArray(data.bonusRecords)) {
+              bonusRecords = data.bonusRecords;
             }
             if (data.latestBonusAlert) {
               checkTechBonusAlert(data.latestBonusAlert);
@@ -1080,44 +839,23 @@
     }
 
     function syncCloudUp() {
-      fetch(`${FIREBASE_DB}/network_data.json`, {
+      fetch(`${FIREBASE_DB}/bonus_system_data.json`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           latestAppVersion: APP_CURRENT_VERSION,
           accounts: appAccounts, 
-          orders: appOrders 
+          bonusRecords: bonusRecords 
         })
       }).catch(() => {});
     }
 
     function broadcastVersion() {
-      fetch(`${FIREBASE_DB}/network_data/latestAppVersion.json`, {
+      fetch(`${FIREBASE_DB}/bonus_system_data/latestAppVersion.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(APP_CURRENT_VERSION)
       }).catch(() => {});
-    }
-
-    function pingTechnicianForOrder(orderId, techName) {
-      if (!confirm(`هل تريد إرسال تنبيه ورنين فوري للفني (${techName}) بخصوص هذا العطل؟`)) return;
-
-      const pingPayload = {
-        pingId: 'PING-' + Date.now(),
-        orderId: orderId,
-        targetTech: techName,
-        sentAt: Date.now()
-      };
-
-      fetch(`${FIREBASE_DB}/network_data/directAlertPing.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(pingPayload)
-      }).then(() => {
-        alert(`تم إرسال التنبيه والرنين لهاتف الفني (${techName}) بنجاح 🔔`);
-      }).catch(() => {
-        alert('حدث خطأ في الاتصال بالشبكة');
-      });
     }
 
     setInterval(syncCloudDown, 3000);
@@ -1127,7 +865,7 @@
       broadcastVersion();
     };
 
-    /* ================= دوال الأدمن المطورة ================= */
+    /* ================= دوال الأدمن (إدارة البونص فقط) ================= */
     function renderAdmin() {
       const today = getToday();
       const adminAcc = appAccounts.find(a => a.role === 'admin');
@@ -1136,22 +874,24 @@
         document.getElementById('adminPassVal').value = adminAcc.pass;
       }
 
-      // تحديث عدادات الإحصائيات في لوحة المدير
-      const totalCount = appOrders.length;
-      const doneTodayCount = appOrders.filter(o => o.status === 'done' && o.finishedDate === today).length;
-      const pendingCount = appOrders.filter(o => o.status === 'pending' || o.status === 'postponed').length;
-
-      document.getElementById('statTotalOrders').innerText = totalCount;
-      document.getElementById('statDoneToday').innerText = doneTodayCount;
-      document.getElementById('statPendingOrders').innerText = pendingCount;
-
-      const select = document.getElementById('newTechSelect');
-      select.innerHTML = '';
       const techs = appAccounts.filter(a => a.role === 'tech');
+      
+      // الإحصائيات
+      const totalPaid = bonusRecords.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
+      const todayPaid = bonusRecords.filter(b => b.date === today).reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
+
+      document.getElementById('statTotalPaid').innerText = `${totalPaid} ج`;
+      document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
+      document.getElementById('statTechsCount').innerText = techs.length;
+
+      // اختيار الفني للبونص المباشر
+      const select = document.getElementById('bonusTechSelect');
+      select.innerHTML = '';
       techs.forEach(t => {
         select.innerHTML += `<option value="${t.name}">${t.name}</option>`;
       });
 
+      // فلتر الفنيين
       const filterSelect = document.getElementById('filterByTechSelect');
       const selectedFilterTech = filterSelect ? filterSelect.value : 'ALL';
       filterSelect.innerHTML = '<option value="ALL">عرض جميع الفنيين</option>';
@@ -1159,6 +899,7 @@
         filterSelect.innerHTML += `<option value="${t.name}" ${selectedFilterTech === t.name ? 'selected' : ''}>${t.name}</option>`;
       });
 
+      // قائمة الأرصدة
       const finList = document.getElementById('techFinancialList');
       const manageList = document.getElementById('techListManage');
       finList.innerHTML = '';
@@ -1166,16 +907,15 @@
 
       techs.forEach(t => {
         const currentBonus = Number(t.accumulatedBonus || 0);
-        const techDoneToday = appOrders.filter(o => o.tech === t.name && o.status === 'done' && o.finishedDate === today).length;
 
         finList.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:12px 14px; border-radius:16px; margin-bottom:8px; border:1px solid var(--border);">
             <div>
               <strong style="font-size:14px; color:var(--dark);">${t.name}</strong>
-              <span style="font-size:11px; color:var(--slate); display:block; font-weight:600;">منجز اليوم: ${techDoneToday}</span>
+              <span style="font-size:11px; color:var(--slate); display:block; font-weight:600;">اليوزر: ${t.username}</span>
             </div>
             <div style="text-align:left;">
-              <span style="font-size:15px; font-weight:900; color:var(--success);">${currentBonus} ج</span>
+              <span style="font-size:16px; font-weight:900; color:var(--success);">${currentBonus} ج</span>
               <div>
                 <button type="button" onclick="settleTech('${t.name}')" class="btn btn-secondary" style="width:auto; padding:4px 10px; font-size:11px; margin-top:4px; border-radius:8px;">تقفيل الحساب</button>
               </div>
@@ -1187,85 +927,45 @@
           <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:10px 14px; border-radius:14px; margin-bottom:8px; border:1px solid var(--border); font-size:13px;">
             <span><strong style="color:var(--dark);">${t.name}</strong> <small style="color:var(--slate);">(${t.username})</small></span>
             <div style="display:flex; gap:6px;">
-              <button type="button" onclick="openEditModal(${t.id})" class="badge badge-done" style="border:none; cursor:pointer;">تعديل</button>
-              <button type="button" onclick="deleteTech(${t.id})" class="badge badge-repeat" style="border:none; cursor:pointer; background:var(--danger-light); color:var(--danger);">حذف نهائي</button>
+              <button type="button" onclick="openEditModal(${t.id})" class="badge" style="background:#d1fae5; color:#047857; border:none; cursor:pointer;">تعديل</button>
+              <button type="button" onclick="deleteTech(${t.id})" class="badge" style="border:none; cursor:pointer; background:var(--danger-light); color:var(--danger);">حذف</button>
             </div>
           </div>
         `;
       });
 
-      const feed = document.getElementById('adminFeed');
+      // سجل حركات البونص
+      const feed = document.getElementById('bonusTransactionsFeed');
       feed.innerHTML = '';
       
-      let list = appOrders;
+      let list = bonusRecords;
 
       if (currentAdminFilter === 'today') {
-        list = list.filter(o => o.createdDate === today || o.finishedDate === today);
+        list = list.filter(b => b.date === today);
       }
 
       if (filterSelect && filterSelect.value !== 'ALL') {
-        list = list.filter(o => o.tech === filterSelect.value);
+        list = list.filter(b => b.tech === filterSelect.value);
       }
 
       if (list.length === 0) {
-        feed.innerHTML = '<p style="text-align:center; font-size:13px; color:#94a3b8; padding:30px; font-weight:700;">لا توجد أوردرات لعرضها حالياً</p>';
+        feed.innerHTML = '<p style="text-align:center; font-size:13px; color:#94a3b8; padding:30px; font-weight:700;">لا توجد عمليات بونص لعرضها</p>';
         return;
       }
 
-      list.forEach(o => {
-        const isDone = o.status === 'done';
-        const isPostponed = o.status === 'postponed';
-
-        let badgeClass = 'badge-pending';
-        let badgeText = 'معلق';
-
-        if (isDone) {
-          badgeClass = 'badge-done';
-          badgeText = getDoneLabel(o.type);
-        } else if (isPostponed) {
-          badgeClass = 'badge-postponed';
-          badgeText = '⏳ مؤجل';
-        } else if (o.isRepeat) {
-          badgeClass = 'badge-repeat';
-          badgeText = 'متكرر';
-        }
-
+      list.forEach(b => {
         feed.innerHTML += `
-          <div class="order-box">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
-              <strong style="font-size:14px; color:var(--dark);">${o.customer}</strong>
-              <span class="badge ${badgeClass}">${badgeText}</span>
+          <div class="bonus-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <div>
+                <strong style="font-size:14px; color:var(--dark);">الفني: ${b.tech}</strong>
+                <span style="font-size:11px; color:var(--slate); display:block;">${b.date} - ${b.time}</span>
+              </div>
+              <span style="font-size:16px; font-weight:900; color:var(--success);">+${b.amount} ج</span>
             </div>
-            <p style="color:var(--slate); font-size:12px; margin-bottom:8px; line-height:1.5;">${o.desc} - <strong style="color:var(--dark);">${o.address}</strong></p>
-            
-            <div style="display:flex; justify-content:space-between; color:var(--slate); font-size:12px; border-top:1px solid #f1f5f9; padding-top:8px;">
-              <span>الفني: <strong style="color:var(--primary); font-weight:800;">${o.tech}</strong></span>
-              <span>النوع: <strong>${o.type}</strong></span>
-            </div>
-
-            ${isPostponed && o.postponeReason ? `
-              <div style="margin-top:8px; font-size:12px; color:#92400e; background:var(--postpone-light); padding:8px 10px; border-radius:10px; border:1px solid rgba(245,158,11,0.25);">
-                <strong>سبب التأجيل:</strong> ${o.postponeReason}
-              </div>
-            ` : ''}
-
-            ${isDone && o.reason ? `
-              <div style="margin-top:8px; font-size:12px; color:#065f46; background:var(--success-light); padding:8px 10px; border-radius:10px; border:1px solid rgba(5,150,105,0.15);">
-                <strong>سبب العطل:</strong> ${o.reason}
-              </div>
-            ` : ''}
-
-            ${isDone && o.awardedBonus ? `
-              <div style="margin-top:6px; font-size:12px; color:#065f46; font-weight:800;">
-                ✓ تم صرف بونص: ${o.awardedBonus} ج لهذا العطل
-              </div>
-            ` : ''}
-
-            <div style="text-align:left; margin-top:10px; display:flex; justify-content:flex-end; gap:6px; flex-wrap:wrap;">
-              ${!isDone ? `<button type="button" onclick="pingTechnicianForOrder('${o.id}', '${o.tech}')" class="badge btn-notify" style="border:none; cursor:pointer;">🔔 تنبيه الفني</button>` : ''}
-              ${isDone && !o.awardedBonus ? `<button type="button" onclick="openOrderBonusModal('${o.id}', '${o.tech}', '${o.customer}')" class="badge badge-done" style="border:none; cursor:pointer; background:#10b981; color:#fff;">🎁 إضافة بونص</button>` : ''}
-              ${isDone ? `<button type="button" onclick="repeatOrder('${o.id}')" class="badge badge-repeat" style="border:none; cursor:pointer;">عطل تاني</button>` : ''}
-              <button type="button" onclick="deleteOrder('${o.id}')" class="badge" style="background:var(--danger-light); color:var(--danger); border:none; cursor:pointer;">حذف</button>
+            <p style="color:var(--slate); font-size:12px; margin-top:4px;">${b.reason || 'مكافأة'}</p>
+            <div style="text-align:left; margin-top:6px;">
+              <button type="button" onclick="deleteBonusRecord('${b.id}')" class="badge" style="background:var(--danger-light); color:var(--danger); border:none; cursor:pointer;">حذف القيد</button>
             </div>
           </div>
         `;
@@ -1277,42 +977,72 @@
       renderAdmin();
     }
 
-    function submitNewOrder() {
-      const cust = document.getElementById('newCustomer').value.trim();
-      const phone = document.getElementById('newPhone').value.trim();
-      const addr = document.getElementById('newAddress').value.trim() || 'العنوان غير محدد';
-      const desc = document.getElementById('newDesc').value.trim() || 'عطل وصيانة';
+    // تنزيل بونص مباشر
+    function submitDirectBonus() {
+      const techName = document.getElementById('bonusTechSelect').value;
+      const amount = Number(document.getElementById('bonusAmountInput').value);
+      const reason = document.getElementById('bonusReasonInput').value.trim() || 'مكافأة مباشرة';
 
-      if (!cust || !phone) {
-        alert('يرجى كتابة اسم العميل ورقم الهاتف على الأقل');
+      if (!amount || amount <= 0) {
+        alert('يرجى كتابة مبلغ بونص صحيح');
         return;
       }
 
-      appOrders.unshift({
-        id: 'ORD-' + Date.now().toString().slice(-5),
-        customer: cust,
-        phone: phone,
-        address: addr,
-        type: document.getElementById('newType').value,
-        desc: desc,
-        tech: document.getElementById('newTechSelect').value,
-        status: 'pending',
-        isRepeat: false,
-        createdDate: getToday(),
-        finishedDate: '',
-        settledMonth: false,
-        reason: '',
-        postponeReason: '',
-        awardedBonus: 0
-      });
+      const techObj = appAccounts.find(a => a.name === techName);
+      if (techObj) {
+        techObj.accumulatedBonus = Number(techObj.accumulatedBonus || 0) + amount;
 
-      document.getElementById('newCustomer').value = '';
-      document.getElementById('newPhone').value = '';
-      document.getElementById('newAddress').value = '';
-      document.getElementById('newDesc').value = '';
-      renderAdmin();
-      syncCloudUp();
-      alert('تم إرسال الطلب بنجاح');
+        const newBonusRecord = {
+          id: 'BN-' + Date.now().toString().slice(-6),
+          tech: techName,
+          amount: amount,
+          reason: reason,
+          date: getToday(),
+          time: getTimeNow()
+        };
+
+        bonusRecords.unshift(newBonusRecord);
+
+        // إرسال إشعار لحظي للفني
+        const bonusPayload = {
+          bonusId: 'BONUS-' + Date.now(),
+          targetTech: techName,
+          amount: amount,
+          reason: reason,
+          sentAt: Date.now()
+        };
+
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bonusPayload)
+        }).catch(() => {});
+
+        document.getElementById('bonusAmountInput').value = '';
+        document.getElementById('bonusReasonInput').value = '';
+
+        renderAdmin();
+        syncCloudUp();
+        alert(`تم إيداع ${amount} ج لحساب الفني (${techName}) بنجاح 🎁`);
+      }
+    }
+
+    function settleTech(name) {
+      const techObj = appAccounts.find(a => a.name === name);
+      if (techObj && confirm(`هل تريد تقفيل حساب الفني (${name}) وتصفير رصيده بعد المحاسبة؟`)) {
+        techObj.accumulatedBonus = 0;
+        renderAdmin();
+        syncCloudUp();
+        alert('تم تصفير رصيد الفني بنجاح لبدء فترة جديدة.');
+      }
+    }
+
+    function deleteBonusRecord(id) {
+      if (confirm('هل تريد حذف هذا القيد من السجل؟ (لن ينقص من الرصيد المتراكم)')) {
+        bonusRecords = bonusRecords.filter(b => b.id !== id);
+        renderAdmin();
+        syncCloudUp();
+      }
     }
 
     function updateAdminCredentials() {
@@ -1378,7 +1108,7 @@
         t.username = user;
         t.pass = pass;
         if (oldName !== name) {
-          appOrders.forEach(o => { if (o.tech === oldName) o.tech = name; });
+          bonusRecords.forEach(b => { if (b.tech === oldName) b.tech = name; });
         }
         if (currentUser && currentUser.id === id) {
           currentUser = t;
@@ -1403,258 +1133,38 @@
       }
     }
 
-    function settleTech(name) {
-      const techObj = appAccounts.find(a => a.name === name);
-      if (techObj && confirm(`تقفيل ومحاسبة الفني ${name}؟ سيتم تصفير البونص للشهر الجديد.`)) {
-        techObj.accumulatedBonus = 0;
-        appOrders.forEach(o => {
-          if (o.tech === name && o.status === 'done') o.settledMonth = true;
-        });
-        renderAdmin();
-        syncCloudUp();
-      }
-    }
-
-    function repeatOrder(id) {
-      const ord = appOrders.find(o => o.id === id);
-      if (ord && confirm('العميل عطل تاني؟')) {
-        appOrders.unshift({
-          id: 'REP-' + Date.now().toString().slice(-5),
-          customer: ord.customer,
-          phone: ord.phone,
-          address: ord.address,
-          type: 'إعادة صيانة (عطل متكرر)',
-          desc: `عطل متكرر (${ord.desc})`,
-          tech: ord.tech,
-          status: 'pending',
-          isRepeat: true,
-          createdDate: getToday(),
-          finishedDate: '',
-          settledMonth: false,
-          reason: '',
-          postponeReason: '',
-          awardedBonus: 0
-        });
-        renderAdmin();
-        syncCloudUp();
-      }
-    }
-
-    function deleteOrder(id) {
-      if (confirm('حذف الطلب من السجل؟')) {
-        appOrders = appOrders.filter(o => o.id !== id);
-        renderAdmin();
-        syncCloudUp();
-      }
-    }
-
-    function openOrderBonusModal(orderId, techName, customer) {
-      document.getElementById('orderBonusOrderId').value = orderId;
-      document.getElementById('orderBonusTechName').value = techName;
-      document.getElementById('orderBonusCustomer').value = customer;
-      document.getElementById('labelOrderBonusTech').innerText = techName;
-      document.getElementById('labelOrderBonusCustomer').innerText = customer;
-      document.getElementById('orderBonusInputAmount').value = '';
-      document.getElementById('modalOrderBonus').classList.remove('hidden');
-    }
-
-    function closeOrderBonusModal() {
-      document.getElementById('modalOrderBonus').classList.add('hidden');
-    }
-
-    function confirmOrderBonusDirect() {
-      const orderId = document.getElementById('orderBonusOrderId').value;
-      const techName = document.getElementById('orderBonusTechName').value;
-      const customer = document.getElementById('orderBonusCustomer').value;
-      const amount = Number(document.getElementById('orderBonusInputAmount').value);
-
-      if (!amount || amount <= 0) {
-        alert('يرجى إدخال مبلغ بونص صحيح');
-        return;
-      }
-
-      const ord = appOrders.find(o => o.id === orderId);
-      const techObj = appAccounts.find(a => a.name === techName);
-
-      if (techObj && ord) {
-        techObj.accumulatedBonus = Number(techObj.accumulatedBonus || 0) + amount;
-        ord.awardedBonus = amount;
-
-        const autoReason = `بونص إنجاز عطل العميل: ${customer}`;
-        const bonusPayload = {
-          bonusId: 'BONUS-' + Date.now(),
-          targetTech: techName,
-          amount: amount,
-          reason: autoReason,
-          sentAt: Date.now()
-        };
-
-        fetch(`${FIREBASE_DB}/network_data/latestBonusAlert.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(bonusPayload)
-        }).catch(() => {});
-
-        closeOrderBonusModal();
-        renderAdmin();
-        syncCloudUp();
-        alert(`تم تنزيل ${amount} ج بونص للفني (${techName}) وإرسال الإشعار له بنجاح 🎁`);
-      }
-    }
-
     /* ================= دوال الفني ================= */
     function renderTech() {
       const today = getToday();
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
-      const myOrders = appOrders.filter(o => o.tech === me.name);
-      
-      const pendingAndPostponed = myOrders.filter(o => o.status === 'pending' || o.status === 'postponed');
-      const done = myOrders.filter(o => o.status === 'done');
+      const myBonuses = bonusRecords.filter(b => b.tech === me.name);
+
+      const todayAmount = myBonuses.filter(b => b.date === today).reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
       document.getElementById('techTotalBonus').innerText = `${Number(me.accumulatedBonus || 0)} ج`;
-      document.getElementById('techDoneToday').innerText = `إنجاز اليوم: ${done.filter(o => o.finishedDate === today).length} مهمة`;
+      document.getElementById('techBonusToday').innerText = `مكافآت اليوم: ${todayAmount} ج`;
 
-      document.getElementById('countPending').innerText = pendingAndPostponed.length;
-      document.getElementById('countDone').innerText = done.length;
+      const listContainer = document.getElementById('techBonusList');
+      listContainer.innerHTML = '';
 
-      const feed = document.getElementById('techFeed');
-      feed.innerHTML = '';
-      const list = currentTechTab === 'pending' ? pendingAndPostponed : done;
-
-      if (list.length === 0) {
-        feed.innerHTML = '<p style="text-align:center; font-size:13px; color:#94a3b8; padding:35px; font-weight:700;">لا توجد مهام في هذا التبويب حالياً</p>';
+      if (myBonuses.length === 0) {
+        listContainer.innerHTML = '<p style="text-align:center; font-size:13px; color:#94a3b8; padding:35px; font-weight:700;">لا توجد مكافآت مسجلة لك حتى الآن</p>';
         return;
       }
 
-      list.forEach(o => {
-        const isDone = o.status === 'done';
-        const isPostponed = o.status === 'postponed';
-
-        let badgeClass = 'badge-pending';
-        let badgeText = o.type;
-
-        if (isDone) {
-          badgeClass = 'badge-done';
-          badgeText = getDoneLabel(o.type);
-        } else if (isPostponed) {
-          badgeClass = 'badge-postponed';
-          badgeText = '⏳ مؤجل';
-        } else if (o.isRepeat) {
-          badgeClass = 'badge-repeat';
-        }
-
-        feed.innerHTML += `
-          <div class="card" style="box-shadow:var(--shadow-sm); padding:18px;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+      myBonuses.forEach(b => {
+        listContainer.innerHTML += `
+          <div class="bonus-box">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <h4 style="font-size:16px; font-weight:900; color:var(--dark);">${o.customer}</h4>
-                <span class="badge ${badgeClass}" style="margin-top:4px;">${badgeText}</span>
+                <strong style="font-size:14px; color:var(--dark);">${b.reason || 'مكافأة إنجاز'}</strong>
+                <span style="font-size:11px; color:var(--slate); display:block; margin-top:2px;">${b.date} - ${b.time}</span>
               </div>
+              <span style="font-size:16px; font-weight:900; color:var(--success);">+${b.amount} ج</span>
             </div>
-            <p style="font-size:13px; color:var(--slate); margin-bottom:6px;">📍 <strong>${o.address}</strong></p>
-            <p style="font-size:12px; background:#f8fafc; border:1px solid var(--border); padding:8px 10px; border-radius:10px; margin-bottom:12px; color:var(--dark); font-weight:600;">${o.desc}</p>
-            
-            ${isPostponed && o.postponeReason ? `
-              <div style="background:var(--postpone-light); border:1px solid rgba(245,158,11,0.3); padding:8px 10px; border-radius:10px; font-size:12px; margin-bottom:12px; color:#92400e;">
-                <strong>سبب التأجيل الحالي:</strong> ${o.postponeReason}
-              </div>
-            ` : ''}
-
-            ${isDone && o.reason ? `
-              <div style="background:var(--success-light); border:1px solid rgba(5,150,105,0.2); padding:10px; border-radius:12px; font-size:12px; margin-bottom:12px; color:#065f46;">
-                <strong>سبب العطل:</strong> ${o.reason}
-              </div>
-            ` : ''}
-
-            ${!isDone ? `
-              <div class="grid-3">
-                <a href="tel:${o.phone}" class="btn btn-secondary">📞 اتصال</a>
-                <button type="button" onclick="openPostponeModal('${o.id}')" class="btn btn-warning">⏳ تأجيل</button>
-                <button type="button" onclick="openOrderModal('${o.id}')" class="btn btn-success">تم الحل ✓</button>
-              </div>
-            ` : `
-              <div class="grid-2">
-                <a href="tel:${o.phone}" class="btn btn-secondary">📞 اتصال</a>
-                <span class="badge badge-done" style="text-align:center; justify-content:center; padding:10px; font-size:12px;">${getDoneLabel(o.type)}</span>
-              </div>
-            `}
           </div>
         `;
       });
-    }
-
-    function switchTechTab(tab) {
-      currentTechTab = tab;
-      if (tab === 'pending') {
-        document.getElementById('btnTabPending').className = 'btn btn-primary';
-        document.getElementById('btnTabDone').className = 'btn btn-secondary';
-      } else {
-        document.getElementById('btnTabPending').className = 'btn btn-secondary';
-        document.getElementById('btnTabDone').className = 'btn btn-primary';
-      }
-      renderTech();
-    }
-
-    function openOrderModal(id) {
-      document.getElementById('closingId').value = id;
-      document.getElementById('closeReasonText').value = '';
-      document.getElementById('modalCloseOrder').classList.remove('hidden');
-    }
-
-    function closeOrderModal() {
-      document.getElementById('modalCloseOrder').classList.add('hidden');
-    }
-
-    function confirmOrderDone() {
-      const id = document.getElementById('closingId').value;
-      const reasonVal = document.getElementById('closeReasonText').value.trim();
-
-      if (!reasonVal) {
-        alert('يرجى كتابة سبب العطل أولاً');
-        return;
-      }
-
-      const ord = appOrders.find(o => o.id === id);
-      if (ord) {
-        ord.status = 'done';
-        ord.finishedDate = getToday();
-        ord.reason = reasonVal;
-
-        closeOrderModal();
-        renderTech();
-        syncCloudUp();
-      }
-    }
-
-    function openPostponeModal(id) {
-      document.getElementById('postponeId').value = id;
-      document.getElementById('postponeReasonText').value = '';
-      document.getElementById('modalPostponeOrder').classList.remove('hidden');
-    }
-
-    function closePostponeModal() {
-      document.getElementById('modalPostponeOrder').classList.add('hidden');
-    }
-
-    function confirmPostponeOrder() {
-      const id = document.getElementById('postponeId').value;
-      const reasonVal = document.getElementById('postponeReasonText').value.trim();
-
-      if (!reasonVal) {
-        alert('يرجى كتابة سبب التأجيل');
-        return;
-      }
-
-      const ord = appOrders.find(o => o.id === id);
-      if (ord) {
-        ord.status = 'postponed';
-        ord.postponeReason = reasonVal;
-
-        closePostponeModal();
-        renderTech();
-        syncCloudUp();
-        alert('تم حفظ سبب التأجيل بنجاح');
-      }
     }
   </script>
 </body>
