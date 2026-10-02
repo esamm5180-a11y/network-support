@@ -99,7 +99,6 @@
       box-shadow: var(--shadow-md);
     }
 
-    /* كروت الفنيين الواضحة */
     .tech-card {
       background: #ffffff;
       border: 2px solid #e2e8f0;
@@ -133,8 +132,8 @@
 
     .tech-actions-grid {
       display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 8px;
+      grid-template-columns: 1.8fr 1.2fr 0.9fr;
+      gap: 6px;
     }
 
     .input-group { margin-bottom: 12px; text-align: right; }
@@ -221,9 +220,9 @@
     .modal-content {
       background: #fff;
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       border-radius: 24px;
-      padding: 24px;
+      padding: 22px;
       box-shadow: var(--shadow-md);
       border: 1.5px solid var(--border);
     }
@@ -307,6 +306,84 @@
     </div>
   </div>
 
+  <!-- نافذة التحكم الشامل والكامل في تطبيق وحساب الفني -->
+  <div id="modalTechFullControl" class="modal-overlay hidden">
+    <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+        <div>
+          <h4 style="font-size: 16px; font-weight: 900; color: var(--primary);">🛠️ لوحة التحكم في الفني</h4>
+          <span id="ctrlTechNameSub" style="font-size:12px; color:var(--slate); font-weight:700;"></span>
+        </div>
+        <button type="button" onclick="closeTechFullControlModal()" style="border:none; background:transparent; font-size:18px; cursor:pointer;">✕</button>
+      </div>
+
+      <input type="hidden" id="ctrlTechId">
+      <input type="hidden" id="ctrlTechOriginalName">
+
+      <!-- 1. تعديل الرصيد التراكمي المباشر -->
+      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:16px; padding:12px 14px; margin-bottom:12px;">
+        <label style="font-size:12px; font-weight:800; color:var(--dark); display:block; margin-bottom:6px;">💰 تعديل الرصيد الإجمالي الحالي يدوياً:</label>
+        <div style="display:flex; gap:8px;">
+          <input type="number" id="ctrlTechBalanceInput" class="input-control" style="font-size:18px; font-weight:900; color:var(--success);">
+          <button type="button" onclick="saveDirectTechBalance()" class="btn btn-success" style="width:auto; padding:0 14px; font-size:13px; white-space:nowrap;">تحديث الرصيد</button>
+        </div>
+      </div>
+
+      <!-- 2. تعديل بيانات الدخول للفني -->
+      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:16px; padding:12px 14px; margin-bottom:12px;">
+        <h5 style="font-size:12px; font-weight:800; margin-bottom:8px;">👤 تعديل اسم وبيانات الفني:</h5>
+        <div class="input-group">
+          <label>اسم الفني</label>
+          <input type="text" id="ctrlTechNameInput" class="input-control">
+        </div>
+        <div class="grid-2">
+          <div class="input-group">
+            <label>اسم المستخدم</label>
+            <input type="text" id="ctrlTechUserInput" class="input-control">
+          </div>
+          <div class="input-group">
+            <label>كلمة المرور</label>
+            <input type="text" id="ctrlTechPassInput" class="input-control">
+          </div>
+        </div>
+        <button type="button" onclick="saveTechAccountData()" class="btn btn-secondary" style="font-size:12px; padding:8px;">حفظ بيانات الحساب</button>
+      </div>
+
+      <!-- 3. مسح وإدارة سجل بونص الفني -->
+      <div style="background:#ffffff; border:1px solid var(--border); border-radius:16px; padding:12px 14px; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h5 style="font-size:12px; font-weight:800;">📜 سجل مكافآت هذا الفني:</h5>
+          <button type="button" onclick="clearSpecificTechHistory()" class="badge" style="background:var(--danger-light); color:var(--danger); border:none; cursor:pointer;">مسح كامل السجل 🗑️</button>
+        </div>
+        <div id="ctrlTechRecordsList" style="max-height: 180px; overflow-y: auto;"></div>
+      </div>
+
+      <button type="button" onclick="closeTechFullControlModal()" class="btn btn-secondary">إغلاق النافذة</button>
+    </div>
+  </div>
+
+  <!-- نافذة تعديل قيد بونص محدد -->
+  <div id="modalEditBonusRecord" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 12px; color: var(--dark);">✏️ تعديل قيد البونص</h4>
+      <input type="hidden" id="editRecordId">
+      
+      <div class="input-group">
+        <label>المبلغ (جنيه)</label>
+        <input type="number" id="editRecordAmountInput" class="input-control" style="font-weight:900; color:var(--success);">
+      </div>
+      <div class="input-group">
+        <label>سبب البونص</label>
+        <input type="text" id="editRecordReasonInput" class="input-control">
+      </div>
+
+      <div class="grid-2" style="margin-top: 14px;">
+        <button type="button" onclick="saveEditedBonusRecord()" class="btn btn-primary">حفظ التعديل ✓</button>
+        <button type="button" onclick="closeEditBonusRecordModal()" class="btn btn-secondary">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
   <!-- نافذة مركز الإشعارات للفني -->
   <div id="modalNotificationsList" class="modal-overlay hidden">
     <div class="modal-content">
@@ -324,11 +401,11 @@
     </div>
   </div>
 
-  <!-- نافذة إعدادات الإدارة المبسطة -->
+  <!-- نافذة إعدادات الإدارة العامة -->
   <div id="modalAdminSettings" class="modal-overlay hidden">
     <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
-        <h4 style="font-size: 16px; font-weight: 900;">⚙️ إعدادات الإدارة والفنيين</h4>
+        <h4 style="font-size: 16px; font-weight: 900;">⚙️ إعدادات الإدارة</h4>
         <button type="button" onclick="closeAdminSettingsModal()" style="border:none; background:transparent; font-size:18px; cursor:pointer;">✕</button>
       </div>
 
@@ -368,9 +445,6 @@
         <button type="button" onclick="addNewTech()" class="btn btn-primary" style="padding:8px; font-size:12px;">إضافة الفني ➕</button>
       </div>
 
-      <h5 style="font-size:12px; font-weight:800; color:var(--slate); margin-bottom:6px;">الفنيين المسجلين:</h5>
-      <div id="techListManage"></div>
-
       <button type="button" onclick="closeAdminSettingsModal()" class="btn btn-secondary" style="margin-top:14px;">إغلاق النافذة</button>
     </div>
   </div>
@@ -405,7 +479,7 @@
     </div>
   </div>
 
-  <!-- 2. واجهة المدير النظيفة والمبسطة -->
+  <!-- 2. واجهة المدير النظيفة -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -426,7 +500,7 @@
 
     <div class="container">
       
-      <!-- ملخص مالي بارز وواضح -->
+      <!-- ملخص مالي بارز -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
         <div style="background:#ffffff; border-radius:18px; padding:14px; text-align:center; border:2px solid #e2e8f0; box-shadow:var(--shadow-sm);">
           <span style="font-size:12px; font-weight:800; color:var(--slate); display:block; margin-bottom:2px;">📅 بونص اليوم</span>
@@ -438,7 +512,7 @@
         </div>
       </div>
 
-      <!-- كروت الفنيين الواضحة بدون أرقام مسبقة -->
+      <!-- كروت الفنيين الواضحة مع زر التحكم الشامل -->
       <div id="techQuickActionList"></div>
 
       <!-- سجل عمليات اليوم -->
@@ -487,12 +561,12 @@
     </div>
   </div>
 
-  <!-- المحرك البرمجي -->
+  <!-- المحرك البرمجي الشامل -->
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار 19
-    const APP_CURRENT_VERSION = 19;
+    // الإصدار 20: التحكم الكامل
+    const APP_CURRENT_VERSION = 20;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -683,7 +757,6 @@
         document.getElementById('adminUserVal').value = adm.username;
         document.getElementById('adminPassVal').value = adm.pass;
       }
-      renderAdminSettingsTechList();
       document.getElementById('modalAdminSettings').classList.remove('hidden');
     }
 
@@ -829,7 +902,7 @@
       broadcastVersion();
     };
 
-    /* ================= ميزة إدخال البونص المباشر ================= */
+    /* ================= ميزة إدخال البونص ================= */
     function openBonusPrompt(techName) {
       document.getElementById('promptTargetTech').value = techName;
       document.getElementById('promptTechNameLabel').innerText = techName;
@@ -888,6 +961,177 @@
       syncCloudUp();
     }
 
+    /* ================= لوحة التحكم الكامل والشامل في الفني ================= */
+    function openTechFullControl(techId) {
+      const t = appAccounts.find(a => a.id === techId);
+      if (!t) return;
+
+      document.getElementById('ctrlTechId').value = t.id;
+      document.getElementById('ctrlTechOriginalName').value = t.name;
+      document.getElementById('ctrlTechNameSub').innerText = `${t.name} (@${t.username})`;
+      
+      document.getElementById('ctrlTechBalanceInput').value = t.accumulatedBonus || 0;
+      document.getElementById('ctrlTechNameInput').value = t.name;
+      document.getElementById('ctrlTechUserInput').value = t.username;
+      document.getElementById('ctrlTechPassInput').value = t.pass;
+
+      renderCtrlTechRecords(t.name);
+      document.getElementById('modalTechFullControl').classList.remove('hidden');
+    }
+
+    function closeTechFullControlModal() {
+      document.getElementById('modalTechFullControl').classList.add('hidden');
+    }
+
+    function renderCtrlTechRecords(techName) {
+      const listDiv = document.getElementById('ctrlTechRecordsList');
+      listDiv.innerHTML = '';
+      
+      const myRecords = bonusRecords.filter(b => b.tech === techName);
+
+      if (myRecords.length === 0) {
+        listDiv.innerHTML = '<p style="text-align:center; font-size:11px; color:#94a3b8; padding:12px;">لا توجد قيود مسجلة لهذا الفني</p>';
+        return;
+      }
+
+      myRecords.forEach(b => {
+        listDiv.innerHTML += `
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:6px 10px; margin-bottom:6px; font-size:11px;">
+            <div>
+              <strong style="color:var(--dark);">${b.reason || 'مكافأة'}</strong>
+              <span style="display:block; color:var(--slate); font-size:10px;">${b.date} - ${b.time}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-weight:900; color:var(--success);">+${b.amount} ج</span>
+              <button type="button" onclick="openEditBonusRecordModal('${b.id}')" style="border:none; background:#eff6ff; color:var(--primary); padding:3px 6px; border-radius:6px; cursor:pointer; font-weight:800;">تعديل</button>
+              <button type="button" onclick="deleteSingleBonusFromControl('${b.id}')" style="border:none; background:var(--danger-light); color:var(--danger); padding:3px 6px; border-radius:6px; cursor:pointer; font-weight:800;">حذف</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function saveDirectTechBalance() {
+      const id = Number(document.getElementById('ctrlTechId').value);
+      const newBal = Number(document.getElementById('ctrlTechBalanceInput').value);
+
+      if (isNaN(newBal) || newBal < 0) {
+        alert('يرجى إدخال رصيد صحيح');
+        return;
+      }
+
+      const t = appAccounts.find(a => a.id === id);
+      if (t) {
+        t.accumulatedBonus = newBal;
+        renderAdmin();
+        syncCloudUp();
+        alert(`تم تعديل وتثبيت رصيد الفني (${t.name}) إلى ${newBal} ج بنجاح ✓`);
+      }
+    }
+
+    function saveTechAccountData() {
+      const id = Number(document.getElementById('ctrlTechId').value);
+      const originalName = document.getElementById('ctrlTechOriginalName').value;
+      const newName = document.getElementById('ctrlTechNameInput').value.trim();
+      const newUser = document.getElementById('ctrlTechUserInput').value.trim();
+      const newPass = document.getElementById('ctrlTechPassInput').value.trim();
+
+      if (!newName || !newUser || !newPass) {
+        alert('يرجى ملء جميع الخانات');
+        return;
+      }
+
+      const t = appAccounts.find(a => a.id === id);
+      if (t) {
+        t.name = newName;
+        t.username = newUser;
+        t.pass = newPass;
+
+        if (originalName !== newName) {
+          bonusRecords.forEach(b => { if (b.tech === originalName) b.tech = newName; });
+        }
+
+        renderAdmin();
+        syncCloudUp();
+        alert('تم تعديل بيانات حساب الفني بنجاح ✓');
+        closeTechFullControlModal();
+      }
+    }
+
+    function clearSpecificTechHistory() {
+      const originalName = document.getElementById('ctrlTechOriginalName').value;
+      if (confirm(`هل أنت متأكد من مسح جميع سجلات المكافآت للفني (${originalName})؟`)) {
+        bonusRecords = bonusRecords.filter(b => b.tech !== originalName);
+        renderCtrlTechRecords(originalName);
+        renderAdmin();
+        syncCloudUp();
+        alert('تم مسح سجل المكافآت بالكامل لهذا الفني ✓');
+      }
+    }
+
+    function deleteSingleBonusFromControl(recordId) {
+      const record = bonusRecords.find(b => b.id === recordId);
+      if (!record) return;
+
+      const techObj = appAccounts.find(a => a.name === record.tech);
+      const shouldDeduct = confirm(`حذف قيد بقيمة (${record.amount} ج)؟\nاضغط [موافق] لخصمه من رصيد الفني أيضاً، أو [إلغاء] لحذف القيد فقط دون المساس بالرصيد.`);
+
+      if (shouldDeduct && techObj) {
+        techObj.accumulatedBonus = Math.max(0, Number(techObj.accumulatedBonus || 0) - Number(record.amount));
+        document.getElementById('ctrlTechBalanceInput').value = techObj.accumulatedBonus;
+      }
+
+      bonusRecords = bonusRecords.filter(b => b.id !== recordId);
+      renderCtrlTechRecords(record.tech);
+      renderAdmin();
+      syncCloudUp();
+    }
+
+    function openEditBonusRecordModal(recordId) {
+      const b = bonusRecords.find(x => x.id === recordId);
+      if (!b) return;
+
+      document.getElementById('editRecordId').value = b.id;
+      document.getElementById('editRecordAmountInput').value = b.amount;
+      document.getElementById('editRecordReasonInput').value = b.reason || '';
+      document.getElementById('modalEditBonusRecord').classList.remove('hidden');
+    }
+
+    function closeEditBonusRecordModal() {
+      document.getElementById('modalEditBonusRecord').classList.add('hidden');
+    }
+
+    function saveEditedBonusRecord() {
+      const id = document.getElementById('editRecordId').value;
+      const newAmt = Number(document.getElementById('editRecordAmountInput').value);
+      const newRsn = document.getElementById('editRecordReasonInput').value.trim() || 'مكافأة إنجاز';
+
+      if (!newAmt || newAmt <= 0) {
+        alert('يرجى إدخال مبلغ صحيح');
+        return;
+      }
+
+      const b = bonusRecords.find(x => x.id === id);
+      if (b) {
+        const diff = newAmt - Number(b.amount);
+        b.amount = newAmt;
+        b.reason = newRsn;
+
+        const techObj = appAccounts.find(a => a.name === b.tech);
+        if (techObj) {
+          techObj.accumulatedBonus = Math.max(0, Number(techObj.accumulatedBonus || 0) + diff);
+          const balInput = document.getElementById('ctrlTechBalanceInput');
+          if (balInput) balInput.value = techObj.accumulatedBonus;
+        }
+
+        closeEditBonusRecordModal();
+        renderCtrlTechRecords(b.tech);
+        renderAdmin();
+        syncCloudUp();
+        alert('تم تعديل قيد البونص وتحديث رصيد الفني تلقائياً ✓');
+      }
+    }
+
     function updateAdminCredentials() {
       const u = document.getElementById('adminUserVal').value.trim();
       const p = document.getElementById('adminPassVal').value.trim();
@@ -922,7 +1166,7 @@
       document.getElementById('statTotalPaid').innerText = `${totalPaid} ج`;
       document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
 
-      // كروت الفنيين الواضحة
+      // كروت الفنيين الواضحة مع زر التحكم
       const quickContainer = document.getElementById('techQuickActionList');
       quickContainer.innerHTML = '';
 
@@ -942,8 +1186,11 @@
             </div>
 
             <div class="tech-actions-grid">
-              <button type="button" onclick="openBonusPrompt('${t.name}')" class="btn btn-success" style="padding:10px; font-size:14px;">
+              <button type="button" onclick="openBonusPrompt('${t.name}')" class="btn btn-success" style="padding:10px; font-size:13px;">
                 ➕ إضافة بونص
+              </button>
+              <button type="button" onclick="openTechFullControl(${t.id})" class="btn btn-primary" style="padding:10px; font-size:12px;">
+                🛠️ تحكم وتعديل
               </button>
               <button type="button" onclick="settleTech('${t.name}')" class="btn btn-secondary" style="padding:10px; font-size:12px;">
                 تصفير
@@ -979,20 +1226,6 @@
           `;
         });
       }
-    }
-
-    function renderAdminSettingsTechList() {
-      const techs = appAccounts.filter(a => a.role === 'tech');
-      const manageList = document.getElementById('techListManage');
-      manageList.innerHTML = '';
-      techs.forEach(t => {
-        manageList.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#ffffff; padding:8px 12px; border-radius:12px; margin-bottom:6px; border:1px solid var(--border); font-size:12px;">
-            <span><strong>${t.name}</strong> (${t.username})</span>
-            <button type="button" onclick="deleteTech(${t.id})" style="background:var(--danger-light); color:var(--danger); border:none; border-radius:6px; padding:3px 8px; font-size:10px; cursor:pointer; font-weight:800;">حذف</button>
-          </div>
-        `;
-      });
     }
 
     function settleTech(name) {
@@ -1034,22 +1267,10 @@
       document.getElementById('techNameIn').value = '';
       document.getElementById('techUserIn').value = '';
       document.getElementById('techPassIn').value = '';
-      renderAdminSettingsTechList();
+      closeAdminSettingsModal();
       renderAdmin();
       syncCloudUp();
-      alert('تمت إضافة الفني بنجاح');
-    }
-
-    function deleteTech(id) {
-      const targetTech = appAccounts.find(a => a.id === id);
-      if (!targetTech) return;
-
-      if (confirm(`حذف الفني (${targetTech.name}) نهائياً؟`)) {
-        appAccounts = appAccounts.filter(a => a.id !== id);
-        renderAdminSettingsTechList();
-        renderAdmin();
-        syncCloudUp();
-      }
+      alert('تمت إضافة الفني بنجاح ✓');
     }
 
     /* ================= دوال الفني ================= */
