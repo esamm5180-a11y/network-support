@@ -28,31 +28,66 @@
       --shadow-md: 0 10px 24px rgba(0,0,0,0.07);
     }
 
-    * { box-sizing: border-box; font-family: 'Cairo', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-    body { background-color: var(--bg); color: var(--dark); padding-bottom: 60px; -webkit-font-smoothing: antialiased; }
+    /* ألوان الوضع الليلي */
+    body.dark-mode {
+      --bg: #090d16;
+      --card-bg: #131b2e;
+      --dark: #f1f5f9;
+      --slate: #94a3b8;
+      --border: #26334d;
+      --success-light: #064e3b;
+      --danger-light: #4c0519;
+      --shadow-sm: 0 2px 6px rgba(0,0,0,0.4);
+      --shadow-md: 0 10px 24px rgba(0,0,0,0.6);
+    }
+
+    * { box-sizing: border-box; font-family: 'Cairo', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; transition: background-color 0.2s ease, color 0.2s ease; }
+    body { background-color: var(--bg); color: var(--dark); padding-bottom: 60px; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
     .hidden { display: none !important; }
     
     .container { width: 100%; max-width: 520px; margin: 0 auto; padding: 16px; }
+
+    /* عنصر مؤشر السحب للأسفل */
+    #pullIndicator {
+      position: fixed;
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      color: var(--primary);
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: var(--shadow-md);
+      z-index: 1000;
+      transition: top 0.2s ease, opacity 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
+    }
     
     .btn-header-update {
       position: relative;
-      background: #ffffff;
-      color: #334155;
+      background: var(--card-bg);
+      color: var(--slate);
       border: 1.5px solid var(--border);
       border-radius: 12px;
-      padding: 6px 12px;
-      font-size: 12px;
+      padding: 6px 10px;
+      font-size: 13px;
       font-weight: 800;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       box-shadow: var(--shadow-sm);
     }
     .btn-header-bell {
       position: relative;
-      background: #ffffff;
-      color: #334155;
+      background: var(--card-bg);
+      color: var(--slate);
       border: 1.5px solid var(--border);
       border-radius: 12px;
       padding: 6px 11px;
@@ -64,8 +99,8 @@
     }
 
     .btn-header-update.has-update {
-      background: #ecfdf5;
-      color: #059669;
+      background: var(--success-light);
+      color: #10b981;
       border: 1.5px solid #10b981;
       box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
       animation: pulse-update-btn 2s infinite;
@@ -81,7 +116,7 @@
       font-weight: 900;
       padding: 1px 5px;
       border-radius: 20px;
-      border: 2px solid #fff;
+      border: 2px solid var(--card-bg);
     }
 
     @keyframes pulse-update-btn {
@@ -99,10 +134,9 @@
       box-shadow: var(--shadow-md);
     }
 
-    /* كروت الفنيين بالرئيسية */
     .tech-card {
-      background: #ffffff;
-      border: 2px solid #e2e8f0;
+      background: var(--card-bg);
+      border: 2px solid var(--border);
       border-radius: 20px;
       padding: 18px;
       margin-bottom: 14px;
@@ -147,12 +181,12 @@
       font-size: 14px;
       font-weight: 600;
       outline: none;
-      background: #f8fafc;
+      background: var(--bg);
       color: var(--dark);
     }
     .input-control:focus {
       border-color: var(--primary);
-      background: #fff;
+      background: var(--card-bg);
     }
 
     .btn {
@@ -173,11 +207,10 @@
     .btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; }
     .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; }
     .btn-danger { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #ffffff; }
-    .btn-secondary { background: #f1f5f9; color: var(--slate); border: 1.5px solid var(--border); }
+    .btn-secondary { background: var(--bg); color: var(--slate); border: 1.5px solid var(--border); }
 
     .header {
-      background: rgba(255, 255, 255, 0.96);
-      backdrop-filter: blur(12px);
+      background: var(--card-bg);
       border-bottom: 1.5px solid var(--border);
       padding: 12px 16px;
       display: flex;
@@ -219,7 +252,8 @@
       z-index: 999;
     }
     .modal-content {
-      background: #fff;
+      background: var(--card-bg);
+      color: var(--dark);
       width: 100%;
       max-width: 440px;
       border-radius: 24px;
@@ -240,7 +274,7 @@
     }
 
     .bonus-box {
-      background: #ffffff;
+      background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 12px 14px;
@@ -257,6 +291,12 @@
 </head>
 <body onclick="unlockAudioSystem()">
 
+  <!-- مؤشر السحب للأسفل للتحديث -->
+  <div id="pullIndicator">
+    <span>⬇️</span>
+    <span id="pullIndicatorText">اسحب للتحديث...</span>
+  </div>
+
   <div class="status-badge">
     <div id="cloudDot" class="dot"></div>
     <span id="cloudStatusText">متصل بالسحابة ✓</span>
@@ -270,9 +310,9 @@
       <p id="bonusAlertReasonDisplay" style="font-size: 13px; color: var(--slate); margin-bottom: 12px; font-weight:700;"></p>
 
       <div style="background: var(--success-light); border: 1.5px solid rgba(5,150,105,0.25); border-radius: 16px; padding: 16px; margin-bottom: 16px;">
-        <span style="font-size: 12px; color: #065f46; font-weight: 700; display: block;">المبلغ المضاف:</span>
+        <span style="font-size: 12px; color: #10b981; font-weight: 700; display: block;">المبلغ المضاف:</span>
         <h2 id="bonusAlertAmount" style="font-size: 38px; font-weight: 900; color: var(--success); margin: 4px 0;">+0 ج</h2>
-        <span id="bonusAlertTime" style="font-size: 11px; color: #065f46; font-weight: 600; display: block;"></span>
+        <span id="bonusAlertTime" style="font-size: 11px; color: #10b981; font-weight: 600; display: block;"></span>
       </div>
 
       <button type="button" onclick="dismissBonusAlertModal()" class="btn btn-primary" style="background:var(--success);">استلام الرصيد ✓</button>
@@ -285,7 +325,7 @@
       <h4 style="font-size: 17px; font-weight: 900; margin-bottom: 14px; color: var(--success);">🎁 تنزيل بونص للفني</h4>
       <input type="hidden" id="promptTargetTech">
       
-      <div style="background:#f1f5f9; border:1px solid var(--border); border-radius:14px; padding:12px 14px; margin-bottom:14px;">
+      <div style="background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:12px 14px; margin-bottom:14px;">
         <span style="font-size:12px; color:var(--slate); display:block; font-weight:700;">الفني المستحق:</span>
         <strong id="promptTechNameLabel" style="font-size:16px; color:var(--dark);"></strong>
       </div>
@@ -324,33 +364,50 @@
     </div>
   </div>
 
-  <!-- نافذة الإعدادات الشاملة (جميع أدوات التعديل والتحكم هنا فقط) -->
+  <!-- نافذة الإعدادات الشاملة (تحتوي على الخصم/السلفة وتعديل الفنيين) -->
   <div id="modalAdminSettings" class="modal-overlay hidden">
     <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1.5px solid var(--border); padding-bottom: 10px;">
-        <h4 style="font-size: 17px; font-weight: 900; color:var(--primary);">⚙️ مركز الإعدادات والتحكم الشامل</h4>
+        <h4 style="font-size: 17px; font-weight: 900; color:var(--primary);">⚙️ الإعدادات والتحكم</h4>
         <button type="button" onclick="closeAdminSettingsModal()" style="border:none; background:transparent; font-size:20px; cursor:pointer;">✕</button>
       </div>
 
-      <!-- 1. التحكم في الفنيين (تعديل الرصيد، البيانات، مسح السجل) -->
-      <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:16px; padding:14px; margin-bottom:14px;">
-        <h5 style="font-size:13px; font-weight:900; color:var(--dark); margin-bottom:10px;">🛠️ التحكم الكامل في أي فني:</h5>
+      <!-- ميزة الخصم أو السلفة السريعة -->
+      <div style="background:var(--danger-light); border:1.5px solid rgba(225,29,72,0.3); border-radius:16px; padding:14px; margin-bottom:14px;">
+        <h5 style="font-size:13px; font-weight:900; color:var(--danger); margin-bottom:10px;">➖ تسجيل خصم أو سلفة كاش:</h5>
         
         <div class="input-group">
-          <label>اختر الفني للتحكم فيه:</label>
-          <select id="settingsTargetTechSelect" onchange="loadTechDataIntoSettings()" class="input-control" style="background:#fff; font-weight:700;"></select>
+          <label>اختر الفني</label>
+          <select id="deductTargetTechSelect" class="input-control" style="background:var(--card-bg); font-weight:700;"></select>
+        </div>
+        <div class="input-group">
+          <label>مبلغ الخصم أو السلفة (جنيه)</label>
+          <input type="number" id="deductAmountInput" placeholder="مثلاً: 50" class="input-control" style="color:var(--danger); font-weight:900;">
+        </div>
+        <div class="input-group">
+          <label>السبب</label>
+          <input type="text" id="deductReasonInput" placeholder="مثلاً: سلفة بنزين، أخد كارت من المحل..." class="input-control">
+        </div>
+        <button type="button" onclick="submitDeductionFromSettings()" class="btn btn-danger" style="padding:9px; font-size:13px;">خصم المبلغ من الرصيد فوراً ➖</button>
+      </div>
+
+      <!-- التحكم في بيانات ورصيد الفني المختار -->
+      <div style="background:var(--bg); border:1.5px solid var(--border); border-radius:16px; padding:14px; margin-bottom:14px;">
+        <h5 style="font-size:13px; font-weight:900; color:var(--dark); margin-bottom:10px;">🛠️ التحكم في حساب الفني:</h5>
+        
+        <div class="input-group">
+          <label>اختر الفني:</label>
+          <select id="settingsTargetTechSelect" onchange="loadTechDataIntoSettings()" class="input-control" style="background:var(--card-bg); font-weight:700;"></select>
         </div>
 
-        <!-- تعديل الرصيد التراكمي مباشرة -->
         <div style="margin-bottom:12px;">
-          <label style="font-size:11px; font-weight:800; color:var(--slate); display:block; margin-bottom:4px;">تعديل وتثبيت الرصيد الحالي يدوياً:</label>
+          <label style="font-size:11px; font-weight:800; color:var(--slate); display:block; margin-bottom:4px;">تعديل وتثبيت الرصيد يدوياً:</label>
           <div style="display:flex; gap:6px;">
             <input type="number" id="settingsTechBalanceInput" class="input-control" style="font-size:18px; font-weight:900; color:var(--success);">
             <button type="button" onclick="saveTechBalanceFromSettings()" class="btn btn-success" style="width:auto; padding:0 12px; font-size:12px; white-space:nowrap;">تحديث الرصيد</button>
           </div>
         </div>
 
-        <!-- تعديل بيانات حساب الفني -->
         <div class="input-group">
           <label>اسم الفني</label>
           <input type="text" id="settingsTechNameInput" class="input-control">
@@ -370,18 +427,17 @@
           <button type="button" onclick="deleteCurrentSettingsTech()" class="btn btn-danger" style="padding:8px; font-size:12px;">حذف الفني نهائياً</button>
         </div>
 
-        <!-- مسح وإدارة سجل بونص الفني المختار -->
         <div style="border-top:1px solid var(--border); margin-top:12px; padding-top:10px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:11px; font-weight:800; color:var(--slate);">سجل مكافآت هذا الفني:</span>
+            <span style="font-size:11px; font-weight:800; color:var(--slate);">سجل الحركات:</span>
             <button type="button" onclick="clearSelectedTechHistoryFromSettings()" class="badge" style="background:var(--danger-light); color:var(--danger); border:none; cursor:pointer;">مسح كامل السجل 🗑️</button>
           </div>
           <div id="settingsTechRecordsList" style="max-height: 140px; overflow-y: auto;"></div>
         </div>
       </div>
 
-      <!-- 2. إضافة فني جديد -->
-      <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:16px; padding:14px; margin-bottom:14px;">
+      <!-- إضافة فني جديد -->
+      <div style="background:var(--bg); border:1.5px solid var(--border); border-radius:16px; padding:14px; margin-bottom:14px;">
         <h5 style="font-size:13px; font-weight:900; color:var(--dark); margin-bottom:10px;">👷 إضافة فني جديد</h5>
         <div class="input-group">
           <label>اسم الفني</label>
@@ -400,8 +456,8 @@
         <button type="button" onclick="addNewTechFromSettings()" class="btn btn-primary" style="padding:9px; font-size:13px;">إضافة الفني للنظام ➕</button>
       </div>
 
-      <!-- 3. تعديل بيانات حساب المدير -->
-      <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:16px; padding:14px; margin-bottom:14px;">
+      <!-- تعديل بيانات حساب المدير -->
+      <div style="background:var(--bg); border:1.5px solid var(--border); border-radius:16px; padding:14px; margin-bottom:14px;">
         <h5 style="font-size:13px; font-weight:900; color:var(--dark); margin-bottom:10px;">👤 بيانات حساب المدير</h5>
         <div class="grid-2">
           <div class="input-group">
@@ -450,7 +506,7 @@
     </div>
   </div>
 
-  <!-- 2. واجهة المدير البسيطة والنظيفة جداً -->
+  <!-- 2. واجهة المدير النظيفة -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -458,6 +514,10 @@
         <span id="adminDateBadge" style="font-size: 11px; color: var(--slate); font-weight: 600;"></span>
       </div>
       <div style="display: flex; align-items: center; gap: 6px;">
+        <!-- زر التبديل للوضع الليلي -->
+        <button type="button" onclick="toggleDarkMode()" class="btn-header-update" title="الوضع الليلي">
+          <span id="darkModeIconAdmin">🌙</span>
+        </button>
         <button type="button" onclick="openAdminSettingsModal()" class="btn-header-update" title="الإعدادات">
           <span>⚙️ الإعدادات</span>
         </button>
@@ -471,26 +531,26 @@
 
     <div class="container">
       
-      <!-- ملخص مالي بارز وواضح -->
+      <!-- ملخص مالي -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-        <div style="background:#ffffff; border-radius:18px; padding:14px; text-align:center; border:2px solid #e2e8f0; box-shadow:var(--shadow-sm);">
+        <div style="background:var(--card-bg); border-radius:18px; padding:14px; text-align:center; border:2px solid var(--border); box-shadow:var(--shadow-sm);">
           <span style="font-size:12px; font-weight:800; color:var(--slate); display:block; margin-bottom:2px;">📅 بونص اليوم</span>
           <strong id="statTodayPaid" style="font-size:24px; font-weight:900; color:var(--success);">0 ج</strong>
         </div>
-        <div style="background:#ffffff; border-radius:18px; padding:14px; text-align:center; border:2px solid #e2e8f0; box-shadow:var(--shadow-sm);">
+        <div style="background:var(--card-bg); border-radius:18px; padding:14px; text-align:center; border:2px solid var(--border); box-shadow:var(--shadow-sm);">
           <span style="font-size:12px; font-weight:800; color:var(--slate); display:block; margin-bottom:2px;">💰 إجمالي الشهر</span>
           <strong id="statTotalPaid" style="font-size:24px; font-weight:900; color:var(--primary);">0 ج</strong>
         </div>
       </div>
 
-      <!-- كروت الفنيين الصافية فقط -->
+      <!-- كروت الفنيين الصافية -->
       <div id="techQuickActionList"></div>
 
       <!-- سجل عمليات اليوم -->
       <div class="card" style="margin-top: 10px; padding: 16px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <h4 style="font-size:14px; font-weight:900; color:var(--dark);">📜 عمليات اليوم</h4>
-          <span id="txCountBadge" class="badge" style="background:#f1f5f9; color:var(--slate); font-size:11px;">0 حركة</span>
+          <span id="txCountBadge" class="badge" style="background:var(--bg); color:var(--slate); font-size:11px;">0 حركة</span>
         </div>
         <div id="bonusTransactionsFeed"></div>
       </div>
@@ -506,12 +566,16 @@
         <span style="font-size: 11px; color: var(--slate); font-weight: 600;">حصالة المكافآت</span>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
+        <!-- زر الوضع الليلي للفني -->
+        <button type="button" onclick="toggleDarkMode()" class="btn-header-update" title="الوضع الليلي">
+          <span id="darkModeIconTech">🌙</span>
+        </button>
         <button type="button" id="btnTechBell" onclick="openNotificationsModal()" class="btn-header-bell" title="الإشعارات">
           <span>🔔</span>
           <span id="techBellBadge" class="update-badge-dot hidden">1</span>
         </button>
         <button type="button" id="btnTechUpdate" onclick="performInstantUpdate()" class="btn-header-update">
-          <span>🔄 تحديث</span>
+          <span>🔄</span>
           <span id="techUpdateBadge" class="update-badge-dot hidden">جديد!</span>
         </button>
         <button type="button" onclick="logoutNow()" class="btn btn-danger" style="width: auto; padding: 6px 12px; font-size: 12px; border-radius: 10px;">خروج</button>
@@ -532,12 +596,12 @@
     </div>
   </div>
 
-  <!-- المحرك البرمجي -->
+  <!-- المحرك البرمجي المحدث -->
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار 21: حصر التعديلات في الإعدادات فقط
-    const APP_CURRENT_VERSION = 21;
+    // الإصدار 22: السحب للتحديث + الوضع الليلي + الخصم والسلفة
+    const APP_CURRENT_VERSION = 22;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -549,6 +613,80 @@
     let currentUser = null;
     let globalAudioCtx = null;
     let currentActiveBonusData = null;
+
+    /* ================= ميزة الوضع الليلي (Dark Mode) ================= */
+    function initDarkMode() {
+      const isDark = localStorage.getItem('app_dark_mode') === 'true';
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+        updateDarkModeIcons('☀️');
+      } else {
+        document.body.classList.remove('dark-mode');
+        updateDarkModeIcons('🌙');
+      }
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('app_dark_mode', isDark ? 'true' : 'false');
+      updateDarkModeIcons(isDark ? '☀️️' : '🌙');
+    }
+
+    function updateDarkModeIcons(icon) {
+      const adm = document.getElementById('darkModeIconAdmin');
+      const tech = document.getElementById('darkModeIconTech');
+      if (adm) adm.innerText = icon;
+      if (tech) tech.innerText = icon;
+    }
+
+    /* ================= ميزة السحب للأسفل للتحديث (Pull-to-Refresh) ================= */
+    let touchStartY = 0;
+    let touchMoveY = 0;
+    let isPulling = false;
+
+    function initPullToRefresh() {
+      const indicator = document.getElementById('pullIndicator');
+      const indicatorText = document.getElementById('pullIndicatorText');
+
+      window.addEventListener('touchstart', (e) => {
+        if (window.scrollY === 0) {
+          touchStartY = e.touches[0].clientY;
+          isPulling = true;
+        } else {
+          isPulling = false;
+        }
+      }, { passive: true });
+
+      window.addEventListener('touchmove', (e) => {
+        if (!isPulling || window.scrollY > 0) return;
+        touchMoveY = e.touches[0].clientY;
+        const pullDistance = touchMoveY - touchStartY;
+
+        if (pullDistance > 10 && pullDistance < 140) {
+          indicator.style.top = `${pullDistance - 40}px`;
+          if (pullDistance > 75) {
+            indicatorText.innerText = 'اترك للتحديث الآن...';
+          } else {
+            indicatorText.innerText = 'اسحب للتحديث...';
+          }
+        }
+      }, { passive: true });
+
+      window.addEventListener('touchend', (e) => {
+        if (!isPulling) return;
+        const pullDistance = touchMoveY - touchStartY;
+        if (pullDistance > 75 && window.scrollY === 0) {
+          indicator.style.top = '20px';
+          indicatorText.innerText = 'جارِ التحديث... ⏳';
+          performInstantUpdate();
+        } else {
+          indicator.style.top = '-50px';
+        }
+        isPulling = false;
+        touchStartY = 0;
+        touchMoveY = 0;
+      }, { passive: true });
+    }
 
     function getToday() {
       const d = new Date();
@@ -686,11 +824,12 @@
         if (myBonuses.length > 0) {
           hasItems = true;
           myBonuses.forEach(b => {
+            const isNegative = b.amount < 0;
             container.innerHTML += `
-              <div style="background: var(--success-light); border: 1px solid rgba(5,150,105,0.2); border-radius: 14px; padding: 12px; margin-bottom: 8px;">
+              <div style="background: ${isNegative ? 'var(--danger-light)' : 'var(--success-light)'}; border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-bottom: 8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <strong style="color:var(--success); font-size:14px;">🎁 ${b.reason || 'مكافأة'}</strong>
-                  <span style="font-weight:900; color:var(--success); font-size:15px;">+${b.amount} ج</span>
+                  <strong style="color:${isNegative ? 'var(--danger)' : 'var(--success)'}; font-size:14px;">${isNegative ? '➖' : '🎁'} ${b.reason || 'حركة مالية'}</strong>
+                  <span style="font-weight:900; color:${isNegative ? 'var(--danger)' : 'var(--success)'}; font-size:15px;">${isNegative ? '' : '+'}${b.amount} ج</span>
                 </div>
                 <span style="font-size:10px; color:var(--slate); display:block; margin-top:4px;">${b.date} - ${b.time}</span>
               </div>
@@ -722,7 +861,7 @@
       document.getElementById('modalNotificationsList').classList.add('hidden');
     }
 
-    /* ================= دوال نافذة الإعدادات ================= */
+    /* ================= دوال نافذة الإعدادات الشاملة ================= */
     function openAdminSettingsModal() {
       const adm = appAccounts.find(a => a.role === 'admin');
       if (adm) {
@@ -740,11 +879,16 @@
 
     function populateSettingsTechSelect() {
       const select = document.getElementById('settingsTargetTechSelect');
+      const deductSelect = document.getElementById('deductTargetTechSelect');
       const techs = appAccounts.filter(a => a.role === 'tech');
       const currentSelected = select.value;
+
       select.innerHTML = '';
+      deductSelect.innerHTML = '';
+
       techs.forEach(t => {
         select.innerHTML += `<option value="${t.id}" ${currentSelected == t.id ? 'selected' : ''}>${t.name} (@${t.username})</option>`;
+        deductSelect.innerHTML += `<option value="${t.name}">${t.name}</option>`;
       });
     }
 
@@ -772,19 +916,58 @@
       }
 
       myRecords.forEach(b => {
+        const isNegative = b.amount < 0;
         listDiv.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#ffffff; border:1px solid var(--border); border-radius:10px; padding:6px 10px; margin-bottom:5px; font-size:11px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:6px 10px; margin-bottom:5px; font-size:11px;">
             <div>
-              <strong style="color:var(--dark);">${b.reason || 'مكافأة'}</strong>
+              <strong style="color:${isNegative ? 'var(--danger)' : 'var(--dark)'};">${isNegative ? '➖' : '🎁'} ${b.reason || 'حركة'}</strong>
               <span style="display:block; color:var(--slate); font-size:10px;">${b.date} - ${b.time}</span>
             </div>
             <div style="display:flex; align-items:center; gap:6px;">
-              <span style="font-weight:900; color:var(--success);">+${b.amount} ج</span>
+              <span style="font-weight:900; color:${isNegative ? 'var(--danger)' : 'var(--success)'};">${isNegative ? '' : '+'}${b.amount} ج</span>
               <button type="button" onclick="deleteBonusRecordFromSettings('${b.id}')" style="border:none; background:var(--danger-light); color:var(--danger); padding:2px 6px; border-radius:6px; cursor:pointer; font-weight:800;">حذف</button>
             </div>
           </div>
         `;
       });
+    }
+
+    /* ميزة تسجيل خصم أو سلفة كاش */
+    function submitDeductionFromSettings() {
+      const techName = document.getElementById('deductTargetTechSelect').value;
+      const amount = Number(document.getElementById('deductAmountInput').value);
+      const reasonVal = document.getElementById('deductReasonInput').value.trim() || 'سلفة / خصم كاش';
+
+      if (!amount || amount <= 0) {
+        alert('يرجى كتابة مبلغ سلفة أو خصم صحيح');
+        return;
+      }
+
+      const techObj = appAccounts.find(a => a.name === techName);
+      if (!techObj) return;
+
+      // الخصم من الرصيد التراكمي
+      techObj.accumulatedBonus = Math.max(0, Number(techObj.accumulatedBonus || 0) - amount);
+
+      // تسجيل الحركة بالسالب في السجل
+      const newDeductRecord = {
+        id: 'DED-' + Date.now().toString().slice(-6),
+        tech: techName,
+        amount: -amount,
+        reason: reasonVal,
+        date: getToday(),
+        time: getTimeNow()
+      };
+
+      bonusRecords.unshift(newDeductRecord);
+
+      document.getElementById('deductAmountInput').value = '';
+      document.getElementById('deductReasonInput').value = '';
+
+      loadTechDataIntoSettings();
+      renderAdmin();
+      syncCloudUp();
+      alert(`تم خصم ${amount} ج من حساب الفني (${techName}) بنجاح ➖`);
     }
 
     function saveTechBalanceFromSettings() {
@@ -854,7 +1037,7 @@
       const t = appAccounts.find(a => a.id == select.value);
       if (!t) return;
 
-      if (confirm(`مسح كامل سجل مكافآت الفني (${t.name})؟`)) {
+      if (confirm(`مسح كامل سجل حركات ومكافآت الفني (${t.name})؟`)) {
         bonusRecords = bonusRecords.filter(b => b.tech !== t.name);
         renderSettingsTechRecords(t.name);
         renderAdmin();
@@ -867,7 +1050,7 @@
       const record = bonusRecords.find(b => b.id === recordId);
       if (!record) return;
 
-      if (confirm(`حذف هذا القيد بقيمة (+${record.amount} ج)؟`)) {
+      if (confirm(`حذف هذا القيد من السجل؟`)) {
         bonusRecords = bonusRecords.filter(b => b.id !== recordId);
         renderSettingsTechRecords(record.tech);
         renderAdmin();
@@ -1061,6 +1244,8 @@
 
     setInterval(syncCloudDown, 3000);
     window.onload = function() {
+      initDarkMode();
+      initPullToRefresh();
       autoLoginCheck();
       syncCloudDown();
       broadcastVersion();
@@ -1136,7 +1321,7 @@
       document.getElementById('statTotalPaid').innerText = `${totalPaid} ج`;
       document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
 
-      // كروت الفنيين الصافية فقط
+      // كروت الفنيين الصافية
       const quickContainer = document.getElementById('techQuickActionList');
       quickContainer.innerHTML = '';
 
@@ -1175,18 +1360,19 @@
       document.getElementById('txCountBadge').innerText = `${todayRecords.length} حركة`;
 
       if (todayRecords.length === 0) {
-        feed.innerHTML = '<p style="text-align:center; font-size:12px; color:#94a3b8; padding:8px; font-weight:700;">لا توجد مكافآت مسجلة اليوم</p>';
+        feed.innerHTML = '<p style="text-align:center; font-size:12px; color:#94a3b8; padding:8px; font-weight:700;">لا توجد حركات مسجلة اليوم</p>';
       } else {
         todayRecords.slice(0, 10).forEach(b => {
+          const isNegative = b.amount < 0;
           feed.innerHTML += `
             <div class="bonus-box" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; margin-bottom:6px;">
               <div>
                 <strong style="font-size:13px; color:var(--dark);">${b.tech}</strong>
-                <span style="font-size:11px; color:var(--success); font-weight:700; display:block;">${b.reason || 'مكافأة'}</span>
+                <span style="font-size:11px; color:${isNegative ? 'var(--danger)' : 'var(--success)'}; font-weight:700; display:block;">${isNegative ? '➖' : '🎁'} ${b.reason || 'حركة'}</span>
                 <span style="font-size:10px; color:var(--slate); display:block;">${b.time}</span>
               </div>
               <div style="display:flex; align-items:center; gap:6px;">
-                <span style="font-size:15px; font-weight:900; color:var(--success);">+${b.amount} ج</span>
+                <span style="font-size:15px; font-weight:900; color:${isNegative ? 'var(--danger)' : 'var(--success)'};">${isNegative ? '' : '+'}${b.amount} ج</span>
                 <button type="button" onclick="deleteBonusRecord('${b.id}')" style="border:none; background:transparent; color:#94a3b8; cursor:pointer; font-size:13px;" title="حذف">✕</button>
               </div>
             </div>
@@ -1221,25 +1407,26 @@
       const todayAmount = myBonuses.filter(b => b.date === today).reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
       document.getElementById('techTotalBonus').innerText = `${Number(me.accumulatedBonus || 0)} ج`;
-      document.getElementById('techBonusToday').innerText = `مكافآت اليوم: ${todayAmount} ج`;
+      document.getElementById('techBonusToday').innerText = `حركات اليوم: ${todayAmount} ج`;
 
       const listContainer = document.getElementById('techBonusList');
       listContainer.innerHTML = '';
 
       if (myBonuses.length === 0) {
-        listContainer.innerHTML = '<p style="text-align:center; font-size:13px; color:#94a3b8; padding:30px; font-weight:700;">لا توجد مكافآت مسجلة لك حتى الآن</p>';
+        listContainer.innerHTML = '<p style="text-align:center; font-size:13px; color:#94a3b8; padding:30px; font-weight:700;">لا توجد حركات مسجلة لك حتى الآن</p>';
         return;
       }
 
       myBonuses.forEach(b => {
+        const isNegative = b.amount < 0;
         listContainer.innerHTML += `
           <div class="bonus-box">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <strong style="font-size:13px; color:var(--dark);">${b.reason || 'مكافأة إنجاز'}</strong>
+                <strong style="font-size:13px; color:${isNegative ? 'var(--danger)' : 'var(--dark)'};">${isNegative ? '➖' : '🎁'} ${b.reason || 'حركة'}</strong>
                 <span style="font-size:11px; color:var(--slate); display:block; margin-top:2px;">${b.date} - ${b.time}</span>
               </div>
-              <span style="font-size:16px; font-weight:900; color:var(--success);">+${b.amount} ج</span>
+              <span style="font-size:16px; font-weight:900; color:${isNegative ? 'var(--danger)' : 'var(--success)'};">${isNegative ? '' : '+'}${b.amount} ج</span>
             </div>
           </div>
         `;
