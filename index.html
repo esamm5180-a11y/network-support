@@ -117,7 +117,7 @@
 
     .btn-quick {
       flex: 1;
-      min-width: 54px;
+      min-width: 50px;
       background: #f0fdf4;
       color: #15803d;
       border: 1.5px solid #86efac;
@@ -320,6 +320,58 @@
     </div>
   </div>
 
+  <!-- نافذة إعدادات الإدارة المبسطة (تعديل المدير وإضافة الفنيين) -->
+  <div id="modalAdminSettings" class="modal-overlay hidden">
+    <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+        <h4 style="font-size: 16px; font-weight: 900;">⚙️ إعدادات الإدارة والفنيين</h4>
+        <button type="button" onclick="closeAdminSettingsModal()" style="border:none; background:transparent; font-size:18px; cursor:pointer;">✕</button>
+      </div>
+
+      <!-- تعديل بيانات المدير -->
+      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:16px; padding:14px; margin-bottom:14px;">
+        <h5 style="font-size:13px; font-weight:800; margin-bottom:10px;">👤 بيانات حساب المدير</h5>
+        <div class="grid-2">
+          <div class="input-group">
+            <label>اسم المستخدم</label>
+            <input type="text" id="adminUserVal" class="input-control">
+          </div>
+          <div class="input-group">
+            <label>كلمة المرور</label>
+            <input type="text" id="adminPassVal" class="input-control">
+          </div>
+        </div>
+        <button type="button" onclick="updateAdminCredentials()" class="btn btn-secondary" style="padding:8px; font-size:12px;">حفظ بيانات المدير 💾</button>
+      </div>
+
+      <!-- إضافة فني -->
+      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:16px; padding:14px; margin-bottom:14px;">
+        <h5 style="font-size:13px; font-weight:800; margin-bottom:10px;">👷 إضافة فني جديد</h5>
+        <div class="grid-2">
+          <div class="input-group">
+            <label>اسم الفني</label>
+            <input type="text" id="techNameIn" placeholder="الاسم" class="input-control">
+          </div>
+          <div class="input-group">
+            <label>اليوزر</label>
+            <input type="text" id="techUserIn" class="input-control">
+          </div>
+        </div>
+        <div class="input-group">
+          <label>كلمة المرور</label>
+          <input type="text" id="techPassIn" class="input-control">
+        </div>
+        <button type="button" onclick="addNewTech()" class="btn btn-primary" style="padding:8px; font-size:12px;">إضافة الفني ➕</button>
+      </div>
+
+      <!-- قائمة الفنيين الحاليين لحذفهم عند الحاجة -->
+      <h5 style="font-size:12px; font-weight:800; color:var(--slate); margin-bottom:6px;">الفنيين المسجلين:</h5>
+      <div id="techListManage"></div>
+
+      <button type="button" onclick="closeAdminSettingsModal()" class="btn btn-secondary" style="margin-top:14px;">إغلاق النافذة</button>
+    </div>
+  </div>
+
   <!-- 1. شاشة تسجيل الدخول -->
   <div id="screenLogin" class="container" style="min-height: 85vh; display: flex; align-items: center; justify-content: center;">
     <div class="card" style="width: 100%; text-align: center; padding: 32px 24px;">
@@ -350,89 +402,50 @@
     </div>
   </div>
 
-  <!-- 2. واجهة المدير السريعة -->
+  <!-- 2. واجهة المدير المبسطة والمريحة -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
-        <h3 style="font-size: 16px; font-weight: 900; color: var(--dark);">لوحة البونص السريع</h3>
+        <h3 style="font-size: 16px; font-weight: 900; color: var(--dark);">لوحة البونص</h3>
         <span id="adminDateBadge" style="font-size: 11px; color: var(--slate); font-weight: 600;"></span>
       </div>
-      <div style="display: flex; align-items: center; gap: 8px;">
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <!-- زر فتح الإعدادات المبسطة لتنظيف الشاشة الرئيسية -->
+        <button type="button" onclick="openAdminSettingsModal()" class="btn-header-update" title="الإعدادات">
+          <span>⚙️ الإعدادات</span>
+        </button>
         <button type="button" id="btnAdminUpdate" onclick="performInstantUpdate()" class="btn-header-update">
-          <span>🔄 تحديث</span>
+          <span>🔄</span>
           <span id="adminUpdateBadge" class="update-badge-dot hidden">جديد!</span>
         </button>
-        <button type="button" onclick="logoutNow()" class="btn btn-danger" style="width: auto; padding: 6px 12px; font-size: 12px; border-radius: 10px;">خروج</button>
+        <button type="button" onclick="logoutNow()" class="btn btn-danger" style="width: auto; padding: 6px 10px; font-size: 12px; border-radius: 10px;">خروج</button>
       </div>
     </header>
 
     <div class="container">
       
-      <!-- إجمالي المصروف -->
+      <!-- ملخص مالي سريع -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
-        <div style="background:#ffffff; border-radius:18px; padding:14px; text-align:center; border:1px solid var(--border);">
+        <div style="background:#ffffff; border-radius:18px; padding:12px; text-align:center; border:1px solid var(--border);">
           <span style="font-size:11px; font-weight:700; color:var(--slate); display:block; margin-bottom:2px;">📅 بونص اليوم</span>
           <strong id="statTodayPaid" style="font-size:22px; font-weight:900; color:var(--success);">0 ج</strong>
         </div>
-        <div style="background:#ffffff; border-radius:18px; padding:14px; text-align:center; border:1px solid var(--border);">
+        <div style="background:#ffffff; border-radius:18px; padding:12px; text-align:center; border:1px solid var(--border);">
           <span style="font-size:11px; font-weight:700; color:var(--slate); display:block; margin-bottom:2px;">💰 إجمالي الشهر</span>
           <strong id="statTotalPaid" style="font-size:22px; font-weight:900; color:var(--primary);">0 ج</strong>
         </div>
       </div>
 
-      <!-- كروت الفنيين بالأزرار السريعة -->
-      <div style="margin-bottom: 8px;">
-        <h4 style="font-size:15px; font-weight:900; color:var(--dark);">⚡ تنزيل بونص فوري:</h4>
-      </div>
-
+      <!-- كروت الفنيين بالأزرار السريعة المباشرة -->
       <div id="techQuickActionList"></div>
 
-      <!-- سجل آخر العمليات مع إظهار السبب -->
-      <div class="card" style="margin-top: 14px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h4 style="font-size:14px; font-weight:900; color:var(--dark);">📜 آخر العمليات المنفذة اليوم</h4>
-          <span id="txCountBadge" class="badge" style="background:#f1f5f9; color:var(--slate);">0 حركة</span>
+      <!-- شريط العمليات الأخيرة لليوم فقط وبشكل مصغر ومريح -->
+      <div class="card" style="margin-top: 10px; padding: 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h4 style="font-size:13px; font-weight:800; color:var(--dark);">📜 عمليات اليوم</h4>
+          <span id="txCountBadge" class="badge" style="background:#f1f5f9; color:var(--slate); font-size:10px;">0 حركة</span>
         </div>
         <div id="bonusTransactionsFeed"></div>
-      </div>
-
-      <!-- كارت تعديل بيانات المدير -->
-      <div class="card">
-        <h4 style="font-size:14px; font-weight:900; margin-bottom:12px;">⚙️ تعديل بيانات حساب المدير</h4>
-        <div class="grid-2">
-          <div class="input-group">
-            <label>اسم المستخدم للمدير</label>
-            <input type="text" id="adminUserVal" class="input-control">
-          </div>
-          <div class="input-group">
-            <label>كلمة المرور للمدير</label>
-            <input type="text" id="adminPassVal" class="input-control">
-          </div>
-        </div>
-        <button type="button" onclick="updateAdminCredentials()" class="btn btn-secondary">حفظ بيانات المدير 💾</button>
-      </div>
-
-      <!-- إضافة فني وإدارة الحسابات -->
-      <div class="card">
-        <h4 style="font-size:14px; font-weight:900; margin-bottom:12px;">👷 إضافة فني جديد</h4>
-        <div class="grid-2">
-          <div class="input-group">
-            <label>اسم الفني</label>
-            <input type="text" id="techNameIn" placeholder="الاسم" class="input-control">
-          </div>
-          <div class="input-group">
-            <label>اسم المستخدم</label>
-            <input type="text" id="techUserIn" class="input-control">
-          </div>
-        </div>
-        <div class="input-group">
-          <label>كلمة المرور</label>
-          <input type="text" id="techPassIn" class="input-control">
-        </div>
-        <button type="button" onclick="addNewTech()" class="btn btn-primary" style="margin-bottom:12px;">إضافة الفني</button>
-
-        <h4 style="font-size:12px; font-weight:800; color:var(--slate); margin-bottom:6px;">الفنيين الحاليين:</h4>
-        <div id="techListManage"></div>
       </div>
 
     </div>
@@ -472,12 +485,12 @@
     </div>
   </div>
 
-  <!-- المحرك البرمجي السريع -->
+  <!-- المحرك البرمجي المبسط -->
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار 17
-    const APP_CURRENT_VERSION = 17;
+    // الإصدار 18
+    const APP_CURRENT_VERSION = 18;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -660,6 +673,20 @@
 
     function closeNotificationsModal() {
       document.getElementById('modalNotificationsList').classList.add('hidden');
+    }
+
+    function openAdminSettingsModal() {
+      const adm = appAccounts.find(a => a.role === 'admin');
+      if (adm) {
+        document.getElementById('adminUserVal').value = adm.username;
+        document.getElementById('adminPassVal').value = adm.pass;
+      }
+      renderAdminSettingsTechList();
+      document.getElementById('modalAdminSettings').classList.remove('hidden');
+    }
+
+    function closeAdminSettingsModal() {
+      document.getElementById('modalAdminSettings').classList.add('hidden');
     }
 
     function autoLoginCheck() {
@@ -859,7 +886,6 @@
       syncCloudUp();
     }
 
-    /* ================= تعديل بيانات الأدمن ================= */
     function updateAdminCredentials() {
       const u = document.getElementById('adminUserVal').value.trim();
       const p = document.getElementById('adminPassVal').value.trim();
@@ -887,12 +913,6 @@
     function renderAdmin() {
       const today = getToday();
       const techs = appAccounts.filter(a => a.role === 'tech');
-      
-      const adminAcc = appAccounts.find(a => a.role === 'admin');
-      if (adminAcc) {
-        document.getElementById('adminUserVal').value = adminAcc.username;
-        document.getElementById('adminPassVal').value = adminAcc.pass;
-      }
 
       const totalPaid = bonusRecords.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
       const todayPaid = bonusRecords.filter(b => b.date === today).reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
@@ -900,7 +920,7 @@
       document.getElementById('statTotalPaid').innerText = `${totalPaid} ج`;
       document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
 
-      // كروت الفنيين
+      // كروت الفنيين بالأزرار السريعة
       const quickContainer = document.getElementById('techQuickActionList');
       quickContainer.innerHTML = '';
 
@@ -911,13 +931,13 @@
           <div class="tech-card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <strong style="font-size:15px; color:var(--dark);">${t.name}</strong>
-                <span style="font-size:11px; color:var(--slate); display:block;">حسابه التراكمي الآن</span>
+                <strong style="font-size:16px; color:var(--dark);">${t.name}</strong>
+                <span style="font-size:11px; color:var(--slate); display:block;">الرصيد التراكمي</span>
               </div>
               <div style="text-align:left;">
-                <span style="font-size:18px; font-weight:900; color:var(--success);">${currentBonus} ج</span>
+                <span style="font-size:20px; font-weight:900; color:var(--success);">${currentBonus} ج</span>
                 <div>
-                  <button type="button" onclick="settleTech('${t.name}')" style="background:#f1f5f9; color:var(--slate); border:1px solid var(--border); border-radius:8px; padding:2px 8px; font-size:10px; font-weight:800; cursor:pointer;">تقفيل وتصفير</button>
+                  <button type="button" onclick="settleTech('${t.name}')" style="background:#f1f5f9; color:var(--slate); border:1px solid var(--border); border-radius:8px; padding:2px 8px; font-size:10px; font-weight:800; cursor:pointer;">تصفير ومحاسبة</button>
                 </div>
               </div>
             </div>
@@ -925,17 +945,16 @@
             <!-- صف الأزرار السريعة -->
             <div class="quick-bonus-bar">
               <button type="button" onclick="promptQuickBonus('${t.name}', 30)" class="btn-quick">+30</button>
-              <button type="button" onclick="promptQuickBonus('${t.name}', 40)" class="btn-quick">+40</button>
               <button type="button" onclick="promptQuickBonus('${t.name}', 50)" class="btn-quick">+50</button>
               <button type="button" onclick="promptQuickBonus('${t.name}', 70)" class="btn-quick">+70</button>
               <button type="button" onclick="promptQuickBonus('${t.name}', 100)" class="btn-quick">+100</button>
-              <button type="button" onclick="promptQuickBonus('${t.name}', 50)" class="btn-quick" style="background:#eff6ff; color:var(--primary); border-color:#bfdbfe;">مبلغ آخر</button>
+              <button type="button" onclick="promptQuickBonus('${t.name}', 50)" class="btn-quick" style="background:#eff6ff; color:var(--primary); border-color:#bfdbfe;">مخصص</button>
             </div>
           </div>
         `;
       });
 
-      // سجل حركات اليوم مع السبب
+      // سجل حركات اليوم
       const feed = document.getElementById('bonusTransactionsFeed');
       feed.innerHTML = '';
       
@@ -943,31 +962,32 @@
       document.getElementById('txCountBadge').innerText = `${todayRecords.length} حركة`;
 
       if (todayRecords.length === 0) {
-        feed.innerHTML = '<p style="text-align:center; font-size:12px; color:#94a3b8; padding:16px; font-weight:700;">لم يتم تنزيل بونص اليوم حتى الآن</p>';
+        feed.innerHTML = '<p style="text-align:center; font-size:12px; color:#94a3b8; padding:8px; font-weight:700;">لا توجد مكافآت مسجلة اليوم</p>';
       } else {
-        todayRecords.slice(0, 15).forEach(b => {
+        todayRecords.slice(0, 10).forEach(b => {
           feed.innerHTML += `
-            <div class="bonus-box" style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="bonus-box" style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; margin-bottom:6px;">
               <div>
-                <strong style="font-size:13px; color:var(--dark);">الفني: ${b.tech}</strong>
-                <span style="font-size:11px; color:var(--success); font-weight:700; display:block;">السبب: ${b.reason || 'مكافأة إنجاز'}</span>
-                <span style="font-size:10px; color:var(--slate); display:block;">الساعة: ${b.time}</span>
+                <strong style="font-size:12px; color:var(--dark);">${b.tech}</strong>
+                <span style="font-size:10px; color:var(--slate); display:block;">${b.reason || 'مكافأة'} - ${b.time}</span>
               </div>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:15px; font-weight:900; color:var(--success);">+${b.amount} ج</span>
-                <button type="button" onclick="deleteBonusRecord('${b.id}')" style="border:none; background:transparent; color:#94a3b8; cursor:pointer; font-size:13px;" title="حذف القيد">✕</button>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:14px; font-weight:900; color:var(--success);">+${b.amount} ج</span>
+                <button type="button" onclick="deleteBonusRecord('${b.id}')" style="border:none; background:transparent; color:#94a3b8; cursor:pointer; font-size:12px;" title="حذف">✕</button>
               </div>
             </div>
           `;
         });
       }
+    }
 
-      // قائمة الفنيين
+    function renderAdminSettingsTechList() {
+      const techs = appAccounts.filter(a => a.role === 'tech');
       const manageList = document.getElementById('techListManage');
       manageList.innerHTML = '';
       techs.forEach(t => {
         manageList.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:12px; margin-bottom:6px; border:1px solid var(--border); font-size:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#ffffff; padding:8px 12px; border-radius:12px; margin-bottom:6px; border:1px solid var(--border); font-size:12px;">
             <span><strong>${t.name}</strong> (${t.username})</span>
             <button type="button" onclick="deleteTech(${t.id})" style="background:var(--danger-light); color:var(--danger); border:none; border-radius:6px; padding:3px 8px; font-size:10px; cursor:pointer; font-weight:800;">حذف</button>
           </div>
@@ -977,7 +997,7 @@
 
     function settleTech(name) {
       const techObj = appAccounts.find(a => a.name === name);
-      if (techObj && confirm(`هل تريد تقفيل حساب الفني (${name}) وتصفير رصيده بعد المحاسبة كاش؟`)) {
+      if (techObj && confirm(`تصفير حساب الفني (${name}) بعد تسليمه الكاش؟`)) {
         techObj.accumulatedBonus = 0;
         renderAdmin();
         syncCloudUp();
@@ -1014,16 +1034,19 @@
       document.getElementById('techNameIn').value = '';
       document.getElementById('techUserIn').value = '';
       document.getElementById('techPassIn').value = '';
+      renderAdminSettingsTechList();
       renderAdmin();
       syncCloudUp();
+      alert('تمت إضافة الفني بنجاح');
     }
 
     function deleteTech(id) {
       const targetTech = appAccounts.find(a => a.id === id);
       if (!targetTech) return;
 
-      if (confirm(`هل أنت متأكد من حذف الفني (${targetTech.name})؟`)) {
+      if (confirm(`حذف الفني (${targetTech.name}) نهائياً؟`)) {
         appAccounts = appAccounts.filter(a => a.id !== id);
+        renderAdminSettingsTechList();
         renderAdmin();
         syncCloudUp();
       }
