@@ -28,7 +28,6 @@
       --shadow-md: 0 10px 24px rgba(0,0,0,0.07);
     }
 
-    /* ألوان الوضع الليلي */
     body.dark-mode {
       --bg: #090d16;
       --card-bg: #131b2e;
@@ -47,7 +46,6 @@
     
     .container { width: 100%; max-width: 520px; margin: 0 auto; padding: 16px; }
 
-    /* عنصر مؤشر السحب للأسفل */
     #pullIndicator {
       position: fixed;
       top: -50px;
@@ -302,20 +300,20 @@
     <span id="cloudStatusText">متصل بالسحابة ✓</span>
   </div>
 
-  <!-- نافذة إشعار البونص اللحظي للفني -->
+  <!-- نافذة إشعار البونص أو الخصم اللحظي للفني -->
   <div id="bonusAlertModal" class="modal-overlay hidden">
-    <div class="modal-content" style="text-align: center; border: 2px solid var(--success);">
-      <div class="bell-animate" style="font-size: 44px; margin-bottom: 8px;">🎁</div>
-      <h3 style="font-size: 20px; font-weight: 900; color: var(--success); margin-bottom: 4px;">مبروك! نزل لك بونص جديد</h3>
+    <div class="modal-content" id="alertModalContentBox" style="text-align: center; border: 2px solid var(--success);">
+      <div id="alertModalIcon" class="bell-animate" style="font-size: 44px; margin-bottom: 8px;">🎁</div>
+      <h3 id="alertModalTitle" style="font-size: 20px; font-weight: 900; color: var(--success); margin-bottom: 4px;">مبروك! نزل لك بونص جديد</h3>
       <p id="bonusAlertReasonDisplay" style="font-size: 13px; color: var(--slate); margin-bottom: 12px; font-weight:700;"></p>
 
-      <div style="background: var(--success-light); border: 1.5px solid rgba(5,150,105,0.25); border-radius: 16px; padding: 16px; margin-bottom: 16px;">
-        <span style="font-size: 12px; color: #10b981; font-weight: 700; display: block;">المبلغ المضاف:</span>
+      <div id="alertModalCardBox" style="background: var(--success-light); border: 1.5px solid rgba(5,150,105,0.25); border-radius: 16px; padding: 16px; margin-bottom: 16px;">
+        <span id="alertModalAmountLabel" style="font-size: 12px; color: #10b981; font-weight: 700; display: block;">المبلغ:</span>
         <h2 id="bonusAlertAmount" style="font-size: 38px; font-weight: 900; color: var(--success); margin: 4px 0;">+0 ج</h2>
-        <span id="bonusAlertTime" style="font-size: 11px; color: #10b981; font-weight: 600; display: block;"></span>
+        <span id="bonusAlertTime" style="font-size: 11px; font-weight: 600; display: block;"></span>
       </div>
 
-      <button type="button" onclick="dismissBonusAlertModal()" class="btn btn-primary" style="background:var(--success);">استلام الرصيد ✓</button>
+      <button type="button" id="alertModalConfirmBtn" onclick="dismissBonusAlertModal()" class="btn btn-primary" style="background:var(--success);">تم الاستلام ✓</button>
     </div>
   </div>
 
@@ -353,7 +351,7 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
         <div style="display:flex; align-items:center; gap:6px;">
           <span style="font-size: 18px;">🔔</span>
-          <h4 style="font-size: 16px; font-weight: 900;">سجل المكافآت</h4>
+          <h4 style="font-size: 16px; font-weight: 900;">سجل المكافآت والحركات</h4>
         </div>
         <button type="button" onclick="clearTechNotifications()" class="badge" style="background: var(--danger-light); color: var(--danger); border: none; cursor: pointer;">🗑️ مسح الكل</button>
       </div>
@@ -364,7 +362,7 @@
     </div>
   </div>
 
-  <!-- نافذة الإعدادات الشاملة (تحتوي على الخصم/السلفة وتعديل الفنيين) -->
+  <!-- نافذة الإعدادات الشاملة -->
   <div id="modalAdminSettings" class="modal-overlay hidden">
     <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1.5px solid var(--border); padding-bottom: 10px;">
@@ -391,7 +389,7 @@
         <button type="button" onclick="submitDeductionFromSettings()" class="btn btn-danger" style="padding:9px; font-size:13px;">خصم المبلغ من الرصيد فوراً ➖</button>
       </div>
 
-      <!-- التحكم في بيانات ورصيد الفني المختار -->
+      <!-- التحكم في حساب الفني -->
       <div style="background:var(--bg); border:1.5px solid var(--border); border-radius:16px; padding:14px; margin-bottom:14px;">
         <h5 style="font-size:13px; font-weight:900; color:var(--dark); margin-bottom:10px;">🛠️ التحكم في حساب الفني:</h5>
         
@@ -514,7 +512,6 @@
         <span id="adminDateBadge" style="font-size: 11px; color: var(--slate); font-weight: 600;"></span>
       </div>
       <div style="display: flex; align-items: center; gap: 6px;">
-        <!-- زر التبديل للوضع الليلي -->
         <button type="button" onclick="toggleDarkMode()" class="btn-header-update" title="الوضع الليلي">
           <span id="darkModeIconAdmin">🌙</span>
         </button>
@@ -534,7 +531,7 @@
       <!-- ملخص مالي -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
         <div style="background:var(--card-bg); border-radius:18px; padding:14px; text-align:center; border:2px solid var(--border); box-shadow:var(--shadow-sm);">
-          <span style="font-size:12px; font-weight:800; color:var(--slate); display:block; margin-bottom:2px;">📅 بونص اليوم</span>
+          <span style="font-size:12px; font-weight:800; color:var(--slate); display:block; margin-bottom:2px;">📅 صافي اليوم</span>
           <strong id="statTodayPaid" style="font-size:24px; font-weight:900; color:var(--success);">0 ج</strong>
         </div>
         <div style="background:var(--card-bg); border-radius:18px; padding:14px; text-align:center; border:2px solid var(--border); box-shadow:var(--shadow-sm);">
@@ -566,7 +563,6 @@
         <span style="font-size: 11px; color: var(--slate); font-weight: 600;">حصالة المكافآت</span>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
-        <!-- زر الوضع الليلي للفني -->
         <button type="button" onclick="toggleDarkMode()" class="btn-header-update" title="الوضع الليلي">
           <span id="darkModeIconTech">🌙</span>
         </button>
@@ -586,22 +582,22 @@
       <div class="card" style="background: linear-gradient(135deg, #10b981, #047857); color: #fff; padding: 26px 20px; box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35); border: none; text-align: center;">
         <span style="font-size: 13px; font-weight: 700; opacity: 0.9;">إجمالي رصيد البونص المستحق لك</span>
         <h2 id="techTotalBonus" style="font-size: 46px; font-weight: 900; margin: 8px 0;">0 ج</h2>
-        <span id="techBonusToday" style="font-size: 12px; background: rgba(255,255,255,0.22); padding: 5px 16px; border-radius: 20px; font-weight: 800; display: inline-block;">مكافآت اليوم: 0 ج</span>
+        <span id="techBonusToday" style="font-size: 12px; background: rgba(255,255,255,0.22); padding: 5px 16px; border-radius: 20px; font-weight: 800; display: inline-block;">حركات اليوم: 0 ج</span>
       </div>
 
       <div class="card">
-        <h4 style="font-size: 14px; font-weight: 900; margin-bottom: 12px;">📜 سجل المكافآت بالتفصيل</h4>
+        <h4 style="font-size: 14px; font-weight: 900; margin-bottom: 12px;">📜 سجل الحركات والمكافآت</h4>
         <div id="techBonusList"></div>
       </div>
     </div>
   </div>
 
-  <!-- المحرك البرمجي المحدث -->
+  <!-- المحرك البرمجي -->
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار 22: السحب للتحديث + الوضع الليلي + الخصم والسلفة
-    const APP_CURRENT_VERSION = 22;
+    // الإصدار 23: تصليح الخصم وإرسال إشعار الخصم الفوري
+    const APP_CURRENT_VERSION = 23;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -614,7 +610,6 @@
     let globalAudioCtx = null;
     let currentActiveBonusData = null;
 
-    /* ================= ميزة الوضع الليلي (Dark Mode) ================= */
     function initDarkMode() {
       const isDark = localStorage.getItem('app_dark_mode') === 'true';
       if (isDark) {
@@ -629,7 +624,7 @@
     function toggleDarkMode() {
       const isDark = document.body.classList.toggle('dark-mode');
       localStorage.setItem('app_dark_mode', isDark ? 'true' : 'false');
-      updateDarkModeIcons(isDark ? '☀️️' : '🌙');
+      updateDarkModeIcons(isDark ? '☀️' : '🌙');
     }
 
     function updateDarkModeIcons(icon) {
@@ -639,7 +634,6 @@
       if (tech) tech.innerText = icon;
     }
 
-    /* ================= ميزة السحب للأسفل للتحديث (Pull-to-Refresh) ================= */
     let touchStartY = 0;
     let touchMoveY = 0;
     let isPulling = false;
@@ -745,9 +739,9 @@
       } catch(e) {}
     }
 
-    function playCalmChimeSingle(startTime) {
+    function playCalmChimeSingle(startTime, isDeduction = false) {
       if (!globalAudioCtx) return;
-      const freqs = [523.25, 659.25, 783.99];
+      const freqs = isDeduction ? [659.25, 523.25, 392.00] : [523.25, 659.25, 783.99];
       freqs.forEach((freq, idx) => {
         const osc = globalAudioCtx.createOscillator();
         const gain = globalAudioCtx.createGain();
@@ -768,15 +762,15 @@
       });
     }
 
-    function playCalmAlertThreeTimes() {
+    function playCalmAlertThreeTimes(isDeduction = false) {
       try {
         unlockAudioSystem();
         if (!globalAudioCtx) return;
 
         const baseTime = globalAudioCtx.currentTime;
-        playCalmChimeSingle(baseTime);
-        playCalmChimeSingle(baseTime + 1.1);
-        playCalmChimeSingle(baseTime + 2.2);
+        playCalmChimeSingle(baseTime, isDeduction);
+        playCalmChimeSingle(baseTime + 1.1, isDeduction);
+        playCalmChimeSingle(baseTime + 2.2, isDeduction);
 
         if (navigator.vibrate) {
           try { navigator.vibrate([200, 150, 200, 150, 200]); } catch(e){}
@@ -791,15 +785,49 @@
       const lastDismissedId = localStorage.getItem('dismissed_bonus_id_' + currentUser.name);
 
       if (bonusData.targetTech === currentUser.name && bonusData.bonusId !== lastDismissedId) {
-        document.getElementById('bonusAlertAmount').innerText = `+${bonusData.amount} ج`;
-        document.getElementById('bonusAlertReasonDisplay').innerText = bonusData.reason ? `السبب: ${bonusData.reason}` : 'مكافأة إنجاز';
+        const isNegative = Number(bonusData.amount) < 0;
+        const box = document.getElementById('alertModalContentBox');
+        const cardBox = document.getElementById('alertModalCardBox');
+        const icon = document.getElementById('alertModalIcon');
+        const title = document.getElementById('alertModalTitle');
+        const label = document.getElementById('alertModalAmountLabel');
+        const amt = document.getElementById('bonusAlertAmount');
+        const confirmBtn = document.getElementById('alertModalConfirmBtn');
+
+        if (isNegative) {
+          box.style.borderColor = 'var(--danger)';
+          cardBox.style.background = 'var(--danger-light)';
+          cardBox.style.borderColor = 'rgba(225,29,72,0.3)';
+          icon.innerText = '⚠️';
+          title.innerText = 'تنبيه: تم تسجيل خصم / سلفة';
+          title.style.color = 'var(--danger)';
+          label.innerText = 'المبلغ المخصوم:';
+          label.style.color = 'var(--danger)';
+          amt.innerText = `${bonusData.amount} ج`;
+          amt.style.color = 'var(--danger)';
+          confirmBtn.style.background = 'var(--danger)';
+        } else {
+          box.style.borderColor = 'var(--success)';
+          cardBox.style.background = 'var(--success-light)';
+          cardBox.style.borderColor = 'rgba(5,150,105,0.25)';
+          icon.innerText = '🎁';
+          title.innerText = 'مبروك! نزل لك بونص جديد';
+          title.style.color = 'var(--success)';
+          label.innerText = 'المبلغ المضاف:';
+          label.style.color = '#10b981';
+          amt.innerText = `+${bonusData.amount} ج`;
+          amt.style.color = 'var(--success)';
+          confirmBtn.style.background = 'var(--success)';
+        }
+
+        document.getElementById('bonusAlertReasonDisplay').innerText = bonusData.reason ? `السبب: ${bonusData.reason}` : (isNegative ? 'خصم مالي' : 'مكافأة إنجاز');
         document.getElementById('bonusAlertTime').innerText = `الوقت: ${bonusData.time || getTimeNow()}`;
         document.getElementById('bonusAlertModal').classList.remove('hidden');
 
         const bellBadge = document.getElementById('techBellBadge');
         if (bellBadge) bellBadge.classList.remove('hidden');
 
-        playCalmAlertThreeTimes();
+        playCalmAlertThreeTimes(isNegative);
       }
     }
 
@@ -861,7 +889,6 @@
       document.getElementById('modalNotificationsList').classList.add('hidden');
     }
 
-    /* ================= دوال نافذة الإعدادات الشاملة ================= */
     function openAdminSettingsModal() {
       const adm = appAccounts.find(a => a.role === 'admin');
       if (adm) {
@@ -932,7 +959,7 @@
       });
     }
 
-    /* ميزة تسجيل خصم أو سلفة كاش */
+    /* ميزة تسجيل خصم أو سلفة مع خصم تراكمي مؤكد وإشعار فوري */
     function submitDeductionFromSettings() {
       const techName = document.getElementById('deductTargetTechSelect').value;
       const amount = Number(document.getElementById('deductAmountInput').value);
@@ -946,10 +973,9 @@
       const techObj = appAccounts.find(a => a.name === techName);
       if (!techObj) return;
 
-      // الخصم من الرصيد التراكمي
+      // الخصم المؤكد من الرصيد التراكمي
       techObj.accumulatedBonus = Math.max(0, Number(techObj.accumulatedBonus || 0) - amount);
 
-      // تسجيل الحركة بالسالب في السجل
       const newDeductRecord = {
         id: 'DED-' + Date.now().toString().slice(-6),
         tech: techName,
@@ -961,13 +987,29 @@
 
       bonusRecords.unshift(newDeductRecord);
 
+      // بث إشعار الخصم اللحظي لهاتف الفني
+      const alertPayload = {
+        bonusId: 'DEDUCT-' + Date.now(),
+        targetTech: techName,
+        amount: -amount,
+        reason: reasonVal,
+        time: getTimeNow(),
+        sentAt: Date.now()
+      };
+
+      fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(alertPayload)
+      }).catch(() => {});
+
       document.getElementById('deductAmountInput').value = '';
       document.getElementById('deductReasonInput').value = '';
 
       loadTechDataIntoSettings();
       renderAdmin();
       syncCloudUp();
-      alert(`تم خصم ${amount} ج من حساب الفني (${techName}) بنجاح ➖`);
+      alert(`تم خصم ${amount} ج من رصيد الفني (${techName}) بنجاح وإرسال التنبيه له ➖`);
     }
 
     function saveTechBalanceFromSettings() {
@@ -1110,7 +1152,6 @@
       }
     }
 
-    /* ================= دوال تسجيل الدخول والحفظ السحابي ================= */
     function autoLoginCheck() {
       const savedUserStr = localStorage.getItem('auto_logged_user');
       if (savedUserStr) {
@@ -1251,7 +1292,7 @@
       broadcastVersion();
     };
 
-    /* ================= ميزة تنزيل البونص من الرئيسية ================= */
+    /* ================= ميزة تنزيل البونص ================= */
     function openBonusPrompt(techName) {
       document.getElementById('promptTargetTech').value = techName;
       document.getElementById('promptTechNameLabel').innerText = techName;
@@ -1321,7 +1362,6 @@
       document.getElementById('statTotalPaid').innerText = `${totalPaid} ج`;
       document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
 
-      // كروت الفنيين الصافية
       const quickContainer = document.getElementById('techQuickActionList');
       quickContainer.innerHTML = '';
 
@@ -1352,7 +1392,6 @@
         `;
       });
 
-      // سجل حركات اليوم
       const feed = document.getElementById('bonusTransactionsFeed');
       feed.innerHTML = '';
       
