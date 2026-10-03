@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>أعطالي وبونص - منظومة المتابعة والحوافز</title>
+  <title>أعطالي - منظومة المتابعة والحوافز</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -526,7 +526,7 @@
       <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 32px; box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35);">
         📶
       </div>
-      <h2 style="font-size: 22px; font-weight: 900; margin-bottom: 4px;">أعطالي وبونص</h2>
+      <h2 style="font-size: 22px; font-weight: 900; margin-bottom: 4px;">أعطالي</h2>
       <p style="font-size: 13px; color: var(--slate); margin-bottom: 24px;">منظومة الدعم الفني والحوافز الميدانية</p>
 
       <div class="input-group">
@@ -618,7 +618,7 @@
         <button type="button" onclick="submitNewOrder()" class="btn btn-primary">إرسال العطل للفني فوراً 🚀</button>
       </div>
 
-      <!-- كروت الفنيين الصافية (الحصالة والرصيد) -->
+      <!-- كروت الفنيين الصافية -->
       <div id="techQuickActionList"></div>
 
       <!-- كارت متابعة سجل الأعطال -->
@@ -636,12 +636,12 @@
     </div>
   </div>
 
-  <!-- 3. واجهة الفني -->
+  <!-- 3. واجهة الفني (تم تحديث الاسم إلى "أعطالي") -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
         <h3 id="techHeaderName" style="font-size: 16px; font-weight: 900; color: var(--dark);">الفني</h3>
-        <span style="font-size: 11px; color: var(--slate); font-weight: 600;">الأعطال والحصالة</span>
+        <span style="font-size: 11px; color: var(--slate); font-weight: 600;">أعطالي</span>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
         <button type="button" onclick="toggleDarkMode()" class="btn-header-update" title="الوضع الليلي">
@@ -677,12 +677,12 @@
     </div>
   </div>
 
-  <!-- المحرك البرمجي -->
+  <!-- المحرك البرمجي المحدث بالكامل -->
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار 24: عودة الأعطال مع الحصالة الشاملة
-    const APP_CURRENT_VERSION = 24;
+    // الإصدار 25: تنبيه العطل الفوري وتحديث اسم التطبيق
+    const APP_CURRENT_VERSION = 25;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -697,8 +697,6 @@
     let currentActiveBonusData = null;
     let currentAdminOrdersFilter = 'today';
     let currentTechOrdersTab = 'pending';
-    let knownPendingOrderIds = new Set();
-    let isInitialLoadDone = false;
 
     function initDarkMode() {
       const isDark = localStorage.getItem('app_dark_mode') === 'true';
@@ -921,33 +919,19 @@
       }
     }
 
-    function checkTechNewOrdersAlert(ordersList) {
-      if (!currentUser || currentUser.role !== 'tech') return;
-      const myPending = ordersList.filter(o => o.tech === currentUser.name && (o.status === 'pending' || o.status === 'postponed'));
-      const currentIds = new Set(myPending.map(o => o.id));
+    /* تنبيه العطل الفوري للفني */
+    function checkTechOrderAlert(orderAlertData) {
+      if (!currentUser || currentUser.role !== 'tech' || !orderAlertData) return;
 
-      if (!isInitialLoadDone) {
-        knownPendingOrderIds = currentIds;
-        isInitialLoadDone = true;
-        return;
-      }
+      const lastDismissedOrderId = localStorage.getItem('dismissed_order_id_' + currentUser.name);
 
-      let newOrder = null;
-      for (const ord of myPending) {
-        if (!knownPendingOrderIds.has(ord.id)) {
-          newOrder = ord;
-          break;
-        }
-      }
-
-      knownPendingOrderIds = currentIds;
-
-      if (newOrder) {
-        document.getElementById('alertOrderCustomer').innerText = newOrder.customer;
-        document.getElementById('alertOrderPhone').innerText = newOrder.phone;
-        document.getElementById('alertOrderAddress').innerText = newOrder.address || 'العنوان غير محدد';
-        document.getElementById('alertOrderDesc').innerText = newOrder.desc || 'عطل وصيانة';
-        document.getElementById('alertOrderCallBtn').href = `tel:${newOrder.phone}`;
+      if (orderAlertData.targetTech === currentUser.name && orderAlertData.alertId !== lastDismissedOrderId) {
+        document.getElementById('alertOrderCustomer').innerText = orderAlertData.customer || 'عميل';
+        document.getElementById('alertOrderPhone').innerText = orderAlertData.phone || '';
+        document.getElementById('alertOrderAddress').innerText = orderAlertData.address || 'العنوان غير محدد';
+        document.getElementById('alertOrderDesc').innerText = orderAlertData.desc || 'عطل وصيانة';
+        document.getElementById('alertOrderCallBtn').href = `tel:${orderAlertData.phone}`;
+        
         document.getElementById('techOrderAlertModal').classList.remove('hidden');
 
         const bellBadge = document.getElementById('techBellBadge');
@@ -958,6 +942,10 @@
     }
 
     function dismissOrderAlertModal() {
+      const orderAlertId = localStorage.getItem('temp_last_order_alert_id');
+      if (orderAlertId && currentUser) {
+        localStorage.setItem('dismissed_order_id_' + currentUser.name, orderAlertId);
+      }
       document.getElementById('techOrderAlertModal').classList.add('hidden');
     }
 
@@ -1019,7 +1007,6 @@
       document.getElementById('modalNotificationsList').classList.add('hidden');
     }
 
-    /* ================= دوال نافذة الإعدادات ================= */
     function openAdminSettingsModal() {
       const adm = appAccounts.find(a => a.role === 'admin');
       if (adm) {
@@ -1281,7 +1268,6 @@
       }
     }
 
-    /* ================= دوال تسجيل الدخول والحفظ السحابي ================= */
     function autoLoginCheck() {
       const savedUserStr = localStorage.getItem('auto_logged_user');
       if (savedUserStr) {
@@ -1339,7 +1325,6 @@
         } else {
           document.getElementById('screenTech').classList.remove('hidden');
           document.getElementById('techHeaderName').innerText = currentUser.name;
-          isInitialLoadDone = false;
           renderTech();
         }
       } else {
@@ -1349,7 +1334,6 @@
 
     function logoutNow() {
       currentUser = null;
-      isInitialLoadDone = false;
       document.getElementById('bonusAlertModal').classList.add('hidden');
       document.getElementById('techOrderAlertModal').classList.add('hidden');
       localStorage.removeItem('auto_logged_user');
@@ -1376,13 +1360,16 @@
             }
             if (Array.isArray(data.orders)) {
               appOrders = data.orders;
-              checkTechNewOrdersAlert(data.orders);
             }
             if (Array.isArray(data.bonusRecords)) {
               bonusRecords = data.bonusRecords;
             }
             if (data.latestBonusAlert) {
               checkTechBonusAlert(data.latestBonusAlert);
+            }
+            if (data.latestOrderAlert) {
+              localStorage.setItem('temp_last_order_alert_id', data.latestOrderAlert.alertId);
+              checkTechOrderAlert(data.latestOrderAlert);
             }
           }
           document.getElementById('cloudStatusText').innerText = "متصل بالسحابة ✓";
@@ -1430,7 +1417,7 @@
       broadcastVersion();
     };
 
-    /* ================= ميزة إسناد عطل جديد ================= */
+    /* ميزة إسناد عطل جديد مع إرسال إشعار لحظي للفني */
     function submitNewOrder() {
       const cust = document.getElementById('newCustomer').value.trim();
       const phone = document.getElementById('newPhone').value.trim();
@@ -1460,6 +1447,23 @@
 
       appOrders.unshift(newOrderObj);
 
+      // بث إشعار العطل الفوري للفني
+      const orderAlertPayload = {
+        alertId: 'ORD-ALERT-' + Date.now(),
+        targetTech: tech,
+        customer: cust,
+        phone: phone,
+        address: addr,
+        desc: desc,
+        sentAt: Date.now()
+      };
+
+      fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderAlertPayload)
+      }).catch(() => {});
+
       document.getElementById('newCustomer').value = '';
       document.getElementById('newPhone').value = '';
       document.getElementById('newAddress').value = '';
@@ -1467,7 +1471,7 @@
 
       renderAdmin();
       syncCloudUp();
-      alert(`تم إسناد العطل للفني (${tech}) بنجاح 🚀`);
+      alert(`تم إسناد العطل للفني (${tech}) وإرسال التنبيه له فوراً 🚀`);
     }
 
     function filterAdminOrders(type) {
@@ -1482,7 +1486,7 @@
       renderAdmin();
     }
 
-    /* ================= ميزة تنزيل البونص ================= */
+    /* ميزة تنزيل البونص */
     function openBonusPrompt(techName, defaultReason = '') {
       document.getElementById('promptTargetTech').value = techName;
       document.getElementById('promptTechNameLabel').innerText = techName;
@@ -1541,14 +1545,12 @@
       syncCloudUp();
     }
 
-    /* ================= دوال الأدمن ================= */
+    /* دوال الأدمن */
     function renderAdmin() {
       const today = getToday();
       const techs = appAccounts.filter(a => a.role === 'tech');
 
-      const totalPaid = bonusRecords.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
       const todayPaid = bonusRecords.filter(b => b.date === today).reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
-
       const pendingOrdersCount = appOrders.filter(o => o.status === 'pending' || o.status === 'postponed').length;
       const doneOrdersCount = appOrders.filter(o => o.status === 'done' && o.finishedDate === today).length;
 
@@ -1556,7 +1558,6 @@
       document.getElementById('statDoneOrders').innerText = doneOrdersCount;
       document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
 
-      // تعبئة اختيار الفني لإسناد العطل
       const techSelect = document.getElementById('newTechSelect');
       const currentSelectedTech = techSelect.value;
       techSelect.innerHTML = '';
@@ -1564,7 +1565,6 @@
         techSelect.innerHTML += `<option value="${t.name}" ${currentSelectedTech === t.name ? 'selected' : ''}>${t.name}</option>`;
       });
 
-      // كروت الفنيين الصافية
       const quickContainer = document.getElementById('techQuickActionList');
       quickContainer.innerHTML = '';
 
@@ -1595,7 +1595,6 @@
         `;
       });
 
-      // سجل الأعطال للإدارة
       const feed = document.getElementById('adminOrdersFeed');
       feed.innerHTML = '';
 
@@ -1675,7 +1674,7 @@
       }
     }
 
-    /* ================= دوال الفني ================= */
+    /* دوال الفني */
     function renderTech() {
       const today = getToday();
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
