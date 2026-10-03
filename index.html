@@ -263,6 +263,7 @@
       font-size: 11px;
       font-weight: 800;
     }
+    .badge-unassigned { background: #fee2e2; color: #b91c1c; border: 1px solid rgba(185, 28, 28, 0.3); }
     .badge-pending { background: var(--warning-light); color: var(--warning); border: 1px solid rgba(217, 119, 6, 0.3); }
     .badge-postponed { background: var(--postpone-light); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.4); }
     .badge-done { background: var(--success-light); color: var(--success); border: 1px solid rgba(5, 150, 105, 0.3); }
@@ -590,9 +591,9 @@
         </div>
       </div>
 
-      <!-- كارت إسناد عطل جديد -->
+      <!-- كارت كتابة العطل وحفظه سريعاً في القائمة بدون إسناد فوري -->
       <div class="card" style="border: 2px solid #93c5fd;">
-        <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 12px; color: var(--primary);">⚡ إسناد عطل أو تركيب جديد</h4>
+        <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 12px; color: var(--primary);">📝 تسجيل عطل جديد</h4>
         <div class="grid-2">
           <div class="input-group">
             <label>اسم العميل <span style="color:var(--danger)">*</span></label>
@@ -611,20 +612,16 @@
           <label>التفاصيل والمشكلة</label>
           <input type="text" id="newDesc" placeholder="تفاصيل العطل" class="input-control">
         </div>
-        <div class="input-group">
-          <label>إسناد إلى الفني</label>
-          <select id="newTechSelect" class="input-control" style="background:var(--card-bg); font-weight:700;"></select>
-        </div>
-        <button type="button" onclick="submitNewOrder()" class="btn btn-primary">إرسال العطل للفني فوراً 🚀</button>
+        <button type="button" onclick="submitNewOrderDraft()" class="btn btn-primary">حفظ العطل في القائمة ➕</button>
       </div>
 
-      <!-- كروت الفنيين الصافية -->
+      <!-- كروت الفنيين الصافية (الحصالة والرصيد) -->
       <div id="techQuickActionList"></div>
 
-      <!-- كارت متابعة سجل الأعطال -->
+      <!-- كارت متابعة وإسناد الأعطال -->
       <div class="card" style="margin-top: 10px; padding: 16px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h4 style="font-size:14px; font-weight:900; color:var(--dark);">📋 سجل الأعطال والمتابعة</h4>
+          <h4 style="font-size:14px; font-weight:900; color:var(--dark);">📋 الأعطال وإسناد الفنيين</h4>
           <div style="display:flex; gap:6px;">
             <button type="button" onclick="filterAdminOrders('today')" id="btnFilterToday" class="badge badge-done" style="border:none; cursor:pointer;">اليوم</button>
             <button type="button" onclick="filterAdminOrders('all')" id="btnFilterAll" class="badge badge-pending" style="border:none; cursor:pointer;">الكل</button>
@@ -636,7 +633,7 @@
     </div>
   </div>
 
-  <!-- 3. واجهة الفني (تم تحديث الاسم إلى "أعطالي") -->
+  <!-- 3. واجهة الفني -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -681,8 +678,8 @@
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار 25: تنبيه العطل الفوري وتحديث اسم التطبيق
-    const APP_CURRENT_VERSION = 25;
+    // الإصدار 26: كتابة كل الأعطال ثم الإسناد للفني بجانب كل عطل
+    const APP_CURRENT_VERSION = 26;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -919,7 +916,6 @@
       }
     }
 
-    /* تنبيه العطل الفوري للفني */
     function checkTechOrderAlert(orderAlertData) {
       if (!currentUser || currentUser.role !== 'tech' || !orderAlertData) return;
 
@@ -1417,13 +1413,12 @@
       broadcastVersion();
     };
 
-    /* ميزة إسناد عطل جديد مع إرسال إشعار لحظي للفني */
-    function submitNewOrder() {
+    /* تسجيل العطل وحفظه في القائمة بدون إسناد فوري */
+    function submitNewOrderDraft() {
       const cust = document.getElementById('newCustomer').value.trim();
       const phone = document.getElementById('newPhone').value.trim();
       const addr = document.getElementById('newAddress').value.trim() || 'العنوان غير محدد';
       const desc = document.getElementById('newDesc').value.trim() || 'عطل وصيانة';
-      const tech = document.getElementById('newTechSelect').value;
 
       if (!cust || !phone) {
         alert('يرجى ملء اسم العميل ورقم الهاتف على الأقل');
@@ -1436,7 +1431,7 @@
         phone: phone,
         address: addr,
         desc: desc,
-        tech: tech,
+        tech: '', // غير مسند لفني بعد
         status: 'pending',
         createdDate: getToday(),
         finishedDate: '',
@@ -1447,23 +1442,6 @@
 
       appOrders.unshift(newOrderObj);
 
-      // بث إشعار العطل الفوري للفني
-      const orderAlertPayload = {
-        alertId: 'ORD-ALERT-' + Date.now(),
-        targetTech: tech,
-        customer: cust,
-        phone: phone,
-        address: addr,
-        desc: desc,
-        sentAt: Date.now()
-      };
-
-      fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderAlertPayload)
-      }).catch(() => {});
-
       document.getElementById('newCustomer').value = '';
       document.getElementById('newPhone').value = '';
       document.getElementById('newAddress').value = '';
@@ -1471,7 +1449,43 @@
 
       renderAdmin();
       syncCloudUp();
-      alert(`تم إسناد العطل للفني (${tech}) وإرسال التنبيه له فوراً 🚀`);
+    }
+
+    /* إسناد العطل لفني محدد من داخل القائمة وبث التنبيه له فوراً */
+    function assignOrderToTech(orderId) {
+      const selectElem = document.getElementById('assignSelect_' + orderId);
+      if (!selectElem || !selectElem.value) {
+        alert('يرجى اختيار الفني أولاً');
+        return;
+      }
+
+      const selectedTechName = selectElem.value;
+      const orderObj = appOrders.find(o => o.id === orderId);
+
+      if (orderObj) {
+        orderObj.tech = selectedTechName;
+
+        // بث تنبيه العطل الفوري للفني المختار
+        const orderAlertPayload = {
+          alertId: 'ORD-ALERT-' + Date.now(),
+          targetTech: selectedTechName,
+          customer: orderObj.customer,
+          phone: orderObj.phone,
+          address: orderObj.address,
+          desc: orderObj.desc,
+          sentAt: Date.now()
+        };
+
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderAlertPayload)
+        }).catch(() => {});
+
+        renderAdmin();
+        syncCloudUp();
+        alert(`تم إسناد العطل للفني (${selectedTechName}) بنجاح 🚀`);
+      }
     }
 
     function filterAdminOrders(type) {
@@ -1486,7 +1500,6 @@
       renderAdmin();
     }
 
-    /* ميزة تنزيل البونص */
     function openBonusPrompt(techName, defaultReason = '') {
       document.getElementById('promptTargetTech').value = techName;
       document.getElementById('promptTechNameLabel').innerText = techName;
@@ -1545,7 +1558,6 @@
       syncCloudUp();
     }
 
-    /* دوال الأدمن */
     function renderAdmin() {
       const today = getToday();
       const techs = appAccounts.filter(a => a.role === 'tech');
@@ -1558,13 +1570,7 @@
       document.getElementById('statDoneOrders').innerText = doneOrdersCount;
       document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
 
-      const techSelect = document.getElementById('newTechSelect');
-      const currentSelectedTech = techSelect.value;
-      techSelect.innerHTML = '';
-      techs.forEach(t => {
-        techSelect.innerHTML += `<option value="${t.name}" ${currentSelectedTech === t.name ? 'selected' : ''}>${t.name}</option>`;
-      });
-
+      // كروت الفنيين الصافية
       const quickContainer = document.getElementById('techQuickActionList');
       quickContainer.innerHTML = '';
 
@@ -1595,6 +1601,7 @@
         `;
       });
 
+      // سجل الأعطال مع إمكانية الإسناد الفوري بجانب كل عطل
       const feed = document.getElementById('adminOrdersFeed');
       feed.innerHTML = '';
 
@@ -1609,9 +1616,10 @@
         list.forEach(o => {
           const isDone = o.status === 'done';
           const isPostponed = o.status === 'postponed';
+          const hasTech = Boolean(o.tech);
 
-          let badgeClass = 'badge-pending';
-          let badgeText = '⏳ معلق';
+          let badgeClass = 'badge-unassigned';
+          let badgeText = 'غير مسند ⚠️';
 
           if (isDone) {
             badgeClass = 'badge-done';
@@ -1619,19 +1627,40 @@
           } else if (isPostponed) {
             badgeClass = 'badge-postponed';
             badgeText = 'مؤجل ⏳';
+          } else if (hasTech) {
+            badgeClass = 'badge-pending';
+            badgeText = 'معلق عند: ' + o.tech;
           }
+
+          // بناء خيارات الفنيين لهذا العطل
+          let techOptionsHtml = '<option value="">اختر الفني للإسناد...</option>';
+          techs.forEach(t => {
+            techOptionsHtml += `<option value="${t.name}" ${o.tech === t.name ? 'selected' : ''}>${t.name}</option>`;
+          });
 
           feed.innerHTML += `
             <div class="order-box">
               <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
-                <strong style="font-size:14px; color:var(--dark);">${o.customer}</strong>
+                <strong style="font-size:15px; color:var(--dark);">${o.customer}</strong>
                 <span class="badge ${badgeClass}">${badgeText}</span>
               </div>
               <p style="font-size:12px; color:var(--slate); margin-bottom:6px;">📍 ${o.address} | 📞 <a href="tel:${o.phone}" style="color:var(--primary); text-decoration:none; font-weight:700;">${o.phone}</a></p>
               <p style="font-size:12px; color:var(--dark); background:var(--bg); padding:6px 10px; border-radius:8px; margin-bottom:8px; font-weight:600;">${o.desc}</p>
               
+              <!-- قسم اختيار الفني والإسناد السريع -->
+              ${!isDone ? `
+                <div style="background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:8px 10px; margin-bottom:8px; display:flex; gap:6px; align-items:center;">
+                  <select id="assignSelect_${o.id}" class="input-control" style="margin-bottom:0; padding:6px 10px; font-size:12px; font-weight:700;">
+                    ${techOptionsHtml}
+                  </select>
+                  <button type="button" onclick="assignOrderToTech('${o.id}')" class="btn btn-primary" style="width:auto; padding:6px 14px; font-size:12px; white-space:nowrap;">
+                    🚀 إسناد
+                  </button>
+                </div>
+              ` : ''}
+
               <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--slate); border-top:1px solid var(--border); padding-top:6px;">
-                <span>الفني: <strong style="color:var(--primary);">${o.tech}</strong></span>
+                <span>الفني: <strong style="color:var(--primary);">${o.tech || 'لم يحدد بعد'}</strong></span>
                 <span>${o.createdDate}</span>
               </div>
 
