@@ -299,7 +299,7 @@
   <div id="techOrderAlertModal" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid var(--primary);">
       <div style="font-size: 40px; margin-bottom: 4px;">🔔</div>
-      <h3 style="font-size: 18px; font-weight: 900; color: var(--primary); margin-bottom: 4px;">عطل جديد مسند إليك!</h3>
+      <h3 style="font-size: 18px; font-weight: 900; color: var(--primary); margin-bottom: 4px;">عطل مسند إليك!</h3>
 
       <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px; text-align: right; font-size: 12px; line-height: 1.6; margin-bottom: 12px;">
         <div><strong>العميل:</strong> <span id="alertOrderCustomer" style="font-weight: 800;"></span></div>
@@ -491,7 +491,7 @@
     </div>
   </div>
 
-  <!-- 2. واجهة المدير المبسطة والمدمجة -->
+  <!-- 2. واجهة المدير -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -527,7 +527,7 @@
         </div>
       </div>
 
-      <!-- كارت تسجيل العطل السريع (بدون عنوان - سطرين فقط) -->
+      <!-- كارت تسجيل العطل السريع (بدون عنوان) -->
       <div class="card" style="border: 1.5px solid #93c5fd; padding: 12px; margin-bottom: 10px;">
         <div class="grid-2">
           <input type="text" id="newCustomer" placeholder="اسم العميل *" class="input-control">
@@ -541,10 +541,10 @@
         </div>
       </div>
 
-      <!-- كروت الفنيين بالأرصدة فقط وبشكل مدمج -->
+      <!-- كروت الفنيين بالأرصدة -->
       <div id="techQuickActionList"></div>
 
-      <!-- قائمة الأعطال المبسطة والمدمجة -->
+      <!-- قائمة الأعطال مع إمكانية نقل وإعادة الإسناد لأي فني آخر -->
       <div class="card" style="padding: 12px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <h4 style="font-size:13px; font-weight:900;">📋 قائمة الأعطال</h4>
@@ -598,12 +598,12 @@
     </div>
   </div>
 
-  <!-- المحرك البرمجي المحدث -->
+  <!-- المحرك البرمجي المحدث بالكامل -->
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار 27: إلغاء العنوان وتبسيط شاشة المدير بالكامل
-    const APP_CURRENT_VERSION = 27;
+    // الإصدار 28: إعادة الإسناد ونقل العطل بين الفنيين وحذفه فوراً من شاشة الفني السابق
+    const APP_CURRENT_VERSION = 28;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -1266,7 +1266,6 @@
       broadcastVersion();
     };
 
-    /* تسجيل العطل بدون عنوان وبسرعة */
     function submitNewOrderDraft() {
       const cust = document.getElementById('newCustomer').value.trim();
       const phone = document.getElementById('newPhone').value.trim();
@@ -1301,23 +1300,29 @@
       syncCloudUp();
     }
 
-    /* إسناد العطل للفني */
+    /* إسناد أو نقل العطل لفني آخر مع تحديث وحذف من حساب السابق */
     function assignOrderToTech(orderId) {
       const selectElem = document.getElementById('assignSelect_' + orderId);
       if (!selectElem || !selectElem.value) {
-        alert('اختر الفني أولاً');
+        alert('اختر الفني أولاً للإسناد');
         return;
       }
 
-      const selectedTechName = selectElem.value;
+      const newTechName = selectElem.value;
       const orderObj = appOrders.find(o => o.id === orderId);
 
       if (orderObj) {
-        orderObj.tech = selectedTechName;
+        const previousTech = orderObj.tech;
+        orderObj.tech = newTechName;
+        // إعادة حالة العطل إلى معلق عند النقل
+        if (orderObj.status === 'postponed') {
+          orderObj.status = 'pending';
+        }
 
+        // إرسال تنبيه مباشر للفني الجديد
         const orderAlertPayload = {
           alertId: 'ORD-ALERT-' + Date.now(),
-          targetTech: selectedTechName,
+          targetTech: newTechName,
           customer: orderObj.customer,
           phone: orderObj.phone,
           desc: orderObj.desc,
@@ -1332,6 +1337,12 @@
 
         renderAdmin();
         syncCloudUp();
+
+        if (previousTech && previousTech !== newTechName) {
+          alert(`تم نقل العطل من (${previousTech}) وإسناده إلى (${newTechName}) بنجاح 🚀`);
+        } else {
+          alert(`تم إسناد العطل للفني (${newTechName}) بنجاح 🚀`);
+        }
       }
     }
 
@@ -1405,7 +1416,6 @@
       syncCloudUp();
     }
 
-    /* رسم لوحة المدير المبسطة والمدمجة */
     function renderAdmin() {
       const today = getToday();
       const techs = appAccounts.filter(a => a.role === 'tech');
@@ -1418,7 +1428,7 @@
       document.getElementById('statDoneOrders').innerText = doneOrdersCount;
       document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
 
-      // كروت الفنيين الصافية المدمجة
+      // كروت الفنيين بالأرصدة
       const quickContainer = document.getElementById('techQuickActionList');
       quickContainer.innerHTML = '';
 
@@ -1443,7 +1453,7 @@
         `;
       });
 
-      // قائمة الأعطال المبسطة والمدمجة (سطر واحد منظم)
+      // قائمة الأعطال مع إمكانية النقل وإعادة الإسناد
       const feed = document.getElementById('adminOrdersFeed');
       feed.innerHTML = '';
 
@@ -1468,13 +1478,13 @@
             badgeText = 'تم الحل ✓';
           } else if (isPostponed) {
             badgeClass = 'badge-postponed';
-            badgeText = 'مؤجل ⏳';
+            badgeText = 'مؤجل عند: ' + o.tech;
           } else if (hasTech) {
             badgeClass = 'badge-pending';
-            badgeText = o.tech;
+            badgeText = 'عند: ' + o.tech;
           }
 
-          let techOptionsHtml = '<option value="">اختر الفني...</option>';
+          let techOptionsHtml = '<option value="">اختر فني للإسناد...</option>';
           techs.forEach(t => {
             techOptionsHtml += `<option value="${t.name}" ${o.tech === t.name ? 'selected' : ''}>${t.name}</option>`;
           });
@@ -1491,19 +1501,20 @@
               
               ${o.desc ? `<div style="font-size:11px; color:var(--slate); margin-bottom:6px;">${o.desc}</div>` : ''}
 
+              <!-- قسم اختيار ونقل الفني حتى بعد الإسناد -->
               ${!isDone ? `
-                <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
-                  <select id="assignSelect_${o.id}" class="input-control" style="margin-bottom:0; padding:5px 8px; font-size:11px; font-weight:700;">
+                <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:5px 8px; margin-top:4px; display:flex; gap:6px; align-items:center;">
+                  <select id="assignSelect_${o.id}" class="input-control" style="margin-bottom:0; padding:4px 8px; font-size:11px; font-weight:700;">
                     ${techOptionsHtml}
                   </select>
                   <button type="button" onclick="assignOrderToTech('${o.id}')" class="btn btn-primary" style="width:auto; padding:5px 12px; font-size:11px; white-space:nowrap;">
-                    🚀 إسناد
+                    ${hasTech ? '🔄 نقل الفني' : '🚀 إسناد'}
                   </button>
                   <button type="button" onclick="deleteOrder('${o.id}')" class="badge" style="background:var(--danger-light); color:var(--danger); border:none; cursor:pointer; padding:6px 8px;">✕</button>
                 </div>
               ` : `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px; font-size:11px;">
-                  <span style="color:#065f46;">حل: ${o.reason || 'تم بنجاح'}</span>
+                  <span style="color:#065f46;">حل: ${o.reason \vert{}\vert{} 'تم بنجاح'} (الفني: ${o.tech})</span>
                   <div style="display:flex; gap:4px;">
                     <button type="button" onclick="openBonusPrompt('${o.tech}', 'بونص: ${o.customer}')" class="badge badge-done" style="border:none; cursor:pointer;">🎁 بونص</button>
                     <button type="button" onclick="deleteOrder('${o.id}')" class="badge" style="background:var(--danger-light); color:var(--danger); border:none; cursor:pointer;">✕</button>
@@ -1533,7 +1544,6 @@
       }
     }
 
-    /* دوال الفني */
     function renderTech() {
       const today = getToday();
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
