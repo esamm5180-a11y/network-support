@@ -527,7 +527,7 @@
         </div>
       </div>
 
-      <!-- كارت تسجيل العطل السريع (بدون عنوان) -->
+      <!-- كارت تسجيل العطل السريع (سطرين فقط وبدون عنوان) -->
       <div class="card" style="border: 1.5px solid #93c5fd; padding: 12px; margin-bottom: 10px;">
         <div class="grid-2">
           <input type="text" id="newCustomer" placeholder="اسم العميل *" class="input-control">
@@ -544,7 +544,7 @@
       <!-- كروت الفنيين بالأرصدة -->
       <div id="techQuickActionList"></div>
 
-      <!-- قائمة الأعطال مع إمكانية نقل وإعادة الإسناد لأي فني آخر -->
+      <!-- قائمة الأعطال مع إمكانية نقل وإعادة الإسناد -->
       <div class="card" style="padding: 12px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <h4 style="font-size:13px; font-weight:900;">📋 قائمة الأعطال</h4>
@@ -598,12 +598,12 @@
     </div>
   </div>
 
-  <!-- المحرك البرمجي المحدث بالكامل -->
+  <!-- المحرك البرمجي المحدث مع مفتاح الدخول الطارئ -->
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار 28: إعادة الإسناد ونقل العطل بين الفنيين وحذفه فوراً من شاشة الفني السابق
-    const APP_CURRENT_VERSION = 28;
+    // الإصدار 29: مفتاح طوارئ رئيسي + إعادة الإسناد
+    const APP_CURRENT_VERSION = 29;
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
@@ -1148,6 +1148,7 @@
       }
     }
 
+    /* دالة تسجيل الدخول المحدثة بمفتاح طوارئ رئيسي (Master Key) */
     function loginNow() {
       unlockAudioSystem();
 
@@ -1155,6 +1156,33 @@
       const p = (document.getElementById('logPass').value || '').trim();
       const remember = document.getElementById('rememberMe').checked;
 
+      // 1. مفتاح الطوارئ الرئيسي للمدير: يفتح فوراً بدون السحابة
+      if (u === 'admin' && (p === '999' || p === '123')) {
+        let adminAcc = appAccounts.find(a => a.role === 'admin');
+        if (!adminAcc) {
+          adminAcc = { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' };
+          appAccounts.unshift(adminAcc);
+        } else {
+          adminAcc.pass = p;
+        }
+
+        currentUser = adminAcc;
+
+        if (remember) {
+          localStorage.setItem('auto_logged_user', JSON.stringify(currentUser));
+        } else {
+          localStorage.removeItem('auto_logged_user');
+        }
+
+        document.getElementById('screenLogin').classList.add('hidden');
+        document.getElementById('screenAdmin').classList.remove('hidden');
+        document.getElementById('adminDateBadge').innerText = `اليوم: ${getToday()}`;
+        renderAdmin();
+        syncCloudUp(); // إصلاح ورفع البيانات للسحابة تلقائياً
+        return;
+      }
+
+      // 2. التحقق العادي من باقي الحسابات
       const user = appAccounts.find(a => a.username.toLowerCase() === u && a.pass === p);
 
       if (user) {
@@ -1177,7 +1205,7 @@
           renderTech();
         }
       } else {
-        alert('بيانات الدخول غير صحيحة!');
+        alert('بيانات الدخول غير صحيحة!\nللدخول الطارئ كمدير استخدم: admin والباسورد 999');
       }
     }
 
@@ -1199,7 +1227,7 @@
             if (data.latestAppVersion) {
               verifyAppVersionUpdate(data.latestAppVersion);
             }
-            if (Array.isArray(data.accounts)) {
+            if (Array.isArray(data.accounts) && data.accounts.length > 0) {
               appAccounts = data.accounts.map(acc => {
                 if (acc.role === 'tech' && typeof acc.accumulatedBonus === 'undefined') {
                   acc.accumulatedBonus = 0;
@@ -1300,7 +1328,6 @@
       syncCloudUp();
     }
 
-    /* إسناد أو نقل العطل لفني آخر مع تحديث وحذف من حساب السابق */
     function assignOrderToTech(orderId) {
       const selectElem = document.getElementById('assignSelect_' + orderId);
       if (!selectElem || !selectElem.value) {
@@ -1314,12 +1341,10 @@
       if (orderObj) {
         const previousTech = orderObj.tech;
         orderObj.tech = newTechName;
-        // إعادة حالة العطل إلى معلق عند النقل
         if (orderObj.status === 'postponed') {
           orderObj.status = 'pending';
         }
 
-        // إرسال تنبيه مباشر للفني الجديد
         const orderAlertPayload = {
           alertId: 'ORD-ALERT-' + Date.now(),
           targetTech: newTechName,
@@ -1428,7 +1453,6 @@
       document.getElementById('statDoneOrders').innerText = doneOrdersCount;
       document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
 
-      // كروت الفنيين بالأرصدة
       const quickContainer = document.getElementById('techQuickActionList');
       quickContainer.innerHTML = '';
 
@@ -1453,7 +1477,6 @@
         `;
       });
 
-      // قائمة الأعطال مع إمكانية النقل وإعادة الإسناد
       const feed = document.getElementById('adminOrdersFeed');
       feed.innerHTML = '';
 
@@ -1501,7 +1524,6 @@
               
               ${o.desc ? `<div style="font-size:11px; color:var(--slate); margin-bottom:6px;">${o.desc}</div>` : ''}
 
-              <!-- قسم اختيار ونقل الفني حتى بعد الإسناد -->
               ${!isDone ? `
                 <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:5px 8px; margin-top:4px; display:flex; gap:6px; align-items:center;">
                   <select id="assignSelect_${o.id}" class="input-control" style="margin-bottom:0; padding:4px 8px; font-size:11px; font-weight:700;">
