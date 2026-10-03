@@ -464,7 +464,7 @@
     </div>
   </div>
 
-  <!-- 1. شاشة الدخول -->
+  <!-- 1. شاشة الدخول المحدثة بزر الإنقاذ المباشر -->
   <div id="screenLogin" class="container" style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
     <div class="card" style="width: 100%; text-align: center; padding: 26px 20px;">
       <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; font-size: 26px;">
@@ -475,19 +475,24 @@
 
       <div class="input-group">
         <label>اسم المستخدم</label>
-        <input type="text" id="logUser" class="input-control">
+        <input type="text" id="logUser" placeholder="admin" class="input-control">
       </div>
       <div class="input-group">
         <label>كلمة المرور</label>
-        <input type="password" id="logPass" class="input-control">
+        <input type="password" id="logPass" placeholder="123 أو 999" class="input-control">
       </div>
 
-      <div style="display: flex; align-items: center; gap: 6px; margin: 14px 0 16px 0; text-align: right;">
+      <div style="display: flex; align-items: center; gap: 6px; margin: 12px 0 14px 0; text-align: right;">
         <input type="checkbox" id="rememberMe" checked style="width: 16px; height: 16px; accent-color: var(--primary);">
         <label for="rememberMe" style="font-size: 12px; color: var(--slate); font-weight: 700;">تذكر تسجيل الدخول</label>
       </div>
 
-      <button type="button" onclick="loginNow()" class="btn btn-primary" style="padding: 12px;">دخول 🚀</button>
+      <button type="button" onclick="loginNow()" class="btn btn-primary" style="padding: 12px; margin-bottom: 10px;">تسجيل الدخول 🚀</button>
+
+      <!-- زر الطوارئ المباشر (يفتح في ثانية ويتجاوز أي مشكلة) -->
+      <button type="button" onclick="emergencyAdminUnlock()" class="btn btn-danger" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; font-size:12px; padding:9px;">
+        🛠️ دخول طوارئ وإصلاح فوري (اضغط هنا)
+      </button>
     </div>
   </div>
 
@@ -598,19 +603,21 @@
     </div>
   </div>
 
-  <!-- المحرك البرمجي المحدث مع مفتاح الدخول الطارئ -->
+  <!-- المحرك البرمجي المعزول والمنقذ -->
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // الإصدار 29: مفتاح طوارئ رئيسي + إعادة الإسناد
-    const APP_CURRENT_VERSION = 29;
+    // الإصدار 30: محرك الإنقاذ الكامل
+    const APP_CURRENT_VERSION = 30;
 
-    let appAccounts = [
+    // الحسابات الأساسية الافتراضية
+    const DEFAULT_ACCOUNTS = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
       { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0 },
       { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0 }
     ];
 
+    let appAccounts = [...DEFAULT_ACCOUNTS];
     let appOrders = [];
     let bonusRecords = [];
     let currentUser = null;
@@ -618,6 +625,28 @@
     let currentActiveBonusData = null;
     let currentAdminOrdersFilter = 'today';
     let currentTechOrdersTab = 'pending';
+
+    /* زر الدخول الطارئ الشامل */
+    function emergencyAdminUnlock() {
+      // 1. إعادة ضبط مصفوفة الحسابات محلياً
+      appAccounts = JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
+      const adminAcc = appAccounts[0];
+      currentUser = adminAcc;
+
+      // 2. حفظ الجلسة في المتصفح
+      localStorage.setItem('auto_logged_user', JSON.stringify(currentUser));
+
+      // 3. فتح شاشة الإدارة مباشرة
+      document.getElementById('screenLogin').classList.add('hidden');
+      document.getElementById('screenAdmin').classList.remove('hidden');
+      document.getElementById('adminDateBadge').innerText = `اليوم: ${getToday()}`;
+      renderAdmin();
+
+      // 4. فرض حفظ الحسابات السليمة في فايربيس
+      syncCloudUp();
+
+      alert('تم الدخول بنجاح كمدير عام وإعادة ضبط مصفوفة الحسابات في السحابة ✓');
+    }
 
     function initDarkMode() {
       const isDark = localStorage.getItem('app_dark_mode') === 'true';
@@ -925,7 +954,7 @@
     }
 
     function openAdminSettingsModal() {
-      const adm = appAccounts.find(a => a.role === 'admin');
+      const adm = appAccounts.find(a => a.role === 'admin') || DEFAULT_ACCOUNTS[0];
       if (adm) {
         document.getElementById('adminUserVal').value = adm.username;
         document.getElementById('adminPassVal').value = adm.pass;
@@ -1114,7 +1143,7 @@
 
       if (!u || !p) return;
 
-      const adm = appAccounts.find(a => a.role === 'admin');
+      const adm = appAccounts.find(a => a.role === 'admin') || DEFAULT_ACCOUNTS[0];
       if (adm) {
         adm.username = u;
         adm.pass = p;
@@ -1148,7 +1177,7 @@
       }
     }
 
-    /* دالة تسجيل الدخول المحدثة بمفتاح طوارئ رئيسي (Master Key) */
+    /* تسجيل دخول معزول ومحصن من الانهيار */
     function loginNow() {
       unlockAudioSystem();
 
@@ -1156,38 +1185,22 @@
       const p = (document.getElementById('logPass').value || '').trim();
       const remember = document.getElementById('rememberMe').checked;
 
-      // 1. مفتاح الطوارئ الرئيسي للمدير: يفتح فوراً بدون السحابة
-      if (u === 'admin' && (p === '999' || p === '123')) {
-        let adminAcc = appAccounts.find(a => a.role === 'admin');
-        if (!adminAcc) {
-          adminAcc = { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' };
-          appAccounts.unshift(adminAcc);
-        } else {
-          adminAcc.pass = p;
-        }
+      // التأكد من وجود حسابات
+      if (!appAccounts || appAccounts.length === 0) {
+        appAccounts = JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
+      }
 
-        currentUser = adminAcc;
-
-        if (remember) {
-          localStorage.setItem('auto_logged_user', JSON.stringify(currentUser));
-        } else {
-          localStorage.removeItem('auto_logged_user');
-        }
-
-        document.getElementById('screenLogin').classList.add('hidden');
-        document.getElementById('screenAdmin').classList.remove('hidden');
-        document.getElementById('adminDateBadge').innerText = `اليوم: ${getToday()}`;
-        renderAdmin();
-        syncCloudUp(); // إصلاح ورفع البيانات للسحابة تلقائياً
+      // مطابقة المدير الطارئ أو العادي
+      if (u === 'admin' && (p === '123' || p === '999')) {
+        emergencyAdminUnlock();
         return;
       }
 
-      // 2. التحقق العادي من باقي الحسابات
+      // مطابقة الفنيين
       const user = appAccounts.find(a => a.username.toLowerCase() === u && a.pass === p);
 
       if (user) {
         currentUser = user;
-
         if (remember) {
           localStorage.setItem('auto_logged_user', JSON.stringify(user));
         } else {
@@ -1205,7 +1218,7 @@
           renderTech();
         }
       } else {
-        alert('بيانات الدخول غير صحيحة!\nللدخول الطارئ كمدير استخدم: admin والباسورد 999');
+        alert('اسم المستخدم أو كلمة المرور غير صحيحة!\nإذا كنت المدير اضغط على زر الطوارئ الأحمر بالأسفل.');
       }
     }
 
@@ -1453,6 +1466,7 @@
       document.getElementById('statDoneOrders').innerText = doneOrdersCount;
       document.getElementById('statTodayPaid').innerText = `${todayPaid} ج`;
 
+      // كروت الفنيين بالأرصدة
       const quickContainer = document.getElementById('techQuickActionList');
       quickContainer.innerHTML = '';
 
@@ -1477,6 +1491,7 @@
         `;
       });
 
+      // قائمة الأعطال مع إمكانية النقل وإعادة الإسناد
       const feed = document.getElementById('adminOrdersFeed');
       feed.innerHTML = '';
 
