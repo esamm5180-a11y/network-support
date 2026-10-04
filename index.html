@@ -22,7 +22,26 @@
     .btn-warning { background: #d97706; color: #fff; }
     .btn-danger { background: #e11d48; color: #fff; }
     .btn-secondary { background: #e2e8f0; color: #475569; }
+    
+    /* شريط أدوات وأيقونات المدير الاحترافية */
     .header { background: #ffffff; border-bottom: 1px solid #cbd5e1; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+    .icon-btn {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #334155;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .icon-btn:active { transform: scale(0.96); background: #e2e8f0; }
+    .icon-btn-danger { background: #fee2e2; border-color: #fca5a5; color: #b91c1c; }
+
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 6px; }
     .order-box { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; margin-bottom: 8px; }
@@ -144,14 +163,19 @@
     </div>
   </div>
 
-  <!-- 6. نافذة الإعدادات الشاملة للمدير -->
+  <!-- 6. نافذة الإعدادات الشاملة للمدير (مزودة بزر رجوع صريح وإمكانية مسح سجل الفني) -->
   <div id="modalSettings" class="modal-overlay hidden">
     <div class="modal-content">
+      <!-- ترويسة الإعدادات مع زر الرجوع الصريح -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
-        <h4 style="font-size: 15px; font-weight: 900; color: #2563eb;">⚙️ الإعدادات والتحكم</h4>
-        <button type="button" onclick="closeSettingsModal()" style="border: none; background: transparent; font-size: 18px; cursor: pointer;">✕</button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" onclick="closeSettingsModal()" class="icon-btn" style="padding: 4px 10px; font-size: 12px;">← رجوع</button>
+          <h4 style="font-size: 15px; font-weight: 900; color: #2563eb;">⚙️ لوحة الإعدادات</h4>
+        </div>
+        <button type="button" onclick="closeSettingsModal()" style="border: none; background: transparent; font-size: 18px; cursor: pointer; color: #64748b;">✕</button>
       </div>
 
+      <!-- خصم أو سلفة -->
       <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
         <h5 style="font-size: 12px; font-weight: 900; color: #e11d48; margin-bottom: 6px;">➖ تسجيل سلفة أو خصم كاش:</h5>
         <select id="deductTechSelect" class="input-control"></select>
@@ -160,8 +184,9 @@
         <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 7px; font-size: 12px;">خصم من الرصيد ➖</button>
       </div>
 
+      <!-- تعديل بيانات ورصيد الفني + مسح سجل الأعطال الخاص به -->
       <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
-        <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">🛠️ التحكم في حساب الفني:</h5>
+        <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">🛠️ التحكم في حساب وسجل الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
         
         <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">تعديل الرصيد يدوياً:</label>
@@ -175,12 +200,19 @@
           <input type="text" id="settingsTechUser" placeholder="اليوزر" class="input-control">
           <input type="text" id="settingsTechPass" placeholder="الباسورد" class="input-control">
         </div>
-        <div class="grid-2">
-          <button type="button" onclick="saveSelectedTechAccount()" class="btn btn-primary" style="padding: 6px; font-size: 11px;">حفظ البيانات</button>
-          <button type="button" onclick="deleteSelectedTechAccount()" class="btn btn-danger" style="padding: 6px; font-size: 11px;">حذف الفني</button>
+        
+        <div class="grid-2" style="margin-bottom: 8px;">
+          <button type="button" onclick="saveSelectedTechAccount()" class="btn btn-primary" style="padding: 6px; font-size: 11px;">حفظ البيانات 💾</button>
+          <button type="button" onclick="deleteSelectedTechAccount()" class="btn btn-danger" style="padding: 6px; font-size: 11px;">حذف الفني ✕</button>
         </div>
+
+        <!-- زر مسح سجل أعطال الفني المختار -->
+        <button type="button" onclick="clearSelectedTechOrdersHistory()" class="btn btn-secondary" style="background: #fed7aa; color: #9a3412; border: 1px solid #fdba74; font-size: 11px; padding: 7px;">
+          مسح سجل أعطال هذا الفني 🗑️
+        </button>
       </div>
 
+      <!-- إضافة فني جديد -->
       <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">👷 إضافة فني جديد:</h5>
         <input type="text" id="addTechName" placeholder="اسم الفني بالكامل" class="input-control">
@@ -191,6 +223,7 @@
         <button type="button" onclick="addNewTechAccount()" class="btn btn-primary" style="padding: 7px; font-size: 12px;">إضافة الفني ➕</button>
       </div>
 
+      <!-- بيانات المدير -->
       <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">👤 حساب المدير:</h5>
         <div class="grid-2">
@@ -200,7 +233,7 @@
         <button type="button" onclick="saveAdminCredentials()" class="btn btn-secondary" style="padding: 7px; font-size: 12px;">حفظ بيانات المدير 💾</button>
       </div>
 
-      <button type="button" onclick="closeSettingsModal()" class="btn btn-secondary" style="margin-top: 4px;">إغلاق</button>
+      <button type="button" onclick="closeSettingsModal()" class="btn btn-secondary" style="margin-top: 4px;">إغلاق الشاشة</button>
     </div>
   </div>
 
@@ -220,17 +253,27 @@
     </div>
   </div>
 
-  <!-- شاشة المدير -->
+  <!-- شاشة المدير بأيقونات احترافية -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
-        <h3 style="font-size: 15px; font-weight: 900;">لوحة الإدارة</h3>
-        <span id="adminDate" style="font-size: 10px; color: #475569;"></span>
+        <h3 style="font-size: 15px; font-weight: 900; color: #0f172a;">لوحة الإدارة</h3>
+        <span id="adminDate" style="font-size: 10px; color: #64748b; font-weight: 700;"></span>
       </div>
-      <div style="display: flex; gap: 5px;">
-        <button type="button" onclick="triggerManualSync()" class="btn btn-secondary" style="width: auto; padding: 4px 8px; font-size: 12px;" title="تحديث السحابة">🔄</button>
-        <button type="button" onclick="openSettingsModal()" class="btn btn-secondary" style="width: auto; padding: 4px 10px; font-size: 12px;">⚙️ الإعدادات</button>
-        <button type="button" onclick="handleLogout()" class="btn btn-danger" style="width: auto; padding: 4px 10px; font-size: 11px;">خروج</button>
+      <!-- شريط أدوات المدير الاحترافي -->
+      <div style="display: flex; gap: 6px; align-items: center;">
+        <button type="button" onclick="triggerManualSync()" class="icon-btn" title="تحديث السحابة">
+          <span>🔄</span>
+          <span style="font-size: 11px;">تحديث</span>
+        </button>
+        <button type="button" onclick="openSettingsModal()" class="icon-btn" title="الإعدادات">
+          <span>⚙️</span>
+          <span style="font-size: 11px;">الإعدادات</span>
+        </button>
+        <button type="button" onclick="handleLogout()" class="icon-btn icon-btn-danger" title="تسجيل الخروج">
+          <span>🚪</span>
+          <span style="font-size: 11px;">خروج</span>
+        </button>
       </div>
     </header>
 
@@ -250,7 +293,7 @@
         </div>
       </div>
 
-      <!-- تسجيل عطل جديد (رقم الهاتف اختياري) -->
+      <!-- تسجيل عطل جديد -->
       <div class="card" style="border: 1.5px solid #93c5fd;">
         <div class="grid-2">
           <input type="text" id="newCustName" placeholder="اسم العميل *" class="input-control">
@@ -264,6 +307,7 @@
 
       <div id="adminTechsList"></div>
 
+      <!-- التبويبات الأربعة: معلق | تم الإسناد | مؤجل | منجز -->
       <div style="display: flex; gap: 4px; margin-bottom: 10px;">
         <div class="filter-tab active" onclick="setAdminFilter('pending')" id="tabPending">معلق (<span id="countPending">0</span>)</div>
         <div class="filter-tab" onclick="setAdminFilter('assigned')" id="tabAssigned">تم الإسناد (<span id="countAssigned">0</span>)</div>
@@ -285,8 +329,12 @@
         <span style="font-size: 10px; color: #475569; font-weight: 700;">أعطالي</span>
       </div>
       <div style="display: flex; gap: 5px;">
-        <button type="button" onclick="triggerManualSync()" class="btn btn-secondary" style="width: auto; padding: 4px 8px; font-size: 12px;" title="تحديث السحابة">🔄</button>
-        <button type="button" onclick="handleLogout()" class="btn btn-danger" style="width: auto; padding: 4px 10px; font-size: 11px;">خروج</button>
+        <button type="button" onclick="triggerManualSync()" class="icon-btn" title="تحديث السحابة">
+          <span>🔄</span>
+        </button>
+        <button type="button" onclick="handleLogout()" class="icon-btn icon-btn-danger" title="خروج">
+          <span>🚪</span>
+        </button>
       </div>
     </header>
 
@@ -584,6 +632,29 @@
       }
     }
 
+    // مسح سجل أعطال الفني المختار من صفحة الإعدادات
+    function clearSelectedTechOrdersHistory() {
+      const selId = document.getElementById('settingsTechSelect').value;
+      const tech = appAccounts.find(a => a.id == selId);
+      if (!tech) return;
+
+      const techOrdersCount = appOrders.filter(o => o.tech === tech.name).length;
+      if (techOrdersCount === 0) {
+        return alert(`لا توجد أعطال مسجلة باسم الفني (${tech.name}) حالياً.`);
+      }
+
+      if (confirm(`هل أنت متأكد من مسح جميع الأعطال الخاصة بالفني (${tech.name}) بالكامل؟ (عددها: ${techOrdersCount})`)) {
+        appOrders = appOrders.filter(o => o.tech !== tech.name);
+        renderAdmin();
+        fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(appOrders)
+        }).catch(() => {});
+        alert(`تم مسح سجل أعطال (${tech.name}) بنجاح ✓`);
+      }
+    }
+
     function submitDeduction() {
       const techName = document.getElementById('deductTechSelect').value;
       const amount = Number(document.getElementById('deductAmount').value);
@@ -689,7 +760,6 @@
       alert('تم تحديث بيانات المدير 💾');
     }
 
-    // حفظ العطل في لوحة المدير: اسم العميل فقط هو الإجباري
     function saveNewOrder() {
       const name = document.getElementById('newCustName').value.trim();
       const phone = document.getElementById('newCustPhone').value.trim();
@@ -700,7 +770,7 @@
       appOrders.unshift({
         id: 'ORD-' + Date.now().toString().slice(-5),
         customer: name,
-        phone: phone, // اختياري
+        phone: phone,
         desc: desc,
         tech: '',
         status: 'pending',
@@ -941,7 +1011,7 @@
       });
     }
 
-    // دوال الفني مع تطبيق شرط لون وزر الهاتف المعكوس
+    // دوال الفني
     function renderTech() {
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
@@ -969,7 +1039,6 @@
         let badgeClass = isDone ? 'badge-done' : (isPostponed ? 'badge-postponed' : 'badge-pending');
         let badgeText = isDone ? 'تم الحل ✓' : (isPostponed ? 'مؤجل ⏳' : 'مطلوب');
 
-        // المنطق المطلوب: إذا وجد رقم هاتف يكون أخضر (btn-success) وللاتصال، وإذا لم يوجد يكون رمادي (btn-secondary) وبدون رقم
         let phoneBtnHtml = '';
         if (o.phone && o.phone.trim() !== '') {
           phoneBtnHtml = `<a href="tel:${o.phone}" class="btn btn-success" style="padding:6px; font-size:11px;">📞 اتصال</a>`;
