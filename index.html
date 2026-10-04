@@ -20,7 +20,6 @@
     .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 12px; }
     .card { background: #ffffff !important; color: #0f172a !important; border-radius: 14px; padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
     
-    /* حقول إدخال تدعم التركيز واللمس المباشر على جميع شاشات الموبايل */
     .input-control { 
       width: 100%; 
       padding: 10px 12px; 
@@ -46,7 +45,6 @@
     
     .header { background: #ffffff; border-bottom: 1px solid #cbd5e1; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
     
-    /* تصميم أيقونات المدير الاحترافي (Modern Flat Buttons) */
     .icon-btn-pro {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
@@ -78,6 +76,11 @@
     .badge-job-fault { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
     .badge-job-install { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
     .badge-job-check { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+
+    /* مؤشر الاتصال المباشر */
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 4px; }
+    .status-online { background-color: #10b981; box-shadow: 0 0 6px rgba(16,185,129,0.7); }
+    .status-offline { background-color: #94a3b8; }
 
     .stat-tab-card {
       background: #ffffff;
@@ -249,7 +252,7 @@
     </div>
   </div>
 
-  <!-- 1. شاشة المدير الرئيسية (بأيقونات حديثة وتصميم متكامل) -->
+  <!-- 1. شاشة المدير الرئيسية -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -257,17 +260,14 @@
         <span id="adminDate" style="font-size: 10px; color: #64748b; font-weight: 700;"></span>
       </div>
       <div style="display: flex; gap: 6px; align-items: center;">
-        <!-- أيقونة التحديث الاحترافية -->
         <button type="button" onclick="triggerManualSync()" class="icon-btn-pro" title="تحديث السحابة">
           <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
           <span>تحديث</span>
         </button>
-        <!-- أيقونة الإعدادات الاحترافية -->
         <button type="button" onclick="openSettingsPage()" class="icon-btn-pro" title="الإعدادات">
           <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
           <span>الإعدادات</span>
         </button>
-        <!-- أيقونة تسجيل الخروج الاحترافية -->
         <button type="button" onclick="handleLogout()" class="icon-btn-pro danger" title="تسجيل الخروج">
           <svg viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
           <span>خروج</span>
@@ -295,7 +295,7 @@
         </div>
       </div>
 
-      <!-- تسجيل طلب جديد مع معالجة التركيز التلقائي لاسم العميل -->
+      <!-- تسجيل طلب جديد -->
       <div class="card" style="border: 1.5px solid #93c5fd;">
         <div class="grid-2">
           <input 
@@ -327,6 +327,7 @@
         <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
 
+      <!-- قائمة الفنيين مع مؤشر الاتصال المباشر (Online / Offline) -->
       <div id="adminTechsList"></div>
     </div>
   </div>
@@ -472,8 +473,8 @@
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'mega_admin', pass: 'M@g@#2026!Sec' },
-      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0 },
-      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0 }
+      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0, lastSeen: 0 },
+      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0, lastSeen: 0 }
     ];
 
     let appOrders = [];
@@ -502,7 +503,6 @@
       } catch(e) {}
     }
 
-    // إيقاف التنبيه الصوتي والاهتزاز فوراً عند فتح أو التفاعل مع الإشعار
     function stopAlertChimeNow() {
       isChimePlaying = false;
       if (activeChimeNodes && activeChimeNodes.length > 0) {
@@ -562,6 +562,21 @@
     function getToday() {
       const d = new Date();
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    // إرسال إشارة بقاء الفني متصلاً بالسحابة (Heartbeat)
+    function sendTechHeartbeat() {
+      if (!currentUser || currentUser.role !== 'tech') return;
+      const now = Date.now();
+      currentUser.lastSeen = now;
+      const meInList = appAccounts.find(a => a.id === currentUser.id);
+      if (meInList) meInList.lastSeen = now;
+
+      fetch(`${FIREBASE_DB}/bonus_system_data/presence/${currentUser.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lastSeen: now, techName: currentUser.name })
+      }).catch(() => {});
     }
 
     function checkIncomingAlerts(data) {
@@ -709,6 +724,7 @@
         currentUser = user;
         localStorage.setItem('saved_active_user', JSON.stringify(currentUser));
         showUserScreen();
+        if (currentUser.role === 'tech') sendTechHeartbeat();
       } else {
         alert('اسم المستخدم أو كلمة المرور غير صحيحة!');
       }
@@ -976,7 +992,7 @@
       const user = document.getElementById('addTechUser').value.trim();
       const pass = document.getElementById('addTechPass').value.trim();
       if (!name || !user || !pass) return alert('يرجى ملء جميع البيانات');
-      appAccounts.push({ id: Date.now(), role: 'tech', name, username: user, pass, accumulatedBonus: 0 });
+      appAccounts.push({ id: Date.now(), role: 'tech', name, username: user, pass, accumulatedBonus: 0, lastSeen: 0 });
       document.getElementById('addTechName').value = '';
       document.getElementById('addTechUser').value = '';
       document.getElementById('addTechPass').value = '';
@@ -1192,6 +1208,7 @@
       renderAdminOrders();
     }
 
+    // عرض كروت الفنيين مع نقطة الاتصال الأخضر/الرمادي
     function renderAdmin() {
       const pendingCount = appOrders.filter(o => o.status === 'pending' && (!o.tech || o.tech === '')).length;
       const assignedCount = appOrders.filter(o => o.status === 'pending' && Boolean(o.tech)).length;
@@ -1206,12 +1223,23 @@
       const techBox = document.getElementById('adminTechsList');
       techBox.innerHTML = '';
       const techs = appAccounts.filter(a => a.role === 'tech');
+      const now = Date.now();
 
       techs.forEach(t => {
+        // إذا كان الفني أرسل إشارة خلال آخر 30 ثانية يعتبر متصلاً ومفتوحاً لديه التطبيق
+        const isOnline = t.lastSeen && (now - t.lastSeen < 30000);
+        const statusClass = isOnline ? 'status-online' : 'status-offline';
+        const statusText = isOnline ? 'متصل الآن' : 'غير متصل';
+        const statusTextColor = isOnline ? '#10b981' : '#94a3b8';
+
         techBox.innerHTML += `
           <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
             <div>
-              <strong style="font-size:14px;">${t.name}</strong>
+              <div style="display:flex; align-items:center; gap:4px;">
+                <span class="status-dot ${statusClass}"></span>
+                <strong style="font-size:14px;">${t.name}</strong>
+                <span style="font-size:10px; font-weight:700; color:${statusTextColor};">(${statusText})</span>
+              </div>
               <span style="display:block; color:#059669; font-weight:900; font-size:18px;">${t.accumulatedBonus || 0} ج</span>
             </div>
             <div style="display:flex; gap:5px;">
@@ -1354,7 +1382,6 @@
       });
     }
 
-    // دوال الفني
     function renderTech() {
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
@@ -1537,9 +1564,21 @@
         .then(res => res.json())
         .then(data => {
           if (data) {
-            if (Array.isArray(data.accounts) && data.accounts.length > 0) appAccounts = data.accounts;
+            if (Array.isArray(data.accounts) && data.accounts.length > 0) {
+              appAccounts = data.accounts;
+            }
             appOrders = Array.isArray(data.orders) ? data.orders : [];
             if (Array.isArray(data.bonusRecords)) bonusRecords = data.bonusRecords;
+
+            // مزامنة حالة اتصال الفنيين من عقدة presence
+            if (data.presence) {
+              Object.keys(data.presence).forEach(techId => {
+                const target = appAccounts.find(a => a.id == techId);
+                if (target && data.presence[techId].lastSeen) {
+                  target.lastSeen = data.presence[techId].lastSeen;
+                }
+              });
+            }
 
             checkIncomingAlerts(data);
 
@@ -1572,10 +1611,12 @@
         try {
           currentUser = JSON.parse(saved);
           showUserScreen();
+          if (currentUser.role === 'tech') sendTechHeartbeat();
         } catch(e) {}
       }
       syncDown();
       setInterval(syncDown, 3000);
+      setInterval(sendTechHeartbeat, 10000); // إرسال نبض اتصال للفني كل 10 ثوانٍ
     };
   </script>
 </body>
