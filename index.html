@@ -82,7 +82,7 @@
         <div><strong>المشكلة:</strong> <span id="alertCustDesc"></span></div>
       </div>
       <div class="grid-2">
-        <a id="alertCallBtn" href="tel:" class="btn btn-primary" onclick="dismissOrderAlert()">📞 اتصال فوراً</a>
+        <a id="alertCallBtn" href="tel:" class="btn btn-success" onclick="dismissOrderAlert()">📞 اتصال فوراً</a>
         <button type="button" onclick="dismissOrderAlert()" class="btn btn-secondary">إغلاق</button>
       </div>
     </div>
@@ -152,7 +152,6 @@
         <button type="button" onclick="closeSettingsModal()" style="border: none; background: transparent; font-size: 18px; cursor: pointer;">✕</button>
       </div>
 
-      <!-- خصم أو سلفة -->
       <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
         <h5 style="font-size: 12px; font-weight: 900; color: #e11d48; margin-bottom: 6px;">➖ تسجيل سلفة أو خصم كاش:</h5>
         <select id="deductTechSelect" class="input-control"></select>
@@ -161,7 +160,6 @@
         <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 7px; font-size: 12px;">خصم من الرصيد ➖</button>
       </div>
 
-      <!-- تعديل بيانات ورصيد الفني -->
       <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">🛠️ التحكم في حساب الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
@@ -183,7 +181,6 @@
         </div>
       </div>
 
-      <!-- إضافة فني جديد -->
       <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">👷 إضافة فني جديد:</h5>
         <input type="text" id="addTechName" placeholder="اسم الفني بالكامل" class="input-control">
@@ -194,7 +191,6 @@
         <button type="button" onclick="addNewTechAccount()" class="btn btn-primary" style="padding: 7px; font-size: 12px;">إضافة الفني ➕</button>
       </div>
 
-      <!-- بيانات المدير -->
       <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">👤 حساب المدير:</h5>
         <div class="grid-2">
@@ -224,7 +220,7 @@
     </div>
   </div>
 
-  <!-- شاشة المدير المنظمة -->
+  <!-- شاشة المدير -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -239,7 +235,6 @@
     </header>
 
     <div class="container">
-      <!-- الإحصائيات -->
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px;">
         <div class="card" style="text-align: center; margin: 0; padding: 8px;">
           <span style="font-size: 10px; color: #475569;">⏳ معلق / جاري</span>
@@ -255,11 +250,11 @@
         </div>
       </div>
 
-      <!-- تسجيل عطل جديد -->
+      <!-- تسجيل عطل جديد (رقم الهاتف اختياري) -->
       <div class="card" style="border: 1.5px solid #93c5fd;">
         <div class="grid-2">
           <input type="text" id="newCustName" placeholder="اسم العميل *" class="input-control">
-          <input type="tel" id="newCustPhone" placeholder="رقم الهاتف *" class="input-control">
+          <input type="tel" id="newCustPhone" placeholder="رقم الهاتف (اختياري)" class="input-control">
         </div>
         <div style="display: flex; gap: 6px;">
           <input type="text" id="newCustDesc" placeholder="المشكلة أو الملاحظة (اختياري)" class="input-control" style="margin-bottom: 0;">
@@ -267,10 +262,8 @@
         </div>
       </div>
 
-      <!-- أرصدة الفنيين -->
       <div id="adminTechsList"></div>
 
-      <!-- التبويبات الأربعة المطلوبة: معلق | تم الإسناد | مؤجل | منجز -->
       <div style="display: flex; gap: 4px; margin-bottom: 10px;">
         <div class="filter-tab active" onclick="setAdminFilter('pending')" id="tabPending">معلق (<span id="countPending">0</span>)</div>
         <div class="filter-tab" onclick="setAdminFilter('assigned')" id="tabAssigned">تم الإسناد (<span id="countAssigned">0</span>)</div>
@@ -278,7 +271,6 @@
         <div class="filter-tab" onclick="setAdminFilter('done')" id="tabDone">منجز (<span id="countDone">0</span>)</div>
       </div>
 
-      <!-- قائمة الأعطال -->
       <div class="card" style="padding: 10px;">
         <div id="adminOrdersList"></div>
       </div>
@@ -327,7 +319,7 @@
     let bonusRecords = [];
     let currentUser = null;
     let techCurrentTab = 'pending';
-    let adminFilter = 'pending'; // يبدأ من تبويب "معلق"
+    let adminFilter = 'pending';
     let globalAudioCtx = null;
     let lastOrderAlertId = null;
     let lastBonusAlertId = null;
@@ -396,9 +388,17 @@
           if (alert.alertId !== dismissed && alert.alertId !== lastOrderAlertId) {
             lastOrderAlertId = alert.alertId;
             document.getElementById('alertCustName').innerText = alert.customer || 'عميل';
-            document.getElementById('alertCustPhone').innerText = alert.phone || '';
+            document.getElementById('alertCustPhone').innerText = alert.phone || 'بدون رقم';
             document.getElementById('alertCustDesc').innerText = alert.desc || 'عطل وصيانة';
-            document.getElementById('alertCallBtn').href = `tel:${alert.phone}`;
+            
+            const callBtn = document.getElementById('alertCallBtn');
+            if (alert.phone) {
+              callBtn.href = `tel:${alert.phone}`;
+              callBtn.classList.remove('hidden');
+            } else {
+              callBtn.classList.add('hidden');
+            }
+
             document.getElementById('modalOrderAlert').classList.remove('hidden');
             triggerAlertChime(false);
           }
@@ -689,16 +689,18 @@
       alert('تم تحديث بيانات المدير 💾');
     }
 
+    // حفظ العطل في لوحة المدير: اسم العميل فقط هو الإجباري
     function saveNewOrder() {
       const name = document.getElementById('newCustName').value.trim();
       const phone = document.getElementById('newCustPhone').value.trim();
       const desc = document.getElementById('newCustDesc').value.trim() || 'صيانة ومتابعة';
-      if (!name || !phone) return alert('أدخل اسم العميل ورقم الهاتف');
+      
+      if (!name) return alert('أدخل اسم العميل أولاً');
 
       appOrders.unshift({
         id: 'ORD-' + Date.now().toString().slice(-5),
         customer: name,
-        phone: phone,
+        phone: phone, // اختياري
         desc: desc,
         tech: '',
         status: 'pending',
@@ -714,7 +716,6 @@
       syncUp();
     }
 
-    // إسناد الفني وحفظه وتثبيته فوراً
     function saveAssignDirectly(orderId, selectElem) {
       const targetTech = selectElem.value;
       if (!targetTech) return;
@@ -732,7 +733,7 @@
             alertId: 'ALERT-ORD-' + Date.now(),
             targetTech: targetTech,
             customer: ord.customer,
-            phone: ord.phone,
+            phone: ord.phone || '',
             desc: ord.desc,
             sentAt: Date.now()
           })
@@ -794,7 +795,6 @@
       }
     }
 
-    // فرز تبويبات المدير الأربعة: معلق | تم الإسناد | مؤجل | منجز
     function setAdminFilter(type) {
       adminFilter = type;
       ['Pending', 'Assigned', 'Postponed', 'Done'].forEach(tab => {
@@ -806,13 +806,9 @@
     }
 
     function renderAdmin() {
-      // معلق: لم يتم إسناده لفني بعد
       const pendingCount = appOrders.filter(o => o.status === 'pending' && (!o.tech || o.tech === '')).length;
-      // تم الإسناد: مسند لفني وقيد التنفيذ
       const assignedCount = appOrders.filter(o => o.status === 'pending' && Boolean(o.tech)).length;
-      // مؤجل: مؤجل من الفني
       const postponedCount = appOrders.filter(o => o.status === 'postponed').length;
-      // منجز: تم الحل
       const doneCount = appOrders.filter(o => o.status === 'done').length;
       const totalBonus = bonusRecords.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
@@ -898,7 +894,7 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <div>
                 <strong style="font-size:14px;">${o.customer}</strong>
-                <a href="tel:${o.phone}" style="color:#2563eb; text-decoration:none; font-size:12px; font-weight:700; margin-right:6px;">📞 ${o.phone}</a>
+                ${o.phone ? `<a href="tel:${o.phone}" style="color:#2563eb; text-decoration:none; font-size:12px; font-weight:700; margin-right:6px;">📞 ${o.phone}</a>` : `<span style="color:#94a3b8; font-size:11px; margin-right:6px;">(بدون رقم)</span>`}
               </div>
               <span class="badge ${badgeClass}">${badgeText}</span>
             </div>
@@ -945,7 +941,7 @@
       });
     }
 
-    // دوال الفني
+    // دوال الفني مع تطبيق شرط لون وزر الهاتف المعكوس
     function renderTech() {
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
@@ -973,6 +969,14 @@
         let badgeClass = isDone ? 'badge-done' : (isPostponed ? 'badge-postponed' : 'badge-pending');
         let badgeText = isDone ? 'تم الحل ✓' : (isPostponed ? 'مؤجل ⏳' : 'مطلوب');
 
+        // المنطق المطلوب: إذا وجد رقم هاتف يكون أخضر (btn-success) وللاتصال، وإذا لم يوجد يكون رمادي (btn-secondary) وبدون رقم
+        let phoneBtnHtml = '';
+        if (o.phone && o.phone.trim() !== '') {
+          phoneBtnHtml = `<a href="tel:${o.phone}" class="btn btn-success" style="padding:6px; font-size:11px;">📞 اتصال</a>`;
+        } else {
+          phoneBtnHtml = `<span class="btn btn-secondary" style="padding:6px; font-size:11px; cursor:default; opacity:0.85;">بدون رقم</span>`;
+        }
+
         feed.innerHTML += `
           <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
@@ -995,13 +999,13 @@
 
             ${!isDone ? `
               <div class="grid-3">
-                <a href="tel:${o.phone}" class="btn btn-secondary" style="padding:6px; font-size:11px;">📞 اتصال</a>
+                ${phoneBtnHtml}
                 <button onclick="openPostponeModal('${o.id}')" class="btn btn-warning" style="padding:6px; font-size:11px;">⏳ تأجيل</button>
-                <button onclick="openSolveModal('${o.id}')" class="btn btn-success" style="padding:6px; font-size:11px;">تم الحل ✓</button>
+                <button onclick="openSolveModal('${o.id}')" class="btn btn-primary" style="padding:6px; font-size:11px;">تم الحل ✓</button>
               </div>
             ` : `
               <div style="text-align:left;">
-                <a href="tel:${o.phone}" class="btn btn-secondary" style="width:auto; display:inline-flex; padding:4px 10px; font-size:11px;">📞 اتصال</a>
+                ${o.phone && o.phone.trim() !== '' ? `<a href="tel:${o.phone}" class="btn btn-success" style="width:auto; display:inline-flex; padding:4px 10px; font-size:11px;">📞 اتصال</a>` : ''}
               </div>
             `}
           </div>
