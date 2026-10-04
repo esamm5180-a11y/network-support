@@ -43,7 +43,7 @@
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 6px; }
-    .order-box { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; margin-bottom: 8px; transition: transform 0.1s ease; }
+    .order-box { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; margin-bottom: 8px; }
     .badge { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; }
     .badge-unassigned { background: #fee2e2; color: #b91c1c; }
     .badge-assigned { background: #dbeafe; color: #1d4ed8; }
@@ -54,7 +54,25 @@
     .badge-job-install { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
     .badge-job-check { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
 
-    /* شريط فلترة الفنيين السريع والخفيف */
+    /* كروت إحصائيات تفاعلية وقابلة للنقر */
+    .stat-tab-card {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 8px 4px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .stat-tab-card:active { transform: scale(0.96); }
+    .stat-tab-card.active {
+      border-color: #2563eb !important;
+      background: #eff6ff !important;
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.18);
+    }
+    .stat-tab-card.active span { color: #1d4ed8 !important; font-weight: 900; }
+
+    /* شريط فلترة الفنيين المصغر والسريع */
     .sub-filter-bar { display: flex; gap: 5px; overflow-x: auto; padding: 4px 2px 8px 2px; margin-bottom: 6px; scrollbar-width: none; }
     .sub-filter-bar::-webkit-scrollbar { display: none; }
     .tech-pill {
@@ -67,9 +85,8 @@
       color: #475569;
       cursor: pointer;
       white-space: nowrap;
-      transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+      transition: background 0.12s ease, color 0.12s ease;
     }
-    /* استبدال الظل الأسود بتحديد أزرق خفيف وسريع */
     .tech-pill.active {
       background: #2563eb !important;
       color: #ffffff !important;
@@ -110,8 +127,6 @@
       overflow-y: auto;
       border: 1px solid #cbd5e1;
     }
-    .filter-tab { flex: 1; padding: 7px 2px; font-size: 11px; font-weight: 800; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; cursor: pointer; text-align: center; transition: all 0.15s ease; }
-    .filter-tab.active { background: #2563eb; color: #ffffff; border-color: #2563eb; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3); }
   </style>
 </head>
 <body onclick="unlockAudioSystem()">
@@ -196,7 +211,7 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <button type="button" onclick="closeSettingsModal()" class="icon-btn" style="padding: 4px 10px; font-size: 12px;">← رجوع</button>
-          <h4 style="font-size: 15px; font-weight: 900; color: #2563eb;">⚙️️ لوحة الإعدادات</h4>
+          <h4 style="font-size: 15px; font-weight: 900; color: #2563eb;">⚙ لوحة الإعدادات</h4>
         </div>
         <button type="button" onclick="closeSettingsModal()" style="border: none; background: transparent; font-size: 18px; cursor: pointer; color: #64748b;">✕</button>
       </div>
@@ -210,7 +225,7 @@
       </div>
 
       <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
-        <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">🛠️️ التحكم في حساب وسجل الفني:</h5>
+        <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">🛠 التحكم في حساب وسجل الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
         
         <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">تعديل الرصيد يدوياً:</label>
@@ -274,7 +289,7 @@
     </div>
   </div>
 
-  <!-- شاشة المدير -->
+  <!-- شاشة المدير (بدون الشريط السفلي - الكروت هي الأزرار) -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -298,19 +313,30 @@
     </header>
 
     <div class="container">
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px;">
-        <div class="card" style="text-align: center; margin: 0; padding: 8px;">
-          <span style="font-size: 10px; color: #475569;">⏳ معلق / جاري</span>
-          <strong id="statPending" style="font-size: 16px; color: #d97706; display: block;">0</strong>
+      <!-- كروت الحالات الأربعة كأزرار مباشرة -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 8px;">
+        <div class="stat-tab-card active" id="statCardPending" onclick="switchAdminSection('pending')">
+          <span style="font-size: 10px; color: #64748b; display: block;">⏳ معلق</span>
+          <strong id="statPending" style="font-size: 15px; color: #d97706; display: block;">0</strong>
         </div>
-        <div class="card" style="text-align: center; margin: 0; padding: 8px;">
-          <span style="font-size: 10px; color: #475569;">✅ منجز</span>
-          <strong id="statDone" style="font-size: 16px; color: #059669; display: block;">0</strong>
+        <div class="stat-tab-card" id="statCardAssigned" onclick="switchAdminSection('assigned')">
+          <span style="font-size: 10px; color: #64748b; display: block;">🚀 جاري</span>
+          <strong id="statAssigned" style="font-size: 15px; color: #2563eb; display: block;">0</strong>
         </div>
-        <div class="card" style="text-align: center; margin: 0; padding: 8px;">
-          <span style="font-size: 10px; color: #475569;">💰 بونص</span>
-          <strong id="statBonus" style="font-size: 16px; color: #2563eb; display: block;">0 ج</strong>
+        <div class="stat-tab-card" id="statCardPostponed" onclick="switchAdminSection('postponed')">
+          <span style="font-size: 10px; color: #64748b; display: block;">⏸️ مؤجل</span>
+          <strong id="statPostponed" style="font-size: 15px; color: #c2410c; display: block;">0</strong>
         </div>
+        <div class="stat-tab-card" id="statCardDone" onclick="switchAdminSection('done')">
+          <span style="font-size: 10px; color: #64748b; display: block;">✅ منجز</span>
+          <strong id="statDone" style="font-size: 15px; color: #059669; display: block;">0</strong>
+        </div>
+      </div>
+
+      <!-- كارت إجمالي البونص -->
+      <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin-bottom: 10px; background: #f8fafc !important;">
+        <span style="font-size: 12px; font-weight: 800; color: #475569;">💰 إجمالي البونص الموزع:</span>
+        <strong id="statBonus" style="font-size: 15px; color: #2563eb;">0 ج</strong>
       </div>
 
       <!-- تسجيل طلب جديد -->
@@ -330,19 +356,13 @@
         <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
 
+      <!-- أرصدة الفنيين -->
       <div id="adminTechsList"></div>
 
-      <!-- التبويبات الأربعة الرئيسية -->
-      <div style="display: flex; gap: 4px; margin-bottom: 6px;">
-        <div class="filter-tab active" onclick="setAdminFilter('pending')" id="tabPending">معلق (<span id="countPending">0</span>)</div>
-        <div class="filter-tab" onclick="setAdminFilter('assigned')" id="tabAssigned">تم الإسناد (<span id="countAssigned">0</span>)</div>
-        <div class="filter-tab" onclick="setAdminFilter('postponed')" id="tabPostponed">مؤجل (<span id="countPostponed">0</span>)</div>
-        <div class="filter-tab" onclick="setAdminFilter('done')" id="tabDone">منجز (<span id="countDone">0</span>)</div>
-      </div>
-
-      <!-- شريط فلترة الفنيين فائق السرعة والخفة -->
+      <!-- شريط فلترة الفنيين السريع (يظهر في جاري ومؤجل ومنجز) -->
       <div id="techSubFilterBar" class="sub-filter-bar hidden"></div>
 
+      <!-- قائمة الأعطال التابعة للقسم النشط -->
       <div class="card" style="padding: 10px;">
         <div id="adminOrdersList"></div>
       </div>
@@ -935,21 +955,25 @@
       }
     }
 
-    function setAdminFilter(type) {
+    // الانتقال بين الأقسام من خلال الضغط على كروت الإحصائيات العلوية مباشرة
+    function switchAdminSection(type) {
       adminFilter = type;
       selectedTechFilter = 'all';
-      ['Pending', 'Assigned', 'Postponed', 'Done'].forEach(tab => {
-        const elem = document.getElementById('tab' + tab);
-        if (elem) elem.classList.remove('active');
+
+      // تحديث المظهر النشط على الكروت الأربعة
+      ['Pending', 'Assigned', 'Postponed', 'Done'].forEach(sec => {
+        const cardElem = document.getElementById('statCard' + sec);
+        if (cardElem) cardElem.classList.remove('active');
       });
-      document.getElementById('tab' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+
+      const activeCard = document.getElementById('statCard' + type.charAt(0).toUpperCase() + type.slice(1));
+      if (activeCard) activeCard.classList.add('active');
+
       renderAdmin();
     }
 
-    // فلترة سريعة وفورية بدون إعادة بناء ثقيلة
     function setTechSubFilter(techName) {
       selectedTechFilter = techName;
-      // تحديث مظهر الأزرار فوراً
       const pills = document.querySelectorAll('.tech-pill');
       pills.forEach(p => {
         if (p.getAttribute('data-tech') === techName) {
@@ -958,7 +982,6 @@
           p.classList.remove('active');
         }
       });
-      // تحديث قائمة الأعطال فقط
       renderAdminOrders();
     }
 
@@ -969,14 +992,11 @@
       const doneCount = appOrders.filter(o => o.status === 'done').length;
       const totalBonus = bonusRecords.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
-      document.getElementById('statPending').innerText = pendingCount + assignedCount;
+      document.getElementById('statPending').innerText = pendingCount;
+      document.getElementById('statAssigned').innerText = assignedCount;
+      document.getElementById('statPostponed').innerText = postponedCount;
       document.getElementById('statDone').innerText = doneCount;
       document.getElementById('statBonus').innerText = totalBonus + " ج";
-
-      document.getElementById('countPending').innerText = pendingCount;
-      document.getElementById('countAssigned').innerText = assignedCount;
-      document.getElementById('countPostponed').innerText = postponedCount;
-      document.getElementById('countDone').innerText = doneCount;
 
       const techBox = document.getElementById('adminTechsList');
       techBox.innerHTML = '';
@@ -997,7 +1017,7 @@
         `;
       });
 
-      // رسم الشريط الفرعي للفنيين
+      // شريط الفنيين أسفل الكروت
       const subBar = document.getElementById('techSubFilterBar');
       if (adminFilter === 'pending') {
         subBar.classList.add('hidden');
@@ -1036,7 +1056,6 @@
         filtered = appOrders.filter(o => o.status === 'done');
       }
 
-      // تصفية حسب الفني
       if (adminFilter !== 'pending' && selectedTechFilter !== 'all') {
         filtered = filtered.filter(o => o.tech === selectedTechFilter);
       }
