@@ -23,7 +23,6 @@
     .btn-danger { background: #e11d48; color: #fff; }
     .btn-secondary { background: #e2e8f0; color: #475569; }
     
-    /* شريط أدوات وأيقونات المدير الاحترافية */
     .header { background: #ffffff; border-bottom: 1px solid #cbd5e1; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
     .icon-btn {
       background: #f8fafc;
@@ -50,6 +49,7 @@
     .badge-assigned { background: #dbeafe; color: #1d4ed8; }
     .badge-postponed { background: #ffedd5; color: #c2410c; }
     .badge-done { background: #dcfce7; color: #15803d; }
+    .badge-job-type { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
 
     .bonus-card-green {
       background: linear-gradient(135deg, #10b981, #047857) !important;
@@ -94,11 +94,12 @@
   <div id="modalOrderAlert" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid #2563eb;">
       <div style="font-size: 42px; margin-bottom: 4px;">🔔</div>
-      <h3 style="font-size: 18px; font-weight: 900; color: #2563eb; margin-bottom: 6px;">عطل جديد مسند إليك!</h3>
+      <h3 style="font-size: 18px; font-weight: 900; color: #2563eb; margin-bottom: 6px;">طلب جديد مسند إليك!</h3>
       <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; text-align: right; font-size: 13px; line-height: 1.6; margin-bottom: 12px;">
         <div><strong>العميل:</strong> <span id="alertCustName" style="font-weight: 800;"></span></div>
+        <div><strong>النوع:</strong> <span id="alertJobTypeBadge" style="font-weight: 800; color: #2563eb;"></span></div>
         <div><strong>الهاتف:</strong> <span id="alertCustPhone" style="font-weight: 800; direction: ltr; display: inline-block;"></span></div>
-        <div><strong>المشكلة:</strong> <span id="alertCustDesc"></span></div>
+        <div id="alertDescRow"><strong>ملاحظات:</strong> <span id="alertCustDesc"></span></div>
       </div>
       <div class="grid-2">
         <a id="alertCallBtn" href="tel:" class="btn btn-success" onclick="dismissOrderAlert()">📞 اتصال فوراً</a>
@@ -140,8 +141,8 @@
     <div class="modal-content">
       <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #059669;">تأكيد حل المشكلة ✓</h4>
       <input type="hidden" id="solveOrderId">
-      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">سبب المشكلة وما تم إنجازه (اختياري):</label>
-      <input type="text" id="solveReasonText" placeholder="مثلاً: تغيير سلك، ضبط راوتر..." class="input-control">
+      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">ما تم إنجازه (اختياري):</label>
+      <input type="text" id="solveReasonText" placeholder="مثلاً: تم التركيب أو حل المشكلة..." class="input-control">
       <div class="grid-2" style="margin-top: 6px;">
         <button type="button" onclick="submitSolveOrder()" class="btn btn-success">تأكيد الحل ✓</button>
         <button type="button" onclick="closeSolveModal()" class="btn btn-secondary">إلغاء</button>
@@ -152,7 +153,7 @@
   <!-- 5. نافذة تأجيل العطل للفني -->
   <div id="modalPostponeOrder" class="modal-overlay hidden">
     <div class="modal-content">
-      <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #d97706;">تأجيل موعد العطل ⏳</h4>
+      <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #d97706;">تأجيل موعد الطلب ⏳</h4>
       <input type="hidden" id="postponeOrderId">
       <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">سبب التأجيل (اختياري):</label>
       <input type="text" id="postponeReasonText" placeholder="مثلاً: العميل غير متواجد" class="input-control">
@@ -163,10 +164,9 @@
     </div>
   </div>
 
-  <!-- 6. نافذة الإعدادات الشاملة للمدير (مزودة بزر رجوع صريح وإمكانية مسح سجل الفني) -->
+  <!-- 6. نافذة الإعدادات الشاملة للمدير -->
   <div id="modalSettings" class="modal-overlay hidden">
     <div class="modal-content">
-      <!-- ترويسة الإعدادات مع زر الرجوع الصريح -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <button type="button" onclick="closeSettingsModal()" class="icon-btn" style="padding: 4px 10px; font-size: 12px;">← رجوع</button>
@@ -184,7 +184,7 @@
         <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 7px; font-size: 12px;">خصم من الرصيد ➖</button>
       </div>
 
-      <!-- تعديل بيانات ورصيد الفني + مسح سجل الأعطال الخاص به -->
+      <!-- تعديل بيانات ورصيد الفني + مسح سجل أعطاله -->
       <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">🛠️ التحكم في حساب وسجل الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
@@ -206,9 +206,8 @@
           <button type="button" onclick="deleteSelectedTechAccount()" class="btn btn-danger" style="padding: 6px; font-size: 11px;">حذف الفني ✕</button>
         </div>
 
-        <!-- زر مسح سجل أعطال الفني المختار -->
         <button type="button" onclick="clearSelectedTechOrdersHistory()" class="btn btn-secondary" style="background: #fed7aa; color: #9a3412; border: 1px solid #fdba74; font-size: 11px; padding: 7px;">
-          مسح سجل أعطال هذا الفني 🗑️
+          مسح سجل طلبات هذا الفني 🗑️
         </button>
       </div>
 
@@ -253,14 +252,13 @@
     </div>
   </div>
 
-  <!-- شاشة المدير بأيقونات احترافية -->
+  <!-- شاشة المدير -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
         <h3 style="font-size: 15px; font-weight: 900; color: #0f172a;">لوحة الإدارة</h3>
         <span id="adminDate" style="font-size: 10px; color: #64748b; font-weight: 700;"></span>
       </div>
-      <!-- شريط أدوات المدير الاحترافي -->
       <div style="display: flex; gap: 6px; align-items: center;">
         <button type="button" onclick="triggerManualSync()" class="icon-btn" title="تحديث السحابة">
           <span>🔄</span>
@@ -293,16 +291,20 @@
         </div>
       </div>
 
-      <!-- تسجيل عطل جديد -->
+      <!-- تسجيل عطل/تركيب جديد -->
       <div class="card" style="border: 1.5px solid #93c5fd;">
         <div class="grid-2">
           <input type="text" id="newCustName" placeholder="اسم العميل *" class="input-control">
           <input type="tel" id="newCustPhone" placeholder="رقم الهاتف (اختياري)" class="input-control">
         </div>
-        <div style="display: flex; gap: 6px;">
-          <input type="text" id="newCustDesc" placeholder="المشكلة أو الملاحظة (اختياري)" class="input-control" style="margin-bottom: 0;">
-          <button type="button" onclick="saveNewOrder()" class="btn btn-primary" style="width: auto; padding: 0 14px; white-space: nowrap;">حفظ ➕</button>
+        <div class="grid-2" style="margin-bottom: 8px;">
+          <select id="newJobType" class="input-control" style="margin-bottom: 0; font-weight: 700;">
+            <option value="عطل">عطل</option>
+            <option value="تركيب">تركيب</option>
+          </select>
+          <input type="text" id="newCustDesc" placeholder="ملاحظات إضافية (اختياري)" class="input-control" style="margin-bottom: 0;">
         </div>
+        <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
 
       <div id="adminTechsList"></div>
@@ -321,7 +323,7 @@
     </div>
   </div>
 
-  <!-- شاشة الفني -->
+  <!-- شاشة الفني النظيفة والمحدثة -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -436,8 +438,16 @@
           if (alert.alertId !== dismissed && alert.alertId !== lastOrderAlertId) {
             lastOrderAlertId = alert.alertId;
             document.getElementById('alertCustName').innerText = alert.customer || 'عميل';
+            document.getElementById('alertJobTypeBadge').innerText = alert.jobType || 'عطل';
             document.getElementById('alertCustPhone').innerText = alert.phone || 'بدون رقم';
-            document.getElementById('alertCustDesc').innerText = alert.desc || 'عطل وصيانة';
+            
+            const descRow = document.getElementById('alertDescRow');
+            if (alert.desc && alert.desc.trim()) {
+              document.getElementById('alertCustDesc').innerText = alert.desc;
+              descRow.style.display = 'block';
+            } else {
+              descRow.style.display = 'none';
+            }
             
             const callBtn = document.getElementById('alertCallBtn');
             if (alert.phone) {
@@ -512,12 +522,12 @@
 
           if (aAlert.type === 'done') {
             box.style.borderColor = '#059669';
-            title.innerText = '✅ تم حل عطل بواسطة الفني';
+            title.innerText = '✅ تم حل الطلب بواسطة الفني';
             title.style.color = '#059669';
             icon.innerText = '🎉';
           } else {
             box.style.borderColor = '#d97706';
-            title.innerText = '⏳ قام الفني بتأجيل عطل';
+            title.innerText = '⏳ قام الفني بتأجيل الطلب';
             title.style.color = '#d97706';
             icon.innerText = '⏳';
           }
@@ -632,7 +642,6 @@
       }
     }
 
-    // مسح سجل أعطال الفني المختار من صفحة الإعدادات
     function clearSelectedTechOrdersHistory() {
       const selId = document.getElementById('settingsTechSelect').value;
       const tech = appAccounts.find(a => a.id == selId);
@@ -640,10 +649,10 @@
 
       const techOrdersCount = appOrders.filter(o => o.tech === tech.name).length;
       if (techOrdersCount === 0) {
-        return alert(`لا توجد أعطال مسجلة باسم الفني (${tech.name}) حالياً.`);
+        return alert(`لا توجد طلبات مسجلة باسم الفني (${tech.name}) حالياً.`);
       }
 
-      if (confirm(`هل أنت متأكد من مسح جميع الأعطال الخاصة بالفني (${tech.name}) بالكامل؟ (عددها: ${techOrdersCount})`)) {
+      if (confirm(`هل أنت متأكد من مسح جميع طلبات الفني (${tech.name}) بالكامل؟ (عددها: ${techOrdersCount})`)) {
         appOrders = appOrders.filter(o => o.tech !== tech.name);
         renderAdmin();
         fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`, {
@@ -651,7 +660,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(appOrders)
         }).catch(() => {});
-        alert(`تم مسح سجل أعطال (${tech.name}) بنجاح ✓`);
+        alert(`تم مسح سجل طلبات (${tech.name}) بنجاح ✓`);
       }
     }
 
@@ -760,10 +769,12 @@
       alert('تم تحديث بيانات المدير 💾');
     }
 
+    // حفظ العطل/التركيب مع تحديد نوع العملية
     function saveNewOrder() {
       const name = document.getElementById('newCustName').value.trim();
       const phone = document.getElementById('newCustPhone').value.trim();
-      const desc = document.getElementById('newCustDesc').value.trim() || 'صيانة ومتابعة';
+      const jobType = document.getElementById('newJobType').value;
+      const desc = document.getElementById('newCustDesc').value.trim();
       
       if (!name) return alert('أدخل اسم العميل أولاً');
 
@@ -771,7 +782,8 @@
         id: 'ORD-' + Date.now().toString().slice(-5),
         customer: name,
         phone: phone,
-        desc: desc,
+        jobType: jobType || 'عطل',
+        desc: desc || '',
         tech: '',
         status: 'pending',
         postponeReason: '',
@@ -804,7 +816,8 @@
             targetTech: targetTech,
             customer: ord.customer,
             phone: ord.phone || '',
-            desc: ord.desc,
+            jobType: ord.jobType || 'عطل',
+            desc: ord.desc || '',
             sentAt: Date.now()
           })
         }).catch(() => {});
@@ -813,15 +826,15 @@
         renderAdmin();
 
         if (prevTech && prevTech !== targetTech) {
-          alert(`تم نقل العطل من (${prevTech}) إلى (${targetTech}) بنجاح ✓`);
+          alert(`تم نقل الطلب من (${prevTech}) إلى (${targetTech}) بنجاح ✓`);
         } else {
-          alert(`تم إسناد العطل إلى (${targetTech}) بنجاح ✓`);
+          alert(`تم إسناد الطلب إلى (${targetTech}) بنجاح ✓`);
         }
       }
     }
 
     function deleteOrder(orderId) {
-      if (confirm('حذف هذا العطل نهائياً من النظام وجميع الفنيين؟')) {
+      if (confirm('حذف هذا الطلب نهائياً من النظام وجميع الفنيين؟')) {
         appOrders = appOrders.filter(o => o.id !== orderId);
         renderAdmin();
         fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`, {
@@ -932,7 +945,7 @@
       }
 
       if (filtered.length === 0) {
-        ordBox.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:12px;">لا توجد أعطال في هذا القسم</p>';
+        ordBox.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:12px;">لا توجد طلبات في هذا القسم</p>';
         return;
       }
 
@@ -941,7 +954,7 @@
         const isPostponed = o.status === 'postponed';
 
         let badgeClass = 'badge-unassigned';
-        let badgeText = 'معلق (غير مسند)';
+        let badgeText = 'معلق';
 
         if (isDone) {
           badgeClass = 'badge-done';
@@ -964,12 +977,13 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <div>
                 <strong style="font-size:14px;">${o.customer}</strong>
+                <span class="badge badge-jobType" style="margin-right: 4px; font-size: 10px;">${o.jobType || 'عطل'}</span>
                 ${o.phone ? `<a href="tel:${o.phone}" style="color:#2563eb; text-decoration:none; font-size:12px; font-weight:700; margin-right:6px;">📞 ${o.phone}</a>` : `<span style="color:#94a3b8; font-size:11px; margin-right:6px;">(بدون رقم)</span>`}
               </div>
               <span class="badge ${badgeClass}">${badgeText}</span>
             </div>
             
-            <p style="font-size:12px; color:#0f172a; margin-bottom:4px;">${o.desc}</p>
+            ${o.desc ? `<p style="font-size:12px; color:#475569; margin-bottom:4px;">${o.desc}</p>` : ''}
             
             <div style="font-size:11px; color:#475569; margin-bottom:6px;">
               الفني: <strong style="color:#2563eb;">${o.tech || 'غير محدد بعد'}</strong>
@@ -983,7 +997,7 @@
 
             ${isDone ? `
               <div style="font-size:11px; color:#15803d; background:#dcfce7; padding:5px 8px; border-radius:6px; margin-bottom:6px;">
-                ما تم فعله: ${o.doneReason || 'تم الحل بنجاح'}
+                ما تم فعله: ${o.doneReason || 'تم الإنجاز بنجاح'}
               </div>
             ` : ''}
 
@@ -1011,7 +1025,7 @@
       });
     }
 
-    // دوال الفني
+    // دوال صفحة الفني: إظهار نوع العملية أمام الاسم وإلغاء كلمة عطل تحته
     function renderTech() {
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
@@ -1028,7 +1042,7 @@
       const list = techCurrentTab === 'pending' ? pendingList : doneList;
 
       if (list.length === 0) {
-        feed.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:20px;">لا توجد أعطال في هذا التبويب</p>';
+        feed.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:20px;">لا توجد طلبات في هذا التبويب</p>';
         return;
       }
 
@@ -1036,8 +1050,17 @@
         const isDone = o.status === 'done';
         const isPostponed = o.status === 'postponed';
 
-        let badgeClass = isDone ? 'badge-done' : (isPostponed ? 'badge-postponed' : 'badge-pending');
-        let badgeText = isDone ? 'تم الحل ✓' : (isPostponed ? 'مؤجل ⏳' : 'مطلوب');
+        // البادج أمام الاسم: يظهر نوع العملية (عطل أو تركيب)، أو مؤجل، أو تم الحل
+        let badgeClass = 'badge-job-type';
+        let badgeText = o.jobType || 'عطل';
+
+        if (isDone) {
+          badgeClass = 'badge-done';
+          badgeText = 'تم الحل ✓';
+        } else if (isPostponed) {
+          badgeClass = 'badge-postponed';
+          badgeText = 'مؤجل ⏳';
+        }
 
         let phoneBtnHtml = '';
         if (o.phone && o.phone.trim() !== '') {
@@ -1048,12 +1071,17 @@
 
         feed.innerHTML += `
           <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-              <strong style="font-size:14px;">${o.customer}</strong>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <strong style="font-size:15px; color:#0f172a;">${o.customer}</strong>
               <span class="badge ${badgeClass}">${badgeText}</span>
             </div>
-            <p style="font-size:12px; color:#475569; margin-bottom:6px;">${o.desc}</p>
             
+            ${o.desc && o.desc.trim() !== '' ? `
+              <p style="font-size:12px; color:#475569; margin-bottom:8px; background:#f8fafc; padding:6px 8px; border-radius:6px; border:1px solid #e2e8f0;">
+                ${o.desc}
+              </p>
+            ` : ''}
+
             ${isPostponed && o.postponeReason ? `
               <div style="font-size:11px; color:#c2410c; background:#ffedd5; padding:4px 8px; border-radius:6px; margin-bottom:8px;">
                 سبب التأجيل: ${o.postponeReason}
@@ -1067,13 +1095,13 @@
             ` : ''}
 
             ${!isDone ? `
-              <div class="grid-3">
+              <div class="grid-3" style="margin-top: 4px;">
                 ${phoneBtnHtml}
                 <button onclick="openPostponeModal('${o.id}')" class="btn btn-warning" style="padding:6px; font-size:11px;">⏳ تأجيل</button>
                 <button onclick="openSolveModal('${o.id}')" class="btn btn-primary" style="padding:6px; font-size:11px;">تم الحل ✓</button>
               </div>
             ` : `
-              <div style="text-align:left;">
+              <div style="text-align:left; margin-top: 4px;">
                 ${o.phone && o.phone.trim() !== '' ? `<a href="tel:${o.phone}" class="btn btn-success" style="width:auto; display:inline-flex; padding:4px 10px; font-size:11px;">📞 اتصال</a>` : ''}
               </div>
             `}
@@ -1106,7 +1134,7 @@
 
     function submitSolveOrder() {
       const id = document.getElementById('solveOrderId').value;
-      const reason = document.getElementById('solveReasonText').value.trim() || 'تم الإصلاح بنجاح';
+      const reason = document.getElementById('solveReasonText').value.trim() || 'تم الإنجاز بنجاح';
       const ord = appOrders.find(o => o.id === id);
 
       if (ord) {
