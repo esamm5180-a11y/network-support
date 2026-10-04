@@ -9,7 +9,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { background-color: #f1f5f9 !important; color: #0f172a !important; min-height: 100vh; }
+    html, body { 
+      background-color: #f1f5f9 !important; 
+      color: #0f172a !important; 
+      min-height: 100vh;
+      -webkit-overflow-scrolling: touch;
+    }
     body { padding-bottom: 40px; }
     .hidden { display: none !important; }
     .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 12px; }
@@ -54,7 +59,6 @@
     .badge-job-install { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
     .badge-job-check { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
 
-    /* كروت إحصائيات تفاعلية تنقلك إلى صفحة مخصصة */
     .stat-tab-card {
       background: #ffffff;
       border: 1.5px solid #cbd5e1;
@@ -66,7 +70,6 @@
     }
     .stat-tab-card:active { transform: scale(0.96); background: #eff6ff; }
 
-    /* شريط الفنيين */
     .sub-filter-bar { display: flex; gap: 5px; overflow-x: auto; padding: 4px 2px 8px 2px; margin-bottom: 8px; scrollbar-width: none; }
     .sub-filter-bar::-webkit-scrollbar { display: none; }
     .tech-pill {
@@ -118,6 +121,7 @@
       max-height: 90vh;
       overflow-y: auto;
       border: 1px solid #cbd5e1;
+      -webkit-overflow-scrolling: touch;
     }
   </style>
 </head>
@@ -197,74 +201,6 @@
     </div>
   </div>
 
-  <!-- 6. نافذة الإعدادات الشاملة للمدير -->
-  <div id="modalSettings" class="modal-overlay hidden">
-    <div class="modal-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <button type="button" onclick="closeSettingsModal()" class="icon-btn" style="padding: 4px 10px; font-size: 12px;">← رجوع</button>
-          <h4 style="font-size: 15px; font-weight: 900; color: #2563eb;">⚙ لوحة الإعدادات</h4>
-        </div>
-        <button type="button" onclick="closeSettingsModal()" style="border: none; background: transparent; font-size: 18px; cursor: pointer; color: #64748b;">✕</button>
-      </div>
-
-      <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
-        <h5 style="font-size: 12px; font-weight: 900; color: #e11d48; margin-bottom: 6px;">➖ تسجيل سلفة أو خصم كاش:</h5>
-        <select id="deductTechSelect" class="input-control"></select>
-        <input type="number" id="deductAmount" placeholder="المبلغ بالجنيه" class="input-control" style="font-weight: 900; color: #e11d48;">
-        <input type="text" id="deductReason" placeholder="السبب (مثلاً: سلفة بنزين)" class="input-control">
-        <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 7px; font-size: 12px;">خصم من الرصيد ➖</button>
-      </div>
-
-      <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
-        <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">🛠 التحكم في حساب وسجل الفني:</h5>
-        <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
-        
-        <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">تعديل الرصيد يدوياً:</label>
-        <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-          <input type="number" id="settingsTechBal" class="input-control" style="margin-bottom: 0; font-weight: 900; color: #059669;">
-          <button type="button" onclick="updateSelectedTechBalance()" class="btn btn-success" style="width: auto; padding: 0 12px; font-size: 11px; white-space: nowrap;">تحديث</button>
-        </div>
-
-        <input type="text" id="settingsTechName" placeholder="الاسم" class="input-control">
-        <div class="grid-2">
-          <input type="text" id="settingsTechUser" placeholder="اليوزر" class="input-control">
-          <input type="text" id="settingsTechPass" placeholder="الباسورد" class="input-control">
-        </div>
-        
-        <div class="grid-2" style="margin-bottom: 8px;">
-          <button type="button" onclick="saveSelectedTechAccount()" class="btn btn-primary" style="padding: 6px; font-size: 11px;">حفظ البيانات 💾</button>
-          <button type="button" onclick="deleteSelectedTechAccount()" class="btn btn-danger" style="padding: 6px; font-size: 11px;">حذف الفني ✕</button>
-        </div>
-
-        <button type="button" onclick="clearSelectedTechOrdersHistory()" class="btn btn-secondary" style="background: #fed7aa; color: #9a3412; border: 1px solid #fdba74; font-size: 11px; padding: 7px;">
-          مسح سجل طلبات هذا الفني 🗑️
-        </button>
-      </div>
-
-      <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
-        <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">👷 إضافة فني جديد:</h5>
-        <input type="text" id="addTechName" placeholder="اسم الفني بالكامل" class="input-control">
-        <div class="grid-2">
-          <input type="text" id="addTechUser" placeholder="اليوزر" class="input-control">
-          <input type="text" id="addTechPass" placeholder="الباسورد" class="input-control">
-        </div>
-        <button type="button" onclick="addNewTechAccount()" class="btn btn-primary" style="padding: 7px; font-size: 12px;">إضافة الفني ➕</button>
-      </div>
-
-      <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
-        <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">👤 حساب المدير:</h5>
-        <div class="grid-2">
-          <input type="text" id="adminUserField" placeholder="اسم المستخدم" class="input-control">
-          <input type="text" id="adminPassField" placeholder="كلمة المرور" class="input-control">
-        </div>
-        <button type="button" onclick="saveAdminCredentials()" class="btn btn-secondary" style="padding: 7px; font-size: 12px;">حفظ بيانات المدير 💾</button>
-      </div>
-
-      <button type="button" onclick="closeSettingsModal()" class="btn btn-secondary" style="margin-top: 4px;">إغلاق الشاشة</button>
-    </div>
-  </div>
-
   <!-- شاشة الدخول -->
   <div id="screenLogin" class="container" style="min-height: 85vh; display: flex; align-items: center; justify-content: center;">
     <div class="card" style="width: 100%; text-align: center; padding: 24px 18px;">
@@ -281,7 +217,7 @@
     </div>
   </div>
 
-  <!-- 1. شاشة المدير الرئيسية (إضافة الطلبات والإحصائيات وأرصدة الفنيين) -->
+  <!-- 1. شاشة المدير الرئيسية -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -293,8 +229,8 @@
           <span>🔄</span>
           <span style="font-size: 11px;">تحديث</span>
         </button>
-        <button type="button" onclick="openSettingsModal()" class="icon-btn" title="الإعدادات">
-          <span>⚙️</span>
+        <button type="button" onclick="openSettingsPage()" class="icon-btn" title="الإعدادات">
+          <span>⚙️️</span>
           <span style="font-size: 11px;">الإعدادات</span>
         </button>
         <button type="button" onclick="handleLogout()" class="icon-btn icon-btn-danger" title="تسجيل الخروج">
@@ -305,7 +241,6 @@
     </header>
 
     <div class="container">
-      <!-- كروت الإحصائيات الأربعة: تضغط عليها تفتح صفحة مستقلة تماماً -->
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 8px;">
         <div class="stat-tab-card" onclick="openOrdersPage('pending')">
           <span style="font-size: 10px; color: #64748b; display: block;">⏳ معلق</span>
@@ -325,13 +260,12 @@
         </div>
       </div>
 
-      <!-- كارت إجمالي البونص -->
       <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin-bottom: 10px; background: #f8fafc !important;">
         <span style="font-size: 12px; font-weight: 800; color: #475569;">💰 إجمالي البونص الموزع:</span>
         <strong id="statBonus" style="font-size: 15px; color: #2563eb;">0 ج</strong>
       </div>
 
-      <!-- تسجيل طلب جديد (يمكن الكتابة في اسم العميل فوراً وبشكل سلس) -->
+      <!-- تسجيل طلب جديد -->
       <div class="card" style="border: 1.5px solid #93c5fd;">
         <div class="grid-2">
           <input type="text" id="newCustName" placeholder="اسم العميل *" class="input-control">
@@ -348,12 +282,11 @@
         <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
 
-      <!-- كروت أرصدة الفنيين -->
       <div id="adminTechsList"></div>
     </div>
   </div>
 
-  <!-- 2. صفحة الأعطال المستقلة للمدير (صفحة كاملة تعرض الأعطال حسب القسم) -->
+  <!-- 2. صفحة الأعطال المستقلة -->
   <div id="screenOrdersPage" class="hidden">
     <header class="header">
       <div style="display: flex; align-items: center; gap: 8px;">
@@ -366,17 +299,83 @@
     </header>
 
     <div class="container">
-      <!-- شريط فلترة الفنيين في الصفحة المستقلة -->
       <div id="techSubFilterBar" class="sub-filter-bar hidden"></div>
-      
-      <!-- قائمة الطلبات -->
       <div class="card" style="padding: 10px;">
         <div id="adminOrdersList"></div>
       </div>
     </div>
   </div>
 
-  <!-- 3. شاشة الفني -->
+  <!-- 3. صفحة الإعدادات المستقلة الكاملة (مع التمرير الحر للأعلى والأسفل بدون تعليق) -->
+  <div id="screenSettingsPage" class="hidden">
+    <header class="header">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button type="button" onclick="backToAdminHomeFromSettings()" class="icon-btn" style="padding: 4px 10px; font-size: 12px;">← رجوع</button>
+        <h3 style="font-size: 15px; font-weight: 900; color: #2563eb;">⚙ لوحة الإعدادات</h3>
+      </div>
+    </header>
+
+    <div class="container" style="padding-bottom: 60px;">
+      <!-- خصم أو سلفة -->
+      <div class="card" style="background: #fff1f2 !important; border-color: #fecdd3;">
+        <h5 style="font-size: 13px; font-weight: 900; color: #e11d48; margin-bottom: 8px;">➖ تسجيل سلفة أو خصم كاش:</h5>
+        <select id="deductTechSelect" class="input-control"></select>
+        <input type="number" id="deductAmount" placeholder="المبلغ بالجنيه" class="input-control" style="font-weight: 900; color: #e11d48;">
+        <input type="text" id="deductReason" placeholder="السبب (مثلاً: سلفة بنزين)" class="input-control">
+        <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 8px; font-size: 12px;">خصم من الرصيد ➖</button>
+      </div>
+
+      <!-- التحكم في حساب الفني -->
+      <div class="card">
+        <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">🛠 التحكم في حساب وسجل الفني:</h5>
+        <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
+        
+        <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">تعديل الرصيد يدوياً:</label>
+        <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+          <input type="number" id="settingsTechBal" class="input-control" style="margin-bottom: 0; font-weight: 900; color: #059669;">
+          <button type="button" onclick="updateSelectedTechBalance()" class="btn btn-success" style="width: auto; padding: 0 12px; font-size: 11px; white-space: nowrap;">تحديث</button>
+        </div>
+
+        <input type="text" id="settingsTechName" placeholder="الاسم" class="input-control">
+        <div class="grid-2">
+          <input type="text" id="settingsTechUser" placeholder="اليوزر" class="input-control">
+          <input type="text" id="settingsTechPass" placeholder="الباسورد" class="input-control">
+        </div>
+        
+        <div class="grid-2" style="margin-bottom: 8px;">
+          <button type="button" onclick="saveSelectedTechAccount()" class="btn btn-primary" style="padding: 7px; font-size: 11px;">حفظ البيانات 💾</button>
+          <button type="button" onclick="deleteSelectedTechAccount()" class="btn btn-danger" style="padding: 7px; font-size: 11px;">حذف الفني ✕</button>
+        </div>
+
+        <button type="button" onclick="clearSelectedTechOrdersHistory()" class="btn btn-secondary" style="background: #fed7aa; color: #9a3412; border: 1px solid #fdba74; font-size: 11px; padding: 8px;">
+          مسح سجل طلبات هذا الفني 🗑️
+        </button>
+      </div>
+
+      <!-- إضافة فني جديد -->
+      <div class="card">
+        <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">👷 إضافة فني جديد:</h5>
+        <input type="text" id="addTechName" placeholder="اسم الفني بالكامل" class="input-control">
+        <div class="grid-2">
+          <input type="text" id="addTechUser" placeholder="اليوزر" class="input-control">
+          <input type="text" id="addTechPass" placeholder="الباسورد" class="input-control">
+        </div>
+        <button type="button" onclick="addNewTechAccount()" class="btn btn-primary" style="padding: 8px; font-size: 12px;">إضافة الفني ➕</button>
+      </div>
+
+      <!-- بيانات المدير -->
+      <div class="card">
+        <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">👤 حساب المدير:</h5>
+        <div class="grid-2">
+          <input type="text" id="adminUserField" placeholder="اسم المستخدم" class="input-control">
+          <input type="text" id="adminPassField" placeholder="كلمة المرور" class="input-control">
+        </div>
+        <button type="button" onclick="saveAdminCredentials()" class="btn btn-secondary" style="padding: 8px; font-size: 12px;">حفظ بيانات المدير 💾</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. شاشة الفني -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -422,7 +421,6 @@
     let bonusRecords = [];
     let currentUser = null;
     let techCurrentTab = 'pending';
-    let currentAdminPage = 'home'; // 'home' أو 'orders'
     let adminFilter = 'pending';
     let selectedTechFilter = 'all';
     let globalAudioCtx = null;
@@ -431,7 +429,6 @@
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
 
-    // تهيئة نظام الصوت بدون التأثير على فوكس الحقول
     function unlockAudioSystem() {
       try {
         if (!globalAudioCtx) {
@@ -637,8 +634,8 @@
       localStorage.removeItem('saved_active_user');
       document.getElementById('screenAdmin').classList.add('hidden');
       document.getElementById('screenOrdersPage').classList.add('hidden');
+      document.getElementById('screenSettingsPage').classList.add('hidden');
       document.getElementById('screenTech').classList.add('hidden');
-      document.getElementById('modalSettings').classList.add('hidden');
       document.getElementById('modalOrderAlert').classList.add('hidden');
       document.getElementById('modalBonusAlert').classList.add('hidden');
       document.getElementById('modalAdminNotification').classList.add('hidden');
@@ -648,8 +645,8 @@
     function showUserScreen() {
       document.getElementById('screenLogin').classList.add('hidden');
       if (currentUser.role === 'admin') {
-        currentAdminPage = 'home';
         document.getElementById('screenOrdersPage').classList.add('hidden');
+        document.getElementById('screenSettingsPage').classList.add('hidden');
         document.getElementById('screenAdmin').classList.remove('hidden');
         document.getElementById('adminDate').innerText = getToday();
         renderAdmin();
@@ -665,17 +662,23 @@
       alert('تم تحديث البيانات من السحابة بنجاح ✓');
     }
 
-    function openSettingsModal() {
+    // فتح صفحة الإعدادات المستقلة (تمرير حر بدون تعليق)
+    function openSettingsPage() {
       const adm = appAccounts.find(a => a.role === 'admin') || appAccounts[0];
       document.getElementById('adminUserField').value = adm.username;
       document.getElementById('adminPassField').value = adm.pass;
       populateSettingsTechSelects();
       loadSelectedTechData();
-      document.getElementById('modalSettings').classList.remove('hidden');
+
+      document.getElementById('screenAdmin').classList.add('hidden');
+      document.getElementById('screenSettingsPage').classList.remove('hidden');
+      window.scrollTo(0, 0);
     }
 
-    function closeSettingsModal() {
-      document.getElementById('modalSettings').classList.add('hidden');
+    function backToAdminHomeFromSettings() {
+      document.getElementById('screenSettingsPage').classList.add('hidden');
+      document.getElementById('screenAdmin').classList.remove('hidden');
+      window.scrollTo(0, 0);
     }
 
     function populateSettingsTechSelects() {
@@ -968,11 +971,9 @@
       }
     }
 
-    // فتح صفحة الأعطال المستقلة عند الضغط على الكارت
     function openOrdersPage(type) {
       adminFilter = type;
       selectedTechFilter = 'all';
-      currentAdminPage = 'orders';
 
       const titles = {
         'pending': '⏳ الطلبات المعلقة (غير المسندة)',
@@ -984,15 +985,15 @@
       document.getElementById('ordersPageTitle').innerText = titles[type] || 'الطلبات';
       document.getElementById('screenAdmin').classList.add('hidden');
       document.getElementById('screenOrdersPage').classList.remove('hidden');
+      window.scrollTo(0, 0);
 
       renderAdmin();
     }
 
-    // الرجوع للشاشة الرئيسية للمدير
     function backToAdminHome() {
-      currentAdminPage = 'home';
       document.getElementById('screenOrdersPage').classList.add('hidden');
       document.getElementById('screenAdmin').classList.remove('hidden');
+      window.scrollTo(0, 0);
       renderAdmin();
     }
 
@@ -1041,7 +1042,6 @@
         `;
       });
 
-      // إعداد شريط الفنيين في الصفحة المستقلة
       const subBar = document.getElementById('techSubFilterBar');
       if (adminFilter === 'pending') {
         subBar.classList.add('hidden');
