@@ -54,6 +54,12 @@
     .badge-job-install { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
     .badge-job-check { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
 
+    /* شريط فلترة الفنيين المصغر */
+    .sub-filter-bar { display: flex; gap: 4px; overflow-x: auto; padding: 4px 2px 8px 2px; margin-bottom: 6px; scrollbar-width: none; }
+    .sub-filter-bar::-webkit-scrollbar { display: none; }
+    .tech-pill { padding: 4px 10px; font-size: 11px; font-weight: 800; border-radius: 20px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; cursor: pointer; white-space: nowrap; }
+    .tech-pill.active { background: #0f172a; color: #ffffff; border-color: #0f172a; }
+
     .bonus-card-green {
       background: linear-gradient(135deg, #10b981, #047857) !important;
       color: #ffffff !important;
@@ -97,7 +103,7 @@
   <div id="modalOrderAlert" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid #2563eb;">
       <div style="font-size: 42px; margin-bottom: 4px;">🔔</div>
-      <h3 style="font-size: 18px; font-weight: 900; color: #2563eb; margin-bottom: 6px;">تنبيه لعطل مسند إليك!</h3>
+      <h3 style="font-size: 18px; font-weight: 900; color: #2563eb; margin-bottom: 6px;">طلب جديد مسند إليك!</h3>
       <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; text-align: right; font-size: 13px; line-height: 1.6; margin-bottom: 12px;">
         <div><strong>العميل:</strong> <span id="alertCustName" style="font-weight: 800;"></span></div>
         <div><strong>النوع:</strong> <span id="alertJobTypeBadge" style="font-weight: 800; color: #2563eb;"></span></div>
@@ -187,7 +193,7 @@
       </div>
 
       <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
-        <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">🛠️ التحكم في حساب وسجل الفني:</h5>
+        <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">🛠️️ التحكم في حساب وسجل الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
         
         <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">تعديل الرصيد يدوياً:</label>
@@ -309,13 +315,16 @@
 
       <div id="adminTechsList"></div>
 
-      <!-- التبويبات الأربعة: معلق | تم الإسناد | مؤجل | منجز -->
-      <div style="display: flex; gap: 4px; margin-bottom: 10px;">
+      <!-- التبويبات الأربعة الرئيسية -->
+      <div style="display: flex; gap: 4px; margin-bottom: 6px;">
         <div class="filter-tab active" onclick="setAdminFilter('pending')" id="tabPending">معلق (<span id="countPending">0</span>)</div>
         <div class="filter-tab" onclick="setAdminFilter('assigned')" id="tabAssigned">تم الإسناد (<span id="countAssigned">0</span>)</div>
         <div class="filter-tab" onclick="setAdminFilter('postponed')" id="tabPostponed">مؤجل (<span id="countPostponed">0</span>)</div>
         <div class="filter-tab" onclick="setAdminFilter('done')" id="tabDone">منجز (<span id="countDone">0</span>)</div>
       </div>
+
+      <!-- شريط فرعي لفلترة الفنيين يظهر في (تم الإسناد / مؤجل / منجز) -->
+      <div id="techSubFilterBar" class="sub-filter-bar hidden"></div>
 
       <div class="card" style="padding: 10px;">
         <div id="adminOrdersList"></div>
@@ -370,6 +379,7 @@
     let currentUser = null;
     let techCurrentTab = 'pending';
     let adminFilter = 'pending';
+    let selectedTechFilter = 'all'; // الفلتر الفرعي للفني المختار
     let globalAudioCtx = null;
     let lastOrderAlertId = null;
     let lastBonusAlertId = null;
@@ -713,7 +723,9 @@
       const tech = appAccounts.find(a => a.id == selId);
       if (tech) {
         const oldName = tech.name;
-        tech.name = newName; tech.username = newUser; tech.pass = newPass;
+        tech.name = newName;
+        tech.username = newUser;
+        tech.pass = newPass;
         if (oldName !== newName) {
           appOrders.forEach(o => { if (o.tech === oldName) o.tech = newName; });
           bonusRecords.forEach(b => { if (b.tech === oldName) b.tech = newName; });
@@ -832,7 +844,6 @@
       }
     }
 
-    // إرسال تنبيه فوري ومخصص لعطل معين إلى الفني
     function sendDirectAlertToTech(orderId) {
       const ord = appOrders.find(o => o.id === orderId);
       if (!ord) return;
@@ -909,11 +920,17 @@
 
     function setAdminFilter(type) {
       adminFilter = type;
+      selectedTechFilter = 'all'; // إعادة ضبط الفلتر الفرعي
       ['Pending', 'Assigned', 'Postponed', 'Done'].forEach(tab => {
         const elem = document.getElementById('tab' + tab);
         if (elem) elem.classList.remove('active');
       });
       document.getElementById('tab' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+      renderAdmin();
+    }
+
+    function setTechSubFilter(techName) {
+      selectedTechFilter = techName;
       renderAdminOrders();
     }
 
@@ -952,6 +969,24 @@
         `;
       });
 
+      // رسم الشريط الفرعي للفنيين
+      const subBar = document.getElementById('techSubFilterBar');
+      if (adminFilter === 'pending') {
+        subBar.classList.add('hidden');
+      } else {
+        subBar.classList.remove('hidden');
+        let pillsHtml = `<div class="tech-pill ${selectedTechFilter === 'all' ? 'active' : ''}" onclick="setTechSubFilter('all')">👥 الكل</div>`;
+        techs.forEach(t => {
+          let count = 0;
+          if (adminFilter === 'assigned') count = appOrders.filter(o => o.status === 'pending' && o.tech === t.name).length;
+          else if (adminFilter === 'postponed') count = appOrders.filter(o => o.status === 'postponed' && o.tech === t.name).length;
+          else if (adminFilter === 'done') count = appOrders.filter(o => o.status === 'done' && o.tech === t.name).length;
+
+          pillsHtml += `<div class="tech-pill ${selectedTechFilter === t.name ? 'active' : ''}" onclick="setTechSubFilter('${t.name}')">👤 ${t.name} (${count})</div>`;
+        });
+        subBar.innerHTML = pillsHtml;
+      }
+
       renderAdminOrders();
     }
 
@@ -971,6 +1006,11 @@
         filtered = appOrders.filter(o => o.status === 'postponed');
       } else if (adminFilter === 'done') {
         filtered = appOrders.filter(o => o.status === 'done');
+      }
+
+      // تصفية حسب الفني إذا تم اختياره
+      if (adminFilter !== 'pending' && selectedTechFilter !== 'all') {
+        filtered = filtered.filter(o => o.tech === selectedTechFilter);
       }
 
       if (filtered.length === 0) {
@@ -1007,20 +1047,23 @@
 
         ordBox.innerHTML += `
           <div class="order-box">
+            <!-- شريط علوي يوضح اسم الفني المسند إليه بوضوح واحترافية -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; border-bottom:1px dashed #e2e8f0; padding-bottom:5px;">
+              <span style="font-size:12px; font-weight:800; color:#1e293b; display:inline-flex; align-items:center; gap:4px;">
+                👤 الفني: <strong style="color:#2563eb;">${o.tech || 'غير محدد بعد'}</strong>
+              </span>
+              <span class="badge ${badgeClass}">${badgeText}</span>
+            </div>
+
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <div>
-                <strong style="font-size:14px;">${o.customer}</strong>
+                <strong style="font-size:14px; color:#0f172a;">${o.customer}</strong>
                 <span class="badge ${jobBadgeClass}" style="margin-right: 4px; font-size: 10px;">${o.jobType || 'عطل'}</span>
                 ${o.phone ? `<a href="tel:${o.phone}" style="color:#2563eb; text-decoration:none; font-size:12px; font-weight:700; margin-right:6px;">📞 ${o.phone}</a>` : `<span style="color:#94a3b8; font-size:11px; margin-right:6px;">(بدون رقم)</span>`}
               </div>
-              <span class="badge ${badgeClass}">${badgeText}</span>
             </div>
             
             ${o.desc ? `<p style="font-size:12px; color:#475569; margin-bottom:4px;">${o.desc}</p>` : ''}
-            
-            <div style="font-size:11px; color:#475569; margin-bottom:6px;">
-              الفني: <strong style="color:#2563eb;">${o.tech || 'غير محدد بعد'}</strong>
-            </div>
 
             ${isPostponed && o.postponeReason ? `
               <div style="font-size:11px; color:#c2410c; background:#ffedd5; padding:5px 8px; border-radius:6px; margin-bottom:6px;">
@@ -1035,7 +1078,7 @@
             ` : ''}
 
             ${!isDone ? `
-              <div style="display:flex; gap:4px; margin-top:4px; align-items: center;">
+              <div style="display:flex; gap:4px; margin-top:6px; align-items: center;">
                 <select 
                   id="sel_${o.id}" 
                   class="input-control" 
@@ -1053,7 +1096,7 @@
                 <button type="button" onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:6px 10px; font-size:11px;">✕</button>
               </div>
             ` : `
-              <div style="text-align:left;">
+              <div style="text-align:left; margin-top: 4px;">
                 <button onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; display:inline-flex; padding:2px 8px; font-size:10px;">حذف</button>
               </div>
             `}
@@ -1062,6 +1105,7 @@
       });
     }
 
+    // دوال الفني
     function renderTech() {
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
