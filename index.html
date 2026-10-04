@@ -32,7 +32,6 @@
     .badge-postponed { background: #ffedd5; color: #c2410c; }
     .badge-done { background: #dcfce7; color: #15803d; }
 
-    /* كارت البونص الأخضر الجميل */
     .bonus-card-green {
       background: linear-gradient(135deg, #10b981, #047857) !important;
       color: #ffffff !important;
@@ -66,8 +65,8 @@
       overflow-y: auto;
       border: 1px solid #cbd5e1;
     }
-    .filter-tab { flex: 1; padding: 6px 4px; font-size: 11px; font-weight: 800; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; cursor: pointer; text-align: center; }
-    .filter-tab.active { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+    .filter-tab { flex: 1; padding: 8px 4px; font-size: 12px; font-weight: 800; border-radius: 10px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; cursor: pointer; text-align: center; transition: all 0.2s ease; }
+    .filter-tab.active { background: #2563eb; color: #ffffff; border-color: #2563eb; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3); }
   </style>
 </head>
 <body onclick="unlockAudioSystem()">
@@ -225,7 +224,7 @@
     </div>
   </div>
 
-  <!-- شاشة المدير -->
+  <!-- شاشة المدير المنظمة -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -240,6 +239,7 @@
     </header>
 
     <div class="container">
+      <!-- الإحصائيات المالية وسرعة الإنجاز -->
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px;">
         <div class="card" style="text-align: center; margin: 0; padding: 8px;">
           <span style="font-size: 10px; color: #475569;">⏳ معلق</span>
@@ -255,6 +255,7 @@
         </div>
       </div>
 
+      <!-- تسجيل عطل جديد -->
       <div class="card" style="border: 1.5px solid #93c5fd;">
         <div class="grid-2">
           <input type="text" id="newCustName" placeholder="اسم العميل *" class="input-control">
@@ -266,15 +267,17 @@
         </div>
       </div>
 
+      <!-- أرصدة الفنيين -->
       <div id="adminTechsList"></div>
 
-      <div style="display: flex; gap: 4px; margin-bottom: 8px;">
-        <div class="filter-tab active" onclick="setAdminFilter('all')" id="tabAll">الكل (<span id="countAll">0</span>)</div>
-        <div class="filter-tab" onclick="setAdminFilter('pending')" id="tabPending">معلق (<span id="countPending">0</span>)</div>
+      <!-- التبويبات الثلاثة فقط: معلق | مؤجل | منجز -->
+      <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+        <div class="filter-tab active" onclick="setAdminFilter('pending')" id="tabPending">معلق (<span id="countPending">0</span>)</div>
         <div class="filter-tab" onclick="setAdminFilter('postponed')" id="tabPostponed">مؤجل (<span id="countPostponed">0</span>)</div>
         <div class="filter-tab" onclick="setAdminFilter('done')" id="tabDone">منجز (<span id="countDone">0</span>)</div>
       </div>
 
+      <!-- قائمة الأعطال حسب التبويب المختار -->
       <div class="card" style="padding: 10px;">
         <div id="adminOrdersList"></div>
       </div>
@@ -295,7 +298,6 @@
     </header>
 
     <div class="container">
-      <!-- كارت الحصالة الأخضر الجميل المستعاد -->
       <div class="bonus-card-green">
         <span style="font-size: 12px; font-weight: 700; opacity: 0.95; display: block; margin-bottom: 4px;">إجمالي رصيد البونص المستحق لك</span>
         <h2 id="techBonusBalance" style="font-size: 42px; font-weight: 900; margin: 4px 0; line-height: 1.1;">0 ج</h2>
@@ -324,7 +326,7 @@
     let bonusRecords = [];
     let currentUser = null;
     let techCurrentTab = 'pending';
-    let adminFilter = 'all';
+    let adminFilter = 'pending'; // معلق هو الافتراضي
     let globalAudioCtx = null;
     let lastOrderAlertId = null;
     let lastBonusAlertId = null;
@@ -711,7 +713,6 @@
       syncUp();
     }
 
-    // إسناد الفني مع التثبيت الفوري وحل مشكلة الإلغاء التلقائي
     function saveAssignDirectly(orderId, selectElem) {
       const targetTech = selectElem.value;
       if (!targetTech) return;
@@ -791,9 +792,10 @@
       }
     }
 
+    // فرز وتبويب المدير
     function setAdminFilter(type) {
       adminFilter = type;
-      ['All', 'Pending', 'Postponed', 'Done'].forEach(tab => {
+      ['Pending', 'Postponed', 'Done'].forEach(tab => {
         const elem = document.getElementById('tab' + tab);
         if (elem) elem.classList.remove('active');
       });
@@ -811,7 +813,6 @@
       document.getElementById('statDone').innerText = doneCount;
       document.getElementById('statBonus').innerText = totalBonus + " ج";
 
-      document.getElementById('countAll').innerText = appOrders.length;
       document.getElementById('countPending').innerText = pendingCount;
       document.getElementById('countPostponed').innerText = postponedCount;
       document.getElementById('countDone').innerText = doneCount;
@@ -845,13 +846,13 @@
       ordBox.innerHTML = '';
       const techs = appAccounts.filter(a => a.role === 'tech');
 
-      let filtered = appOrders;
+      let filtered = [];
       if (adminFilter === 'pending') filtered = appOrders.filter(o => o.status === 'pending');
       else if (adminFilter === 'postponed') filtered = appOrders.filter(o => o.status === 'postponed');
       else if (adminFilter === 'done') filtered = appOrders.filter(o => o.status === 'done');
 
       if (filtered.length === 0) {
-        ordBox.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:12px;">لا توجد أعطال في هذا التبويب</p>';
+        ordBox.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:12px;">لا توجد أعطال في هذا القسم</p>';
         return;
       }
 
@@ -891,7 +892,7 @@
             <p style="font-size:12px; color:#0f172a; margin-bottom:4px;">${o.desc}</p>
             
             <div style="font-size:11px; color:#475569; margin-bottom:6px;">
-              الفني الحالي: <strong style="color:#2563eb;">${o.tech || 'لم يحدد'}</strong>
+              الفني الحالي: <strong style="color:#2563eb;">${o.tech || 'لم يحدد بعد'}</strong>
             </div>
 
             ${isPostponed && o.postponeReason ? `
@@ -930,7 +931,7 @@
       });
     }
 
-    // دوال الفني (بدون تعديل - بسيطة ومباشرة)
+    // دوال الفني
     function renderTech() {
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
