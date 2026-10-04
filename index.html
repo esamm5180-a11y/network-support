@@ -15,7 +15,7 @@
       --danger: #e11d48;
       --dark: #0f172a;
       --slate: #475569;
-      --bg: #f8fafc;
+      --bg: #f1f5f9;
       --card-bg: #ffffff;
       --border: #cbd5e1;
     }
@@ -23,7 +23,7 @@
     body { background-color: var(--bg); color: var(--dark); padding-bottom: 40px; }
     .hidden { display: none !important; }
     .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 12px; }
-    .card { background: var(--card-bg); border-radius: 14px; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+    .card { background: var(--card-bg); border-radius: 14px; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
     .input-control { width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; outline: none; background: #fff; margin-bottom: 8px; }
     .input-control:focus { border-color: var(--primary); }
     .btn { width: 100%; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none; }
@@ -35,8 +35,8 @@
     .header { background: #fff; border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 6px; }
-    .order-box { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 8px; }
-    .badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-block; }
+    .order-box { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 8px; }
+    .badge { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; }
     .badge-unassigned { background: #fee2e2; color: #b91c1c; }
     .badge-pending { background: #fef3c7; color: #b45309; }
     .badge-postponed { background: #ffedd5; color: #c2410c; }
@@ -63,22 +63,22 @@
       overflow-y: auto;
       border: 1px solid var(--border);
     }
+    .filter-tab { flex: 1; padding: 6px 4px; font-size: 11px; font-weight: 800; border-radius: 8px; border: 1px solid var(--border); background: #fff; cursor: pointer; text-align: center; }
+    .filter-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
   </style>
 </head>
 <body onclick="unlockAudioSystem()">
 
-  <!-- 1. نافذة تنبيه عطل جديد للفني -->
+  <!-- 1. نافذة إشعار عطل جديد للفني -->
   <div id="modalOrderAlert" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid var(--primary);">
       <div style="font-size: 42px; margin-bottom: 4px;">🔔</div>
       <h3 style="font-size: 18px; font-weight: 900; color: var(--primary); margin-bottom: 6px;">عطل جديد مسند إليك!</h3>
-
       <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: right; font-size: 13px; line-height: 1.6; margin-bottom: 12px;">
         <div><strong>العميل:</strong> <span id="alertCustName" style="font-weight: 800;"></span></div>
         <div><strong>الهاتف:</strong> <span id="alertCustPhone" style="font-weight: 800; direction: ltr; display: inline-block;"></span></div>
         <div><strong>المشكلة:</strong> <span id="alertCustDesc"></span></div>
       </div>
-
       <div class="grid-2">
         <a id="alertCallBtn" href="tel:" class="btn btn-primary" onclick="dismissOrderAlert()">📞 اتصال فوراً</a>
         <button type="button" onclick="dismissOrderAlert()" class="btn btn-secondary">إغلاق</button>
@@ -86,23 +86,63 @@
     </div>
   </div>
 
-  <!-- 2. نافذة تنبيه البونص / الخصم للفني -->
+  <!-- 2. نافذة إشعار للمدير بتحديثات الفنيين (حل / تأجيل) -->
+  <div id="modalAdminNotification" class="modal-overlay hidden">
+    <div class="modal-content" id="adminNotifBox" style="text-align: center; border: 2px solid var(--primary);">
+      <div id="adminNotifIcon" style="font-size: 42px; margin-bottom: 4px;">📢</div>
+      <h3 id="adminNotifTitle" style="font-size: 18px; font-weight: 900; margin-bottom: 6px;">تحديث جديد من الفني</h3>
+      <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: right; font-size: 13px; line-height: 1.6; margin-bottom: 12px;">
+        <div><strong>الفني:</strong> <span id="adminNotifTech" style="color: var(--primary); font-weight: 800;"></span></div>
+        <div><strong>العميل:</strong> <span id="adminNotifCust" style="font-weight: 800;"></span></div>
+        <div><strong>البيان / السبب:</strong> <span id="adminNotifDetail"></span></div>
+      </div>
+      <button type="button" onclick="dismissAdminNotification()" class="btn btn-primary">حسناً ✓</button>
+    </div>
+  </div>
+
+  <!-- 3. نافذة إشعار البونص / الخصم للفني -->
   <div id="modalBonusAlert" class="modal-overlay hidden">
     <div class="modal-content" id="bonusAlertBox" style="text-align: center; border: 2px solid var(--success);">
       <div id="bonusAlertIcon" style="font-size: 42px; margin-bottom: 4px;">🎁</div>
       <h3 id="bonusAlertTitle" style="font-size: 18px; font-weight: 900; color: var(--success); margin-bottom: 4px;">مبروك! نزل لك بونص جديد</h3>
       <p id="bonusAlertReason" style="font-size: 12px; color: var(--slate); margin-bottom: 10px; font-weight: 700;"></p>
-
       <div id="bonusAlertCard" style="background: #ecfdf5; border-radius: 12px; padding: 12px; margin-bottom: 14px;">
-        <span id="bonusAlertLabel" style="font-size: 11px; color: var(--success); font-weight: 700; display: block;">المبلغ المضاف:</span>
+        <span id="bonusAlertLabel" style="font-size: 11px; color: var(--success); font-weight: 700; display: block;">المبلغ:</span>
         <h2 id="bonusAlertAmount" style="font-size: 34px; font-weight: 900; color: var(--success); margin: 2px 0;">+0 ج</h2>
       </div>
-
       <button type="button" id="bonusAlertBtn" onclick="dismissBonusAlert()" class="btn btn-primary" style="background: var(--success);">تم الاستلام ✓</button>
     </div>
   </div>
 
-  <!-- 3. نافذة الإعدادات الشاملة للمدير -->
+  <!-- 4. نافذة إنهاء العطل للفني مع سبب اختياري -->
+  <div id="modalSolveOrder" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: var(--success);">تأكيد حل المشكلة ✓</h4>
+      <input type="hidden" id="solveOrderId">
+      <label style="font-size: 11px; font-weight: 700; color: var(--slate); display: block; margin-bottom: 4px;">سبب المشكلة وما تم إنجازه (اختياري):</label>
+      <input type="text" id="solveReasonText" placeholder="مثلاً: تغيير سلك، ضبط راوتر..." class="input-control">
+      <div class="grid-2" style="margin-top: 6px;">
+        <button type="button" onclick="submitSolveOrder()" class="btn btn-success">تأكيد الحل ✓</button>
+        <button type="button" onclick="closeSolveModal()" class="btn btn-secondary">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. نافذة تأجيل العطل للفني -->
+  <div id="modalPostponeOrder" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: var(--warning);">تأجيل موعد العطل ⏳</h4>
+      <input type="hidden" id="postponeOrderId">
+      <label style="font-size: 11px; font-weight: 700; color: var(--slate); display: block; margin-bottom: 4px;">سبب التأجيل (اختياري):</label>
+      <input type="text" id="postponeReasonText" placeholder="مثلاً: العميل غير متواجد" class="input-control">
+      <div class="grid-2" style="margin-top: 6px;">
+        <button type="button" onclick="submitPostponeOrder()" class="btn btn-warning">حفظ التأجيل ⏳</button>
+        <button type="button" onclick="closePostponeModal()" class="btn btn-secondary">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. نافذة الإعدادات الشاملة للمدير -->
   <div id="modalSettings" class="modal-overlay hidden">
     <div class="modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
@@ -119,7 +159,7 @@
         <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 7px; font-size: 12px;">خصم من الرصيد ➖</button>
       </div>
 
-      <!-- تعديل بيانات ورصيد الفني المختار -->
+      <!-- تعديل بيانات ورصيد الفني -->
       <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">🛠️ التحكم في حساب الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
@@ -182,7 +222,7 @@
     </div>
   </div>
 
-  <!-- شاشة المدير -->
+  <!-- شاشة المدير المنظمة -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -190,12 +230,14 @@
         <span id="adminDate" style="font-size: 10px; color: var(--slate);"></span>
       </div>
       <div style="display: flex; gap: 5px;">
+        <button type="button" onclick="triggerManualSync()" class="btn btn-secondary" style="width: auto; padding: 4px 8px; font-size: 12px;" title="تحديث السحابة">🔄</button>
         <button type="button" onclick="openSettingsModal()" class="btn btn-secondary" style="width: auto; padding: 4px 10px; font-size: 12px;">⚙️ الإعدادات</button>
         <button type="button" onclick="handleLogout()" class="btn btn-danger" style="width: auto; padding: 4px 10px; font-size: 11px;">خروج</button>
       </div>
     </header>
 
     <div class="container">
+      <!-- الإحصائيات -->
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px;">
         <div class="card" style="text-align: center; margin: 0; padding: 8px;">
           <span style="font-size: 10px; color: var(--slate);">⏳ معلق</span>
@@ -211,6 +253,7 @@
         </div>
       </div>
 
+      <!-- تسجيل عطل جديد -->
       <div class="card" style="border: 1.5px solid #93c5fd;">
         <div class="grid-2">
           <input type="text" id="newCustName" placeholder="اسم العميل *" class="input-control">
@@ -222,10 +265,19 @@
         </div>
       </div>
 
+      <!-- أرصدة الفنيين -->
       <div id="adminTechsList"></div>
 
-      <div class="card">
-        <h4 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">📋 قائمة الأعطال</h4>
+      <!-- تبويبات تنظيم وفرز الأعطال -->
+      <div style="display: flex; gap: 4px; margin-bottom: 8px;">
+        <div class="filter-tab active" onclick="setAdminFilter('all')" id="tabAll">الكل (<span id="countAll">0</span>)</div>
+        <div class="filter-tab" onclick="setAdminFilter('pending')" id="tabPending">معلق (<span id="countPending">0</span>)</div>
+        <div class="filter-tab" onclick="setAdminFilter('postponed')" id="tabPostponed">مؤجل (<span id="countPostponed">0</span>)</div>
+        <div class="filter-tab" onclick="setAdminFilter('done')" id="tabDone">منجز (<span id="countDone">0</span>)</div>
+      </div>
+
+      <!-- قائمة الأعطال -->
+      <div class="card" style="padding: 10px;">
         <div id="adminOrdersList"></div>
       </div>
     </div>
@@ -238,7 +290,10 @@
         <h3 id="techDispName" style="font-size: 15px; font-weight: 900;">الفني</h3>
         <span style="font-size: 10px; color: var(--slate); font-weight: 700;">أعطالي</span>
       </div>
-      <button type="button" onclick="handleLogout()" class="btn btn-danger" style="width: auto; padding: 4px 10px; font-size: 11px;">خروج</button>
+      <div style="display: flex; gap: 5px;">
+        <button type="button" onclick="triggerManualSync()" class="btn btn-secondary" style="width: auto; padding: 4px 8px; font-size: 12px;" title="تحديث السحابة">🔄</button>
+        <button type="button" onclick="handleLogout()" class="btn btn-danger" style="width: auto; padding: 4px 10px; font-size: 11px;">خروج</button>
+      </div>
     </header>
 
     <div class="container">
@@ -269,11 +324,12 @@
     let bonusRecords = [];
     let currentUser = null;
     let techCurrentTab = 'pending';
+    let adminFilter = 'all';
     let globalAudioCtx = null;
     let lastOrderAlertId = null;
     let lastBonusAlertId = null;
+    let lastAdminAlertId = null;
 
-    // نظام الصوت
     function unlockAudioSystem() {
       try {
         if (!globalAudioCtx) {
@@ -305,9 +361,8 @@
       unlockAudioSystem();
       if (!globalAudioCtx) return;
       const t = globalAudioCtx.currentTime;
-      // ثلاث نغمات هادئة
       for (let i = 0; i < 3; i++) {
-        const offset = i * 0.9;
+        const offset = i * 0.8;
         if (isDeduct) {
           playTone(659.25, t + offset, 0.2);
           playTone(523.25, t + offset + 0.15, 0.25);
@@ -327,70 +382,108 @@
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
-    // فحص إشعارات الفني اللحظية
+    // فحص الإشعارات للفني والمدير
     function checkIncomingAlerts(data) {
-      if (!currentUser || currentUser.role !== 'tech' || !data) return;
+      if (!currentUser || !data) return;
 
-      // 1. إشعار عطل جديد مسند
-      if (data.latestOrderAlert && data.latestOrderAlert.targetTech === currentUser.name) {
-        const alert = data.latestOrderAlert;
-        const dismissed = localStorage.getItem('last_dismissed_ord_' + currentUser.name);
-        if (alert.alertId !== dismissed && alert.alertId !== lastOrderAlertId) {
-          lastOrderAlertId = alert.alertId;
-          document.getElementById('alertCustName').innerText = alert.customer || 'عميل';
-          document.getElementById('alertCustPhone').innerText = alert.phone || '';
-          document.getElementById('alertCustDesc').innerText = alert.desc || 'عطل وصيانة';
-          document.getElementById('alertCallBtn').href = `tel:${alert.phone}`;
-          document.getElementById('modalOrderAlert').classList.remove('hidden');
+      // 1. إشعارات الفني
+      if (currentUser.role === 'tech') {
+        if (data.latestOrderAlert && data.latestOrderAlert.targetTech === currentUser.name) {
+          const alert = data.latestOrderAlert;
+          const dismissed = localStorage.getItem('last_dismissed_ord_' + currentUser.name);
+          if (alert.alertId !== dismissed && alert.alertId !== lastOrderAlertId) {
+            lastOrderAlertId = alert.alertId;
+            document.getElementById('alertCustName').innerText = alert.customer || 'عميل';
+            document.getElementById('alertCustPhone').innerText = alert.phone || '';
+            document.getElementById('alertCustDesc').innerText = alert.desc || 'عطل وصيانة';
+            document.getElementById('alertCallBtn').href = `tel:${alert.phone}`;
+            document.getElementById('modalOrderAlert').classList.remove('hidden');
+            triggerAlertChime(false);
+          }
+        }
+
+        if (data.latestBonusAlert && data.latestBonusAlert.targetTech === currentUser.name) {
+          const alert = data.latestBonusAlert;
+          const dismissed = localStorage.getItem('last_dismissed_bn_' + currentUser.name);
+          if (alert.bonusId !== dismissed && alert.bonusId !== lastBonusAlertId) {
+            lastBonusAlertId = alert.bonusId;
+            const isNeg = Number(alert.amount) < 0;
+            const box = document.getElementById('bonusAlertBox');
+            const card = document.getElementById('bonusAlertCard');
+            const title = document.getElementById('bonusAlertTitle');
+            const icon = document.getElementById('bonusAlertIcon');
+            const label = document.getElementById('bonusAlertLabel');
+            const amt = document.getElementById('bonusAlertAmount');
+            const btn = document.getElementById('bonusAlertBtn');
+
+            if (isNeg) {
+              box.style.borderColor = 'var(--danger)';
+              card.style.background = '#fff1f2';
+              title.innerText = 'تنبيه: تم تسجيل خصم / سلفة';
+              title.style.color = 'var(--danger)';
+              icon.innerText = '⚠️';
+              label.innerText = 'المبلغ المخصوم:';
+              label.style.color = 'var(--danger)';
+              amt.innerText = `${alert.amount} ج`;
+              amt.style.color = 'var(--danger)';
+              btn.style.background = 'var(--danger)';
+            } else {
+              box.style.borderColor = 'var(--success)';
+              card.style.background = '#ecfdf5';
+              title.innerText = 'مبروك! نزل لك بونص جديد';
+              title.style.color = 'var(--success)';
+              icon.innerText = '🎁';
+              label.innerText = 'المبلغ المضاف:';
+              label.style.color = 'var(--success)';
+              amt.innerText = `+${alert.amount} ج`;
+              amt.style.color = 'var(--success)';
+              btn.style.background = 'var(--success)';
+            }
+
+            document.getElementById('bonusAlertReason').innerText = alert.reason ? `السبب: ${alert.reason}` : (isNeg ? 'خصم مالي' : 'مكافأة إنجاز');
+            document.getElementById('modalBonusAlert').classList.remove('hidden');
+            triggerAlertChime(isNeg);
+          }
+        }
+      }
+
+      // 2. إشعارات المدير اللحظية (عند إنهاء أو تأجيل العطل)
+      if (currentUser.role === 'admin' && data.latestAdminAlert) {
+        const aAlert = data.latestAdminAlert;
+        const dismissedAdmin = localStorage.getItem('last_dismissed_admin_alert');
+        if (aAlert.id !== dismissedAdmin && aAlert.id !== lastAdminAlertId) {
+          lastAdminAlertId = aAlert.id;
+          document.getElementById('adminNotifTech').innerText = aAlert.tech;
+          document.getElementById('adminNotifCust').innerText = aAlert.customer;
+          document.getElementById('adminNotifDetail').innerText = aAlert.detail || 'بدون تفاصيل';
+
+          const icon = document.getElementById('adminNotifIcon');
+          const title = document.getElementById('adminNotifTitle');
+          const box = document.getElementById('adminNotifBox');
+
+          if (aAlert.type === 'done') {
+            box.style.borderColor = 'var(--success)';
+            title.innerText = '✅ تم حل عطل بواسطة الفني';
+            title.style.color = 'var(--success)';
+            icon.innerText = '🎉';
+          } else {
+            box.style.borderColor = 'var(--warning)';
+            title.innerText = '⏳ قام الفني بتأجيل عطل';
+            title.style.color = 'var(--warning)';
+            icon.innerText = '⏳';
+          }
+
+          document.getElementById('modalAdminNotification').classList.remove('hidden');
           triggerAlertChime(false);
         }
       }
+    }
 
-      // 2. إشعار بونص أو خصم
-      if (data.latestBonusAlert && data.latestBonusAlert.targetTech === currentUser.name) {
-        const alert = data.latestBonusAlert;
-        const dismissed = localStorage.getItem('last_dismissed_bn_' + currentUser.name);
-        if (alert.bonusId !== dismissed && alert.bonusId !== lastBonusAlertId) {
-          lastBonusAlertId = alert.bonusId;
-          const isNeg = Number(alert.amount) < 0;
-          
-          const box = document.getElementById('bonusAlertBox');
-          const card = document.getElementById('bonusAlertCard');
-          const title = document.getElementById('bonusAlertTitle');
-          const icon = document.getElementById('bonusAlertIcon');
-          const label = document.getElementById('bonusAlertLabel');
-          const amt = document.getElementById('bonusAlertAmount');
-          const btn = document.getElementById('bonusAlertBtn');
-
-          if (isNeg) {
-            box.style.borderColor = 'var(--danger)';
-            card.style.background = '#fff1f2';
-            title.innerText = 'تنبيه: تم تسجيل خصم / سلفة';
-            title.style.color = 'var(--danger)';
-            icon.innerText = '⚠️️';
-            label.innerText = 'المبلغ المخصوم:';
-            label.style.color = 'var(--danger)';
-            amt.innerText = `${alert.amount} ج`;
-            amt.style.color = 'var(--danger)';
-            btn.style.background = 'var(--danger)';
-          } else {
-            box.style.borderColor = 'var(--success)';
-            card.style.background = '#ecfdf5';
-            title.innerText = 'مبروك! نزل لك بونص جديد';
-            title.style.color = 'var(--success)';
-            icon.innerText = '🎁';
-            label.innerText = 'المبلغ المضاف:';
-            label.style.color = 'var(--success)';
-            amt.innerText = `+${alert.amount} ج`;
-            amt.style.color = 'var(--success)';
-            btn.style.background = 'var(--success)';
-          }
-
-          document.getElementById('bonusAlertReason').innerText = alert.reason ? `السبب: ${alert.reason}` : (isNeg ? 'خصم مالي' : 'مكافأة إنجاز');
-          document.getElementById('modalBonusAlert').classList.remove('hidden');
-          triggerAlertChime(isNeg);
-        }
+    function dismissAdminNotification() {
+      if (lastAdminAlertId) {
+        localStorage.setItem('last_dismissed_admin_alert', lastAdminAlertId);
       }
+      document.getElementById('modalAdminNotification').classList.add('hidden');
     }
 
     function dismissOrderAlert() {
@@ -407,24 +500,20 @@
       document.getElementById('modalBonusAlert').classList.add('hidden');
     }
 
-    // تسجيل الدخول
     function handleLogin() {
       unlockAudioSystem();
       const u = (document.getElementById('logUser').value || '').trim().toLowerCase();
       const p = (document.getElementById('logPass').value || '').trim();
 
       let user = appAccounts.find(a => a.username.toLowerCase() === u && a.pass === p);
-
-      if (!user && u === 'admin' && (p === '123' || p === '999')) {
-        user = appAccounts[0];
-      }
+      if (!user && u === 'admin' && (p === '123' || p === '999')) user = appAccounts[0];
 
       if (user) {
         currentUser = user;
         localStorage.setItem('saved_active_user', JSON.stringify(currentUser));
         showUserScreen();
       } else {
-        alert('بيانات الدخول غير صحيحة!\nالأدمن: admin / 123\nالفنيين: ahmed / 111 أو mahmoud / 222');
+        alert('بيانات الدخول غير صحيحة!');
       }
     }
 
@@ -436,12 +525,12 @@
       document.getElementById('modalSettings').classList.add('hidden');
       document.getElementById('modalOrderAlert').classList.add('hidden');
       document.getElementById('modalBonusAlert').classList.add('hidden');
+      document.getElementById('modalAdminNotification').classList.add('hidden');
       document.getElementById('screenLogin').classList.remove('hidden');
     }
 
     function showUserScreen() {
       document.getElementById('screenLogin').classList.add('hidden');
-
       if (currentUser.role === 'admin') {
         document.getElementById('screenAdmin').classList.remove('hidden');
         document.getElementById('adminDate').innerText = getToday();
@@ -453,12 +542,16 @@
       }
     }
 
-    // الإعدادات
+    function triggerManualSync() {
+      syncDown();
+      alert('تم تحديث البيانات من السحابة بنجاح ✓');
+    }
+
+    // إدارة الإعدادات
     function openSettingsModal() {
       const adm = appAccounts.find(a => a.role === 'admin') || appAccounts[0];
       document.getElementById('adminUserField').value = adm.username;
       document.getElementById('adminPassField').value = adm.pass;
-
       populateSettingsTechSelects();
       loadSelectedTechData();
       document.getElementById('modalSettings').classList.remove('hidden');
@@ -472,10 +565,8 @@
       const setSel = document.getElementById('settingsTechSelect');
       const dedSel = document.getElementById('deductTechSelect');
       const techs = appAccounts.filter(a => a.role === 'tech');
-
       setSel.innerHTML = '';
       dedSel.innerHTML = '';
-
       techs.forEach(t => {
         setSel.innerHTML += `<option value="${t.id}">${t.name} (@${t.username})</option>`;
         dedSel.innerHTML += `<option value="${t.name}">${t.name}</option>`;
@@ -506,27 +597,12 @@
       const techObj = appAccounts.find(a => a.name === techName);
       if (techObj) {
         techObj.accumulatedBonus = Math.max(0, (Number(techObj.accumulatedBonus) || 0) - amount);
-        bonusRecords.unshift({
-          id: Date.now(),
-          tech: techName,
-          amount: -amount,
-          reason: reason,
-          date: getToday()
-        });
-
-        // بث إشعار الخصم للسحابة
-        const alertPayload = {
-          bonusId: 'DED-' + Date.now(),
-          targetTech: techName,
-          amount: -amount,
-          reason: reason,
-          sentAt: Date.now()
-        };
+        bonusRecords.unshift({ id: Date.now(), tech: techName, amount: -amount, reason: reason, date: getToday() });
 
         fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(alertPayload)
+          body: JSON.stringify({ bonusId: 'DED-' + Date.now(), targetTech: techName, amount: -amount, reason: reason, sentAt: Date.now() })
         }).catch(() => {});
 
         document.getElementById('deductAmount').value = '';
@@ -534,19 +610,14 @@
         loadSelectedTechData();
         renderAdmin();
         syncUp();
-        alert(`تم خصم ${amount} ج من حساب (${techName}) بنجاح وإرسال التنبيه له ➖`);
+        alert(`تم خصم ${amount} ج من حساب (${techName}) بنجاح ➖`);
       }
     }
 
     function updateSelectedTechBalance() {
       const selId = document.getElementById('settingsTechSelect').value;
       const newBal = Number(document.getElementById('settingsTechBal').value);
-
-      if (isNaN(newBal) || newBal < 0) {
-        alert('أدخل رقم رصيد صحيح');
-        return;
-      }
-
+      if (isNaN(newBal) || newBal < 0) return alert('أدخل رقم رصيد صحيح');
       const tech = appAccounts.find(a => a.id == selId);
       if (tech) {
         tech.accumulatedBonus = newBal;
@@ -561,24 +632,15 @@
       const newName = document.getElementById('settingsTechName').value.trim();
       const newUser = document.getElementById('settingsTechUser').value.trim();
       const newPass = document.getElementById('settingsTechPass').value.trim();
-
-      if (!newName || !newUser || !newPass) {
-        alert('يرجى ملء جميع الخانات');
-        return;
-      }
-
+      if (!newName || !newUser || !newPass) return alert('يرجى ملء جميع الخانات');
       const tech = appAccounts.find(a => a.id == selId);
       if (tech) {
         const oldName = tech.name;
-        tech.name = newName;
-        tech.username = newUser;
-        tech.pass = newPass;
-
+        tech.name = newName; tech.username = newUser; tech.pass = newPass;
         if (oldName !== newName) {
           appOrders.forEach(o => { if (o.tech === oldName) o.tech = newName; });
           bonusRecords.forEach(b => { if (b.tech === oldName) b.tech = newName; });
         }
-
         populateSettingsTechSelects();
         renderAdmin();
         syncUp();
@@ -590,8 +652,7 @@
       const selId = document.getElementById('settingsTechSelect').value;
       const tech = appAccounts.find(a => a.id == selId);
       if (!tech) return;
-
-      if (confirm(`حذف الفني (${tech.name}) نهائياً من المنظومة؟`)) {
+      if (confirm(`حذف الفني (${tech.name}) نهائياً؟`)) {
         appAccounts = appAccounts.filter(a => a.id != selId);
         populateSettingsTechSelects();
         loadSelectedTechData();
@@ -605,25 +666,11 @@
       const name = document.getElementById('addTechName').value.trim();
       const user = document.getElementById('addTechUser').value.trim();
       const pass = document.getElementById('addTechPass').value.trim();
-
-      if (!name || !user || !pass) {
-        alert('يرجى ملء جميع بيانات الفني الجديد');
-        return;
-      }
-
-      appAccounts.push({
-        id: Date.now(),
-        role: 'tech',
-        name: name,
-        username: user,
-        pass: pass,
-        accumulatedBonus: 0
-      });
-
+      if (!name || !user || !pass) return alert('يرجى ملء جميع البيانات');
+      appAccounts.push({ id: Date.now(), role: 'tech', name, username: user, pass, accumulatedBonus: 0 });
       document.getElementById('addTechName').value = '';
       document.getElementById('addTechUser').value = '';
       document.getElementById('addTechPass').value = '';
-
       populateSettingsTechSelects();
       loadSelectedTechData();
       renderAdmin();
@@ -634,24 +681,15 @@
     function saveAdminCredentials() {
       const u = document.getElementById('adminUserField').value.trim();
       const p = document.getElementById('adminPassField').value.trim();
-
-      if (!u || !p) {
-        alert('أدخل اسم المستخدم وكلمة المرور');
-        return;
-      }
-
+      if (!u || !p) return alert('أدخل اسم المستخدم وكلمة المرور');
       const adm = appAccounts.find(a => a.role === 'admin') || appAccounts[0];
-      adm.username = u;
-      adm.pass = p;
-
+      adm.username = u; adm.pass = p;
       if (currentUser && currentUser.role === 'admin') {
-        currentUser.username = u;
-        currentUser.pass = p;
+        currentUser.username = u; currentUser.pass = p;
         localStorage.setItem('saved_active_user', JSON.stringify(currentUser));
       }
-
       syncUp();
-      alert('تم حفظ وتحديث بيانات حساب المدير 💾');
+      alert('تم تحديث بيانات المدير 💾');
     }
 
     // تسجيل عطل
@@ -659,11 +697,7 @@
       const name = document.getElementById('newCustName').value.trim();
       const phone = document.getElementById('newCustPhone').value.trim();
       const desc = document.getElementById('newCustDesc').value.trim() || 'صيانة ومتابعة';
-
-      if (!name || !phone) {
-        alert('أدخل اسم العميل ورقم الهاتف');
-        return;
-      }
+      if (!name || !phone) return alert('أدخل اسم العميل ورقم الهاتف');
 
       appOrders.unshift({
         id: 'ORD-' + Date.now().toString().slice(-5),
@@ -673,25 +707,20 @@
         tech: '',
         status: 'pending',
         postponeReason: '',
+        doneReason: '',
         date: getToday()
       });
 
       document.getElementById('newCustName').value = '';
       document.getElementById('newCustPhone').value = '';
       document.getElementById('newCustDesc').value = '';
-
       renderAdmin();
       syncUp();
     }
 
-    // إسناد أو نقل العطل مع بث الإشعار اللحظي للفني المختار
     function assignOrder(orderId) {
       const sel = document.getElementById('sel_' + orderId);
-      if (!sel || !sel.value) {
-        alert('اختر الفني أولاً');
-        return;
-      }
-
+      if (!sel || !sel.value) return alert('اختر الفني أولاً');
       const targetTech = sel.value;
       const ord = appOrders.find(o => o.id === orderId);
 
@@ -700,29 +729,25 @@
         ord.tech = targetTech;
         if (ord.status === 'postponed') ord.status = 'pending';
 
-        // بث إشعار العطل للسحابة
-        const orderAlert = {
-          alertId: 'ALERT-ORD-' + Date.now(),
-          targetTech: targetTech,
-          customer: ord.customer,
-          phone: ord.phone,
-          desc: ord.desc,
-          sentAt: Date.now()
-        };
-
         fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderAlert)
+          body: JSON.stringify({
+            alertId: 'ALERT-ORD-' + Date.now(),
+            targetTech: targetTech,
+            customer: ord.customer,
+            phone: ord.phone,
+            desc: ord.desc,
+            sentAt: Date.now()
+          })
         }).catch(() => {});
 
         renderAdmin();
         syncUp();
-
         if (prevTech && prevTech !== targetTech) {
           alert(`تم نقل العطل من (${prevTech}) إلى (${targetTech}) وإرسال التنبيه له ✓`);
         } else {
-          alert(`تم إسناد العطل إلى (${targetTech}) وإرسال التنبيه له بنجاح ✓`);
+          alert(`تم إسناد العطل إلى (${targetTech}) وإرسال التنبيه له ✓`);
         }
       }
     }
@@ -735,7 +760,6 @@
       }
     }
 
-    // إضافة بونص مع بث الإشعار
     function promptBonus(techName) {
       const amt = prompt(`أدخل مبلغ البونص لـ (${techName}):`, "50");
       if (amt && Number(amt) > 0) {
@@ -745,24 +769,15 @@
           t.accumulatedBonus = (Number(t.accumulatedBonus) || 0) + Number(amt);
           bonusRecords.unshift({ id: Date.now(), tech: techName, amount: Number(amt), reason: reason, date: getToday() });
 
-          // بث إشعار البونص للسحابة
-          const bonusAlert = {
-            bonusId: 'BN-' + Date.now(),
-            targetTech: techName,
-            amount: Number(amt),
-            reason: reason,
-            sentAt: Date.now()
-          };
-
           fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(bonusAlert)
+            body: JSON.stringify({ bonusId: 'BN-' + Date.now(), targetTech: techName, amount: Number(amt), reason: reason, sentAt: Date.now() })
           }).catch(() => {});
 
           renderAdmin();
           syncUp();
-          alert(`تم نزول ${amt} ج لحساب (${techName}) وبث التنبيه له فوراً 🎁`);
+          alert(`تم نزول ${amt} ج لحساب (${techName}) 🎁`);
         }
       }
     }
@@ -778,16 +793,32 @@
       }
     }
 
-    // رسم الأدمن
+    function setAdminFilter(type) {
+      adminFilter = type;
+      ['All', 'Pending', 'Postponed', 'Done'].forEach(tab => {
+        const elem = document.getElementById('tab' + tab);
+        if (elem) elem.classList.remove('active');
+      });
+      document.getElementById('tab' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+      renderAdminOrders();
+    }
+
     function renderAdmin() {
-      const pendingCount = appOrders.filter(o => o.status !== 'done').length;
+      const pendingCount = appOrders.filter(o => o.status === 'pending').length;
+      const postponedCount = appOrders.filter(o => o.status === 'postponed').length;
       const doneCount = appOrders.filter(o => o.status === 'done').length;
       const totalBonus = bonusRecords.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
-      document.getElementById('statPending').innerText = pendingCount;
+      document.getElementById('statPending').innerText = pendingCount + postponedCount;
       document.getElementById('statDone').innerText = doneCount;
       document.getElementById('statBonus').innerText = totalBonus + " ج";
 
+      document.getElementById('countAll').innerText = appOrders.length;
+      document.getElementById('countPending').innerText = pendingCount;
+      document.getElementById('countPostponed').innerText = postponedCount;
+      document.getElementById('countDone').innerText = doneCount;
+
+      // كروت الفنيين
       const techBox = document.getElementById('adminTechsList');
       techBox.innerHTML = '';
       const techs = appAccounts.filter(a => a.role === 'tech');
@@ -807,71 +838,92 @@
         `;
       });
 
-      const ordBox = document.getElementById('adminOrdersList');
-      ordBox.innerHTML = '';
-
-      if (appOrders.length === 0) {
-        ordBox.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:10px;">لا توجد أعطال مسجلة</p>';
-      } else {
-        appOrders.forEach(o => {
-          const isDone = o.status === 'done';
-          const isPostponed = o.status === 'postponed';
-
-          let badgeClass = 'badge-unassigned';
-          let badgeText = 'غير مسند';
-
-          if (isDone) {
-            badgeClass = 'badge-done';
-            badgeText = 'تم الحل ✓';
-          } else if (isPostponed) {
-            badgeClass = 'badge-postponed';
-            badgeText = 'مؤجل عند: ' + o.tech;
-          } else if (o.tech) {
-            badgeClass = 'badge-pending';
-            badgeText = 'عند: ' + o.tech;
-          }
-
-          let techOpts = '<option value="">اختر الفني للإسناد...</option>';
-          techs.forEach(t => {
-            techOpts += `<option value="${t.name}" ${o.tech === t.name ? 'selected' : ''}>${t.name}</option>`;
-          });
-
-          ordBox.innerHTML += `
-            <div class="order-box">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                <div>
-                  <strong style="font-size:14px;">${o.customer}</strong>
-                  <a href="tel:${o.phone}" style="color:var(--primary); text-decoration:none; font-size:12px; font-weight:700; margin-right:6px;">📞 ${o.phone}</a>
-                </div>
-                <span class="badge ${badgeClass}">${badgeText}</span>
-              </div>
-              <p style="font-size:11px; color:var(--slate); margin-bottom:4px;">${o.desc}</p>
-
-              ${isPostponed && o.postponeReason ? `
-                <div style="font-size:11px; color:#c2410c; background:#ffedd5; padding:4px 8px; border-radius:6px; margin-bottom:6px;">
-                  سبب التأجيل: ${o.postponeReason}
-                </div>
-              ` : ''}
-
-              ${!isDone ? `
-                <div style="display:flex; gap:4px; margin-top:4px;">
-                  <select id="sel_${o.id}" class="input-control" style="margin-bottom:0; padding:4px 6px; font-size:11px;">${techOpts}</select>
-                  <button onclick="assignOrder('${o.id}')" class="btn btn-primary" style="width:auto; padding:4px 10px; font-size:11px; white-space:nowrap;">${o.tech ? '🔄 نقل الفني' : '🚀 إسناد'}</button>
-                  <button onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:4px 8px; font-size:11px;">✕</button>
-                </div>
-              ` : `
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#15803d; margin-top:4px;">
-                  <span>تم الحل بواسطة: ${o.tech}</span>
-                  <button onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:2px 8px; font-size:10px;">حذف</button>
-                </div>
-              `}
-            </div>
-          `;
-        });
-      }
+      renderAdminOrders();
     }
 
-    // رسم الفني
+    function renderAdminOrders() {
+      const ordBox = document.getElementById('adminOrdersList');
+      ordBox.innerHTML = '';
+      const techs = appAccounts.filter(a => a.role === 'tech');
+
+      let filtered = appOrders;
+      if (adminFilter === 'pending') filtered = appOrders.filter(o => o.status === 'pending');
+      else if (adminFilter === 'postponed') filtered = appOrders.filter(o => o.status === 'postponed');
+      else if (adminFilter === 'done') filtered = appOrders.filter(o => o.status === 'done');
+
+      if (filtered.length === 0) {
+        ordBox.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:12px;">لا توجد أعطال في هذا التبويب</p>';
+        return;
+      }
+
+      filtered.forEach(o => {
+        const isDone = o.status === 'done';
+        const isPostponed = o.status === 'postponed';
+
+        let badgeClass = 'badge-unassigned';
+        let badgeText = 'غير مسند';
+
+        if (isDone) {
+          badgeClass = 'badge-done';
+          badgeText = 'تم الحل ✓';
+        } else if (isPostponed) {
+          badgeClass = 'badge-postponed';
+          badgeText = 'مؤجل ⏳';
+        } else if (o.tech) {
+          badgeClass = 'badge-pending';
+          badgeText = 'معلق';
+        }
+
+        let techOpts = '<option value="">اختر الفني للإسناد...</option>';
+        techs.forEach(t => {
+          techOpts += `<option value="${t.name}" ${o.tech === t.name ? 'selected' : ''}>${t.name}</option>`;
+        });
+
+        ordBox.innerHTML += `
+          <div class="order-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <div>
+                <strong style="font-size:14px;">${o.customer}</strong>
+                <a href="tel:${o.phone}" style="color:var(--primary); text-decoration:none; font-size:12px; font-weight:700; margin-right:6px;">📞 ${o.phone}</a>
+              </div>
+              <span class="badge ${badgeClass}">${badgeText}</span>
+            </div>
+            
+            <p style="font-size:12px; color:var(--dark); margin-bottom:4px;">${o.desc}</p>
+            
+            <div style="font-size:11px; color:var(--slate); margin-bottom:6px;">
+              الفني الحالي: <strong style="color:var(--primary);">${o.tech || 'لم يحدد'}</strong>
+            </div>
+
+            ${isPostponed && o.postponeReason ? `
+              <div style="font-size:11px; color:#c2410c; background:#ffedd5; padding:5px 8px; border-radius:6px; margin-bottom:6px;">
+                سبب التأجيل: ${o.postponeReason}
+              </div>
+            ` : ''}
+
+            ${isDone ? `
+              <div style="font-size:11px; color:#15803d; background:#dcfce7; padding:5px 8px; border-radius:6px; margin-bottom:6px;">
+                ما تم فعله: ${o.doneReason || 'تم الحل بنجاح'}
+              </div>
+            ` : ''}
+
+            ${!isDone ? `
+              <div style="display:flex; gap:4px; margin-top:4px;">
+                <select id="sel_${o.id}" class="input-control" style="margin-bottom:0; padding:4px 6px; font-size:11px;">${techOpts}</select>
+                <button onclick="assignOrder('${o.id}')" class="btn btn-primary" style="width:auto; padding:4px 10px; font-size:11px; white-space:nowrap;">${o.tech ? '🔄 نقل الفني' : '🚀 إسناد'}</button>
+                <button onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:4px 8px; font-size:11px;">✕</button>
+              </div>
+            ` : `
+              <div style="text-align:left;">
+                <button onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; display:inline-flex; padding:2px 8px; font-size:10px;">حذف</button>
+              </div>
+            `}
+          </div>
+        `;
+      });
+    }
+
+    // دوال الفني
     function renderTech() {
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
@@ -913,11 +965,17 @@
               </div>
             ` : ''}
 
+            ${isDone && o.doneReason ? `
+              <div style="font-size:11px; color:#15803d; background:#dcfce7; padding:4px 8px; border-radius:6px; margin-bottom:8px;">
+                تم: ${o.doneReason}
+              </div>
+            ` : ''}
+
             ${!isDone ? `
               <div class="grid-3">
                 <a href="tel:${o.phone}" class="btn btn-secondary" style="padding:6px; font-size:11px;">📞 اتصال</a>
-                <button onclick="postponeOrder('${o.id}')" class="btn btn-warning" style="padding:6px; font-size:11px;">⏳ تأجيل</button>
-                <button onclick="markOrderDone('${o.id}')" class="btn btn-success" style="padding:6px; font-size:11px;">تم الحل ✓</button>
+                <button onclick="openPostponeModal('${o.id}')" class="btn btn-warning" style="padding:6px; font-size:11px;">⏳ تأجيل</button>
+                <button onclick="openSolveModal('${o.id}')" class="btn btn-success" style="padding:6px; font-size:11px;">تم الحل ✓</button>
               </div>
             ` : `
               <div style="text-align:left;">
@@ -941,23 +999,80 @@
       renderTech();
     }
 
-    function postponeOrder(orderId) {
-      const reason = prompt('أدخل سبب التأجيل:');
-      if (reason && reason.trim()) {
-        const ord = appOrders.find(o => o.id === orderId);
-        if (ord) {
-          ord.status = 'postponed';
-          ord.postponeReason = reason.trim();
-          renderTech();
-          syncUp();
-        }
+    // نوافذ إنهاء وتأجيل العطل للفني
+    function openSolveModal(id) {
+      document.getElementById('solveOrderId').value = id;
+      document.getElementById('solveReasonText').value = '';
+      document.getElementById('modalSolveOrder').classList.remove('hidden');
+    }
+
+    function closeSolveModal() {
+      document.getElementById('modalSolveOrder').classList.add('hidden');
+    }
+
+    function submitSolveOrder() {
+      const id = document.getElementById('solveOrderId').value;
+      const reason = document.getElementById('solveReasonText').value.trim() || 'تم الإصلاح';
+      const ord = appOrders.find(o => o.id === id);
+
+      if (ord) {
+        ord.status = 'done';
+        ord.doneReason = reason;
+
+        // إشعار للمدير بإنهاء العطل
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: 'DONE-' + Date.now(),
+            type: 'done',
+            tech: currentUser.name,
+            customer: ord.customer,
+            detail: reason,
+            sentAt: Date.now()
+          })
+        }).catch(() => {});
+
+        closeSolveModal();
+        renderTech();
+        syncUp();
       }
     }
 
-    function markOrderDone(orderId) {
-      const ord = appOrders.find(o => o.id === orderId);
-      if (ord && confirm('تأكيد إنهاء وحل هذا العطل؟')) {
-        ord.status = 'done';
+    function openPostponeModal(id) {
+      document.getElementById('postponeOrderId').value = id;
+      document.getElementById('postponeReasonText').value = '';
+      document.getElementById('modalPostponeOrder').classList.remove('hidden');
+    }
+
+    function closePostponeModal() {
+      document.getElementById('modalPostponeOrder').classList.add('hidden');
+    }
+
+    function submitPostponeOrder() {
+      const id = document.getElementById('postponeOrderId').value;
+      const reason = document.getElementById('postponeReasonText').value.trim() || 'تم التأجيل';
+      const ord = appOrders.find(o => o.id === id);
+
+      if (ord) {
+        ord.status = 'postponed';
+        ord.postponeReason = reason;
+
+        // إشعار للمدير بتأجيل العطل
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: 'POSTPONE-' + Date.now(),
+            type: 'postpone',
+            tech: currentUser.name,
+            customer: ord.customer,
+            detail: reason,
+            sentAt: Date.now()
+          })
+        }).catch(() => {});
+
+        closePostponeModal();
         renderTech();
         syncUp();
       }
@@ -969,17 +1084,10 @@
         .then(res => res.json())
         .then(data => {
           if (data) {
-            if (Array.isArray(data.accounts) && data.accounts.length > 0) {
-              appAccounts = data.accounts;
-            }
-            if (Array.isArray(data.orders)) {
-              appOrders = data.orders;
-            }
-            if (Array.isArray(data.bonusRecords)) {
-              bonusRecords = data.bonusRecords;
-            }
+            if (Array.isArray(data.accounts) && data.accounts.length > 0) appAccounts = data.accounts;
+            if (Array.isArray(data.orders)) appOrders = data.orders;
+            if (Array.isArray(data.bonusRecords)) bonusRecords = data.bonusRecords;
 
-            // فحص الإشعارات للفني
             checkIncomingAlerts(data);
 
             if (currentUser) {
