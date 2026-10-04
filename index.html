@@ -24,13 +24,25 @@
     .btn-secondary { background: #e2e8f0; color: #475569; }
     .header { background: #ffffff; border-bottom: 1px solid #cbd5e1; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1.2fr; gap: 5px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 6px; }
     .order-box { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; margin-bottom: 8px; }
     .badge { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; }
     .badge-unassigned { background: #fee2e2; color: #b91c1c; }
     .badge-pending { background: #fef3c7; color: #b45309; }
     .badge-postponed { background: #ffedd5; color: #c2410c; }
     .badge-done { background: #dcfce7; color: #15803d; }
+
+    /* كارت البونص الأخضر الجميل */
+    .bonus-card-green {
+      background: linear-gradient(135deg, #10b981, #047857) !important;
+      color: #ffffff !important;
+      border-radius: 18px;
+      padding: 22px 14px;
+      text-align: center;
+      border: none;
+      box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35);
+      margin-bottom: 12px;
+    }
 
     .modal-overlay {
       position: fixed;
@@ -105,25 +117,7 @@
     </div>
   </div>
 
-  <!-- 4. نافذة تعديل بيانات العطل بواسطة الفني -->
-  <div id="modalTechEditOrder" class="modal-overlay hidden">
-    <div class="modal-content">
-      <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #2563eb;">✏️ تعديل بيانات العطل</h4>
-      <input type="hidden" id="techEditOrderId">
-      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">اسم العميل:</label>
-      <input type="text" id="techEditCustName" class="input-control">
-      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">رقم الهاتف:</label>
-      <input type="tel" id="techEditCustPhone" class="input-control">
-      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">تفاصيل وملاحظات المشكلة:</label>
-      <textarea id="techEditCustDesc" class="input-control" rows="3" style="resize: none;"></textarea>
-      <div class="grid-2" style="margin-top: 6px;">
-        <button type="button" onclick="submitTechEditOrder()" class="btn btn-primary">حفظ التعديل 💾</button>
-        <button type="button" onclick="closeTechEditModal()" class="btn btn-secondary">إلغاء</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 5. نافذة إنهاء العطل للفني -->
+  <!-- 4. نافذة إنهاء العطل للفني -->
   <div id="modalSolveOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #059669;">تأكيد حل المشكلة ✓</h4>
@@ -137,7 +131,7 @@
     </div>
   </div>
 
-  <!-- 6. نافذة تأجيل العطل للفني -->
+  <!-- 5. نافذة تأجيل العطل للفني -->
   <div id="modalPostponeOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #d97706;">تأجيل موعد العطل ⏳</h4>
@@ -151,7 +145,7 @@
     </div>
   </div>
 
-  <!-- 7. نافذة الإعدادات الشاملة للمدير -->
+  <!-- 6. نافذة الإعدادات الشاملة للمدير -->
   <div id="modalSettings" class="modal-overlay hidden">
     <div class="modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
@@ -301,9 +295,11 @@
     </header>
 
     <div class="container">
-      <div class="card" style="background: linear-gradient(135deg, #10b981, #047857); color: #fff; text-align: center; padding: 18px 10px; border: none;">
-        <span style="font-size: 11px; opacity: 0.9;">إجمالي رصيد البونص المستحق</span>
-        <h2 id="techBonusBalance" style="font-size: 38px; font-weight: 900; margin: 4px 0;">0 ج</h2>
+      <!-- كارت الحصالة الأخضر الجميل المستعاد -->
+      <div class="bonus-card-green">
+        <span style="font-size: 12px; font-weight: 700; opacity: 0.95; display: block; margin-bottom: 4px;">إجمالي رصيد البونص المستحق لك</span>
+        <h2 id="techBonusBalance" style="font-size: 42px; font-weight: 900; margin: 4px 0; line-height: 1.1;">0 ج</h2>
+        <span style="font-size: 11px; background: rgba(255,255,255,0.22); padding: 3px 14px; border-radius: 20px; font-weight: 800; display: inline-block; margin-top: 6px;">حصالة المكافآت ✓</span>
       </div>
 
       <div style="display: flex; gap: 6px; margin-bottom: 10px;">
@@ -333,6 +329,7 @@
     let lastOrderAlertId = null;
     let lastBonusAlertId = null;
     let lastAdminAlertId = null;
+    let isUserInteractingWithSelect = false;
 
     function unlockAudioSystem() {
       try {
@@ -527,7 +524,6 @@
       document.getElementById('modalOrderAlert').classList.add('hidden');
       document.getElementById('modalBonusAlert').classList.add('hidden');
       document.getElementById('modalAdminNotification').classList.add('hidden');
-      document.getElementById('modalTechEditOrder').classList.add('hidden');
       document.getElementById('screenLogin').classList.remove('hidden');
     }
 
@@ -715,12 +711,12 @@
       syncUp();
     }
 
-    function assignOrder(orderId) {
-      const sel = document.getElementById('sel_' + orderId);
-      if (!sel || !sel.value) return alert('اختر الفني أولاً');
-      const targetTech = sel.value;
-      const ord = appOrders.find(o => o.id === orderId);
+    // إسناد الفني مع التثبيت الفوري وحل مشكلة الإلغاء التلقائي
+    function saveAssignDirectly(orderId, selectElem) {
+      const targetTech = selectElem.value;
+      if (!targetTech) return;
 
+      const ord = appOrders.find(o => o.id === orderId);
       if (ord) {
         const prevTech = ord.tech;
         ord.tech = targetTech;
@@ -739,12 +735,13 @@
           })
         }).catch(() => {});
 
-        renderAdmin();
         syncUp();
+        renderAdmin();
+
         if (prevTech && prevTech !== targetTech) {
-          alert(`تم نقل العطل من (${prevTech}) إلى (${targetTech}) وإرسال التنبيه له ✓`);
+          alert(`تم نقل العطل من (${prevTech}) إلى (${targetTech}) بنجاح ✓`);
         } else {
-          alert(`تم إسناد العطل إلى (${targetTech}) وإرسال التنبيه له ✓`);
+          alert(`تم إسناد العطل إلى (${targetTech}) بنجاح ✓`);
         }
       }
     }
@@ -753,7 +750,6 @@
       if (confirm('حذف هذا العطل نهائياً من النظام وجميع الفنيين؟')) {
         appOrders = appOrders.filter(o => o.id !== orderId);
         renderAdmin();
-        // حذف فوري صريح على السحابة لضمان اختفائه عند الجميع
         fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -843,6 +839,8 @@
     }
 
     function renderAdminOrders() {
+      if (isUserInteractingWithSelect) return;
+
       const ordBox = document.getElementById('adminOrdersList');
       ordBox.innerHTML = '';
       const techs = appAccounts.filter(a => a.role === 'tech');
@@ -910,9 +908,17 @@
 
             ${!isDone ? `
               <div style="display:flex; gap:4px; margin-top:4px;">
-                <select id="sel_${o.id}" class="input-control" style="margin-bottom:0; padding:4px 6px; font-size:11px;">${techOpts}</select>
-                <button onclick="assignOrder('${o.id}')" class="btn btn-primary" style="width:auto; padding:4px 10px; font-size:11px; white-space:nowrap;">${o.tech ? '🔄 نقل الفني' : '🚀 إسناد'}</button>
-                <button onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:4px 8px; font-size:11px;">✕</button>
+                <select 
+                  id="sel_${o.id}" 
+                  class="input-control" 
+                  style="margin-bottom:0; padding:6px 8px; font-size:11px; font-weight:700;"
+                  onfocus="isUserInteractingWithSelect = true"
+                  onblur="isUserInteractingWithSelect = false"
+                  onchange="saveAssignDirectly('${o.id}', this)"
+                >
+                  ${techOpts}
+                </select>
+                <button onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:4px 10px; font-size:11px;">✕</button>
               </div>
             ` : `
               <div style="text-align:left;">
@@ -924,7 +930,7 @@
       });
     }
 
-    // دوال الفني وتعديل العطل
+    // دوال الفني (بدون تعديل - بسيطة ومباشرة)
     function renderTech() {
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
@@ -973,16 +979,14 @@
             ` : ''}
 
             ${!isDone ? `
-              <div class="grid-4">
+              <div class="grid-3">
                 <a href="tel:${o.phone}" class="btn btn-secondary" style="padding:6px; font-size:11px;">📞 اتصال</a>
-                <button onclick="openTechEditModal('${o.id}')" class="btn btn-secondary" style="padding:6px; font-size:11px;">✏️ تعديل</button>
                 <button onclick="openPostponeModal('${o.id}')" class="btn btn-warning" style="padding:6px; font-size:11px;">⏳ تأجيل</button>
                 <button onclick="openSolveModal('${o.id}')" class="btn btn-success" style="padding:6px; font-size:11px;">تم الحل ✓</button>
               </div>
             ` : `
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <button onclick="openTechEditModal('${o.id}')" class="btn btn-secondary" style="width:auto; padding:4px 10px; font-size:11px;">✏️ تعديل الملاحظة</button>
-                <a href="tel:${o.phone}" class="btn btn-secondary" style="width:auto; padding:4px 10px; font-size:11px;">📞 اتصال</a>
+              <div style="text-align:left;">
+                <a href="tel:${o.phone}" class="btn btn-secondary" style="width:auto; display:inline-flex; padding:4px 10px; font-size:11px;">📞 اتصال</a>
               </div>
             `}
           </div>
@@ -1002,43 +1006,6 @@
       renderTech();
     }
 
-    // نافذة تعديل الفني للعطل
-    function openTechEditModal(id) {
-      const ord = appOrders.find(o => o.id === id);
-      if (!ord) return;
-      document.getElementById('techEditOrderId').value = id;
-      document.getElementById('techEditCustName').value = ord.customer;
-      document.getElementById('techEditCustPhone').value = ord.phone;
-      document.getElementById('techEditCustDesc').value = ord.desc;
-      document.getElementById('modalTechEditOrder').classList.remove('hidden');
-    }
-
-    function closeTechEditModal() {
-      document.getElementById('modalTechEditOrder').classList.add('hidden');
-    }
-
-    function submitTechEditOrder() {
-      const id = document.getElementById('techEditOrderId').value;
-      const name = document.getElementById('techEditCustName').value.trim();
-      const phone = document.getElementById('techEditCustPhone').value.trim();
-      const desc = document.getElementById('techEditCustDesc').value.trim();
-
-      if (!name || !phone) return alert('اسم العميل ورقم الهاتف مطلوبان');
-
-      const ord = appOrders.find(o => o.id === id);
-      if (ord) {
-        ord.customer = name;
-        ord.phone = phone;
-        ord.desc = desc;
-
-        closeTechEditModal();
-        renderTech();
-        syncUp();
-        alert('تم تعديل بيانات العطل وحفظها بنجاح 💾');
-      }
-    }
-
-    // إنهاء وتأجيل العطل
     function openSolveModal(id) {
       document.getElementById('solveOrderId').value = id;
       document.getElementById('solveReasonText').value = '';
@@ -1121,7 +1088,6 @@
         .then(data => {
           if (data) {
             if (Array.isArray(data.accounts) && data.accounts.length > 0) appAccounts = data.accounts;
-            // مزامنة صريحة لضمان حذف العطل فور حذفه
             appOrders = Array.isArray(data.orders) ? data.orders : [];
             if (Array.isArray(data.bonusRecords)) bonusRecords = data.bonusRecords;
 
