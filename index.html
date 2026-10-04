@@ -97,7 +97,7 @@
       text-align: center;
       border: none;
       box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35);
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .modal-overlay {
@@ -173,7 +173,19 @@
     </div>
   </div>
 
-  <!-- 4. نافذة إنهاء العطل للفني -->
+  <!-- 4. نافذة سجل إشعارات وحركات البونص للفني -->
+  <div id="modalTechBonusHistory" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
+        <h4 style="font-size: 14px; font-weight: 900; color: #059669;">📜 سجل المكافآت والخصومات</h4>
+        <button type="button" onclick="closeTechBonusHistory()" style="border: none; background: transparent; font-size: 18px; cursor: pointer; color: #64748b;">✕</button>
+      </div>
+      <div id="techBonusHistoryList" style="max-height: 320px; overflow-y: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px;"></div>
+      <button type="button" onclick="closeTechBonusHistory()" class="btn btn-secondary" style="padding: 8px; font-size: 12px;">إغلاق</button>
+    </div>
+  </div>
+
+  <!-- 5. نافذة إنهاء العطل للفني -->
   <div id="modalSolveOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #059669;">تأكيد حل المشكلة ✓</h4>
@@ -187,7 +199,7 @@
     </div>
   </div>
 
-  <!-- 5. نافذة تأجيل العطل للفني -->
+  <!-- 6. نافذة تأجيل العطل للفني -->
   <div id="modalPostponeOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #d97706;">تأجيل موعد الطلب ⏳</h4>
@@ -230,7 +242,7 @@
           <span style="font-size: 11px;">تحديث</span>
         </button>
         <button type="button" onclick="openSettingsPage()" class="icon-btn" title="الإعدادات">
-          <span>⚙️️</span>
+          <span>⚙</span>
           <span style="font-size: 11px;">الإعدادات</span>
         </button>
         <button type="button" onclick="handleLogout()" class="icon-btn icon-btn-danger" title="تسجيل الخروج">
@@ -241,7 +253,8 @@
     </header>
 
     <div class="container">
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 8px;">
+      <!-- كروت الحالات الأربعة كأزرار مباشرة تفتح صفحات مستقلة -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 12px;">
         <div class="stat-tab-card" onclick="openOrdersPage('pending')">
           <span style="font-size: 10px; color: #64748b; display: block;">⏳ معلق</span>
           <strong id="statPending" style="font-size: 15px; color: #d97706; display: block;">0</strong>
@@ -258,11 +271,6 @@
           <span style="font-size: 10px; color: #64748b; display: block;">✅ منجز</span>
           <strong id="statDone" style="font-size: 15px; color: #059669; display: block;">0</strong>
         </div>
-      </div>
-
-      <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin-bottom: 10px; background: #f8fafc !important;">
-        <span style="font-size: 12px; font-weight: 800; color: #475569;">💰 إجمالي البونص الموزع:</span>
-        <strong id="statBonus" style="font-size: 15px; color: #2563eb;">0 ج</strong>
       </div>
 
       <!-- تسجيل طلب جديد -->
@@ -282,6 +290,7 @@
         <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
 
+      <!-- كروت الفنيين بالأرصدة وأزرار البونص والتصفير -->
       <div id="adminTechsList"></div>
     </div>
   </div>
@@ -306,7 +315,7 @@
     </div>
   </div>
 
-  <!-- 3. صفحة الإعدادات المستقلة الكاملة (مع التمرير الحر للأعلى والأسفل بدون تعليق) -->
+  <!-- 3. صفحة الإعدادات المستقلة مع السجل اليومي للبونص -->
   <div id="screenSettingsPage" class="hidden">
     <header class="header">
       <div style="display: flex; align-items: center; gap: 8px;">
@@ -352,6 +361,20 @@
         </button>
       </div>
 
+      <!-- قسم السجل اليومي للبونص والخصومات -->
+      <div class="card" style="border: 1.5px solid #cbd5e1;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h5 style="font-size: 13px; font-weight: 900; color: #0f172a;">📊 سجل حركات البونص والخصومات:</h5>
+          <button type="button" onclick="clearAllBonusRecords()" class="btn btn-danger" style="width: auto; padding: 3px 8px; font-size: 10px;">مسح السجل 🗑️</button>
+        </div>
+        
+        <select id="historyFilterTech" class="input-control" onchange="renderBonusHistoryLog()" style="margin-bottom: 8px; font-weight: 700;">
+          <option value="all">👥 جميع الفنيين</option>
+        </select>
+
+        <div id="bonusHistoryLogList" style="max-height: 250px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
+      </div>
+
       <!-- إضافة فني جديد -->
       <div class="card">
         <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">👷 إضافة فني جديد:</h5>
@@ -375,7 +398,7 @@
     </div>
   </div>
 
-  <!-- 4. شاشة الفني -->
+  <!-- 4. شاشة الفني مع سجل المكافآت -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -398,6 +421,11 @@
         <h2 id="techBonusBalance" style="font-size: 42px; font-weight: 900; margin: 4px 0; line-height: 1.1;">0 ج</h2>
         <span style="font-size: 11px; background: rgba(255,255,255,0.22); padding: 3px 14px; border-radius: 20px; font-weight: 800; display: inline-block; margin-top: 6px;">حصالة المكافآت ✓</span>
       </div>
+
+      <!-- زر عرض سجل الإشعارات والخصومات للفني -->
+      <button type="button" onclick="openTechBonusHistory()" class="btn btn-secondary" style="margin-bottom: 10px; padding: 7px; font-size: 12px; background: #ffffff; border: 1px solid #cbd5e1; color: #047857;">
+        📜 سجل المكافآت والخصومات
+      </button>
 
       <div style="display: flex; gap: 6px; margin-bottom: 10px;">
         <button type="button" id="tabBtnPending" onclick="switchTechTab('pending')" class="btn btn-primary" style="flex: 1; padding: 8px; font-size: 12px;">المطلوبة (<span id="countTechPending">0</span>)</button>
@@ -449,30 +477,36 @@
         osc.connect(gain);
         gain.connect(globalAudioCtx.destination);
         osc.frequency.setValueAtTime(freq, start);
-        gain.gain.setValueAtTime(0.2, start);
+        gain.gain.setValueAtTime(0.25, start);
         gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
         osc.start(start);
         osc.stop(start + duration);
       } catch(e) {}
     }
 
+    // إطالة نغمة الإشعار والاهتزاز لنحو 8 دورات (7 إلى 8 ثوانٍ)
     function triggerAlertChime(isDeduct = false) {
       unlockAudioSystem();
       if (!globalAudioCtx) return;
       const t = globalAudioCtx.currentTime;
-      for (let i = 0; i < 3; i++) {
-        const offset = i * 0.8;
+      const repetitions = 8; // تكرار النغمة 8 مرات لتطول
+      for (let i = 0; i < repetitions; i++) {
+        const offset = i * 0.9;
         if (isDeduct) {
-          playTone(659.25, t + offset, 0.2);
-          playTone(523.25, t + offset + 0.15, 0.25);
+          playTone(659.25, t + offset, 0.25);
+          playTone(523.25, t + offset + 0.2, 0.35);
         } else {
           playTone(523.25, t + offset, 0.2);
-          playTone(659.25, t + offset + 0.15, 0.2);
-          playTone(783.99, t + offset + 0.3, 0.3);
+          playTone(659.25, t + offset + 0.18, 0.2);
+          playTone(783.99, t + offset + 0.35, 0.35);
         }
       }
+
+      // نمط اهتزاز أطول وأوضح
       if (navigator.vibrate) {
-        try { navigator.vibrate([200, 150, 200, 150, 200]); } catch(e){}
+        try { 
+          navigator.vibrate([300, 200, 300, 200, 300, 200, 300, 200, 300, 200, 300]); 
+        } catch(e){}
       }
     }
 
@@ -638,6 +672,7 @@
       document.getElementById('screenTech').classList.add('hidden');
       document.getElementById('modalOrderAlert').classList.add('hidden');
       document.getElementById('modalBonusAlert').classList.add('hidden');
+      document.getElementById('modalTechBonusHistory').classList.add('hidden');
       document.getElementById('modalAdminNotification').classList.add('hidden');
       document.getElementById('screenLogin').classList.remove('hidden');
     }
@@ -662,13 +697,13 @@
       alert('تم تحديث البيانات من السحابة بنجاح ✓');
     }
 
-    // فتح صفحة الإعدادات المستقلة (تمرير حر بدون تعليق)
     function openSettingsPage() {
       const adm = appAccounts.find(a => a.role === 'admin') || appAccounts[0];
       document.getElementById('adminUserField').value = adm.username;
       document.getElementById('adminPassField').value = adm.pass;
       populateSettingsTechSelects();
       loadSelectedTechData();
+      renderBonusHistoryLog();
 
       document.getElementById('screenAdmin').classList.add('hidden');
       document.getElementById('screenSettingsPage').classList.remove('hidden');
@@ -684,12 +719,16 @@
     function populateSettingsTechSelects() {
       const setSel = document.getElementById('settingsTechSelect');
       const dedSel = document.getElementById('deductTechSelect');
+      const hisSel = document.getElementById('historyFilterTech');
       const techs = appAccounts.filter(a => a.role === 'tech');
       setSel.innerHTML = '';
       dedSel.innerHTML = '';
+      hisSel.innerHTML = '<option value="all">👥 جميع الفنيين</option>';
+
       techs.forEach(t => {
         setSel.innerHTML += `<option value="${t.id}">${t.name} (@${t.username})</option>`;
         dedSel.innerHTML += `<option value="${t.name}">${t.name}</option>`;
+        hisSel.innerHTML += `<option value="${t.name}">${t.name}</option>`;
       });
     }
 
@@ -702,6 +741,83 @@
         document.getElementById('settingsTechUser').value = tech.username;
         document.getElementById('settingsTechPass').value = tech.pass;
       }
+    }
+
+    function renderBonusHistoryLog() {
+      const container = document.getElementById('bonusHistoryLogList');
+      const filter = document.getElementById('historyFilterTech').value;
+      container.innerHTML = '';
+
+      let records = bonusRecords;
+      if (filter !== 'all') {
+        records = records.filter(b => b.tech === filter);
+      }
+
+      if (records.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:11px; padding:12px;">لا توجد حركات مسجلة</p>';
+        return;
+      }
+
+      records.forEach(b => {
+        const isNeg = Number(b.amount) < 0;
+        const color = isNeg ? '#e11d48' : '#059669';
+        const sign = isNeg ? '' : '+';
+
+        container.innerHTML += `
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:6px 10px; margin-bottom:5px;">
+            <div>
+              <strong style="font-size:12px; color:#1e293b; display:block;">${b.tech}</strong>
+              <span style="font-size:10px; color:#64748b;">${b.date} • ${b.reason || 'بدون سبب'}</span>
+            </div>
+            <strong style="font-size:13px; color:${color}; direction:ltr;">${sign}${b.amount} ج</strong>
+          </div>
+        `;
+      });
+    }
+
+    function clearAllBonusRecords() {
+      if (confirm('هل أنت متأكد من مسح سجل الحركات؟ (لن يتم المساس بأرصدة الفنيين الحالية)')) {
+        bonusRecords = [];
+        renderBonusHistoryLog();
+        syncUp();
+        alert('تم تفريغ سجل الحركات بنجاح ✓');
+      }
+    }
+
+    // دوال سجل إشعارات البونص في صفحة الفني
+    function openTechBonusHistory() {
+      if (!currentUser) return;
+      const listContainer = document.getElementById('techBonusHistoryList');
+      listContainer.innerHTML = '';
+
+      const myRecords = bonusRecords.filter(b => b.tech === currentUser.name);
+
+      if (myRecords.length === 0) {
+        listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:20px;">لا توجد مكافآت أو خصومات مسجلة بعد</p>';
+      } else {
+        myRecords.forEach(b => {
+          const isNeg = Number(b.amount) < 0;
+          const color = isNeg ? '#e11d48' : '#059669';
+          const bg = isNeg ? '#fff1f2' : '#ecfdf5';
+          const sign = isNeg ? '' : '+';
+
+          listContainer.innerHTML += `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:${bg}; border:1px solid ${isNeg ? '#fecdd3' : '#a7f3d0'}; border-radius:10px; padding:8px 12px; margin-bottom:6px;">
+              <div>
+                <strong style="font-size:13px; color:#1e293b; display:block;">${b.reason || (isNeg ? 'خصم مالي' : 'مكافأة إنجاز')}</strong>
+                <span style="font-size:10px; color:#64748b;">التاريخ: ${b.date}</span>
+              </div>
+              <strong style="font-size:14px; color:${color}; direction:ltr;">${sign}${b.amount} ج</strong>
+            </div>
+          `;
+        });
+      }
+
+      document.getElementById('modalTechBonusHistory').classList.remove('hidden');
+    }
+
+    function closeTechBonusHistory() {
+      document.getElementById('modalTechBonusHistory').classList.add('hidden');
     }
 
     function clearSelectedTechOrdersHistory() {
@@ -747,6 +863,7 @@
         document.getElementById('deductAmount').value = '';
         document.getElementById('deductReason').value = '';
         loadSelectedTechData();
+        renderBonusHistoryLog();
         renderAdmin();
         syncUp();
         alert(`تم خصم ${amount} ج من حساب (${techName}) بنجاح ➖`);
@@ -964,7 +1081,11 @@
       if (confirm(`تصفير حساب الفني (${techName}) بعد محاسبته؟`)) {
         const t = appAccounts.find(a => a.name === techName);
         if (t) {
+          const clearedAmt = t.accumulatedBonus;
           t.accumulatedBonus = 0;
+          if (clearedAmt > 0) {
+            bonusRecords.unshift({ id: Date.now(), tech: techName, amount: -clearedAmt, reason: 'تسليم كاش وتصفير حساب', date: getToday() });
+          }
           renderAdmin();
           syncUp();
         }
@@ -1015,13 +1136,11 @@
       const assignedCount = appOrders.filter(o => o.status === 'pending' && Boolean(o.tech)).length;
       const postponedCount = appOrders.filter(o => o.status === 'postponed').length;
       const doneCount = appOrders.filter(o => o.status === 'done').length;
-      const totalBonus = bonusRecords.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
       document.getElementById('statPending').innerText = pendingCount;
       document.getElementById('statAssigned').innerText = assignedCount;
       document.getElementById('statPostponed').innerText = postponedCount;
       document.getElementById('statDone').innerText = doneCount;
-      document.getElementById('statBonus').innerText = totalBonus + " ج";
 
       const techBox = document.getElementById('adminTechsList');
       techBox.innerHTML = '';
@@ -1366,8 +1485,12 @@
             if (currentUser) {
               const updated = appAccounts.find(a => a.id === currentUser.id);
               if (updated) currentUser = updated;
-              if (currentUser.role === 'admin') renderAdmin();
-              else renderTech();
+              if (currentUser.role === 'admin') {
+                renderAdmin();
+                renderBonusHistoryLog();
+              } else {
+                renderTech();
+              }
             }
           }
         })
