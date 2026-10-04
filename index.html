@@ -43,7 +43,7 @@
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 6px; }
-    .order-box { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; margin-bottom: 8px; }
+    .order-box { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; margin-bottom: 8px; transition: transform 0.1s ease; }
     .badge { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; }
     .badge-unassigned { background: #fee2e2; color: #b91c1c; }
     .badge-assigned { background: #dbeafe; color: #1d4ed8; }
@@ -54,11 +54,28 @@
     .badge-job-install { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
     .badge-job-check { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
 
-    /* شريط فلترة الفنيين المصغر */
-    .sub-filter-bar { display: flex; gap: 4px; overflow-x: auto; padding: 4px 2px 8px 2px; margin-bottom: 6px; scrollbar-width: none; }
+    /* شريط فلترة الفنيين السريع والخفيف */
+    .sub-filter-bar { display: flex; gap: 5px; overflow-x: auto; padding: 4px 2px 8px 2px; margin-bottom: 6px; scrollbar-width: none; }
     .sub-filter-bar::-webkit-scrollbar { display: none; }
-    .tech-pill { padding: 4px 10px; font-size: 11px; font-weight: 800; border-radius: 20px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; cursor: pointer; white-space: nowrap; }
-    .tech-pill.active { background: #0f172a; color: #ffffff; border-color: #0f172a; }
+    .tech-pill {
+      padding: 5px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 20px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #475569;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+    }
+    /* استبدال الظل الأسود بتحديد أزرق خفيف وسريع */
+    .tech-pill.active {
+      background: #2563eb !important;
+      color: #ffffff !important;
+      border-color: #2563eb !important;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    }
 
     .bonus-card-green {
       background: linear-gradient(135deg, #10b981, #047857) !important;
@@ -93,7 +110,7 @@
       overflow-y: auto;
       border: 1px solid #cbd5e1;
     }
-    .filter-tab { flex: 1; padding: 7px 2px; font-size: 11px; font-weight: 800; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; cursor: pointer; text-align: center; transition: all 0.2s ease; }
+    .filter-tab { flex: 1; padding: 7px 2px; font-size: 11px; font-weight: 800; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; cursor: pointer; text-align: center; transition: all 0.15s ease; }
     .filter-tab.active { background: #2563eb; color: #ffffff; border-color: #2563eb; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3); }
   </style>
 </head>
@@ -179,7 +196,7 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <button type="button" onclick="closeSettingsModal()" class="icon-btn" style="padding: 4px 10px; font-size: 12px;">← رجوع</button>
-          <h4 style="font-size: 15px; font-weight: 900; color: #2563eb;">⚙️ لوحة الإعدادات</h4>
+          <h4 style="font-size: 15px; font-weight: 900; color: #2563eb;">⚙️️ لوحة الإعدادات</h4>
         </div>
         <button type="button" onclick="closeSettingsModal()" style="border: none; background: transparent; font-size: 18px; cursor: pointer; color: #64748b;">✕</button>
       </div>
@@ -323,7 +340,7 @@
         <div class="filter-tab" onclick="setAdminFilter('done')" id="tabDone">منجز (<span id="countDone">0</span>)</div>
       </div>
 
-      <!-- شريط فرعي لفلترة الفنيين يظهر في (تم الإسناد / مؤجل / منجز) -->
+      <!-- شريط فلترة الفنيين فائق السرعة والخفة -->
       <div id="techSubFilterBar" class="sub-filter-bar hidden"></div>
 
       <div class="card" style="padding: 10px;">
@@ -379,7 +396,7 @@
     let currentUser = null;
     let techCurrentTab = 'pending';
     let adminFilter = 'pending';
-    let selectedTechFilter = 'all'; // الفلتر الفرعي للفني المختار
+    let selectedTechFilter = 'all';
     let globalAudioCtx = null;
     let lastOrderAlertId = null;
     let lastBonusAlertId = null;
@@ -920,7 +937,7 @@
 
     function setAdminFilter(type) {
       adminFilter = type;
-      selectedTechFilter = 'all'; // إعادة ضبط الفلتر الفرعي
+      selectedTechFilter = 'all';
       ['Pending', 'Assigned', 'Postponed', 'Done'].forEach(tab => {
         const elem = document.getElementById('tab' + tab);
         if (elem) elem.classList.remove('active');
@@ -929,8 +946,19 @@
       renderAdmin();
     }
 
+    // فلترة سريعة وفورية بدون إعادة بناء ثقيلة
     function setTechSubFilter(techName) {
       selectedTechFilter = techName;
+      // تحديث مظهر الأزرار فوراً
+      const pills = document.querySelectorAll('.tech-pill');
+      pills.forEach(p => {
+        if (p.getAttribute('data-tech') === techName) {
+          p.classList.add('active');
+        } else {
+          p.classList.remove('active');
+        }
+      });
+      // تحديث قائمة الأعطال فقط
       renderAdminOrders();
     }
 
@@ -975,14 +1003,14 @@
         subBar.classList.add('hidden');
       } else {
         subBar.classList.remove('hidden');
-        let pillsHtml = `<div class="tech-pill ${selectedTechFilter === 'all' ? 'active' : ''}" onclick="setTechSubFilter('all')">👥 الكل</div>`;
+        let pillsHtml = `<div class="tech-pill ${selectedTechFilter === 'all' ? 'active' : ''}" data-tech="all" onclick="setTechSubFilter('all')">👥 الكل</div>`;
         techs.forEach(t => {
           let count = 0;
           if (adminFilter === 'assigned') count = appOrders.filter(o => o.status === 'pending' && o.tech === t.name).length;
           else if (adminFilter === 'postponed') count = appOrders.filter(o => o.status === 'postponed' && o.tech === t.name).length;
           else if (adminFilter === 'done') count = appOrders.filter(o => o.status === 'done' && o.tech === t.name).length;
 
-          pillsHtml += `<div class="tech-pill ${selectedTechFilter === t.name ? 'active' : ''}" onclick="setTechSubFilter('${t.name}')">👤 ${t.name} (${count})</div>`;
+          pillsHtml += `<div class="tech-pill ${selectedTechFilter === t.name ? 'active' : ''}" data-tech="${t.name}" onclick="setTechSubFilter('${t.name}')">👤 ${t.name} (${count})</div>`;
         });
         subBar.innerHTML = pillsHtml;
       }
@@ -1008,7 +1036,7 @@
         filtered = appOrders.filter(o => o.status === 'done');
       }
 
-      // تصفية حسب الفني إذا تم اختياره
+      // تصفية حسب الفني
       if (adminFilter !== 'pending' && selectedTechFilter !== 'all') {
         filtered = filtered.filter(o => o.tech === selectedTechFilter);
       }
@@ -1047,7 +1075,6 @@
 
         ordBox.innerHTML += `
           <div class="order-box">
-            <!-- شريط علوي يوضح اسم الفني المسند إليه بوضوح واحترافية -->
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; border-bottom:1px dashed #e2e8f0; padding-bottom:5px;">
               <span style="font-size:12px; font-weight:800; color:#1e293b; display:inline-flex; align-items:center; gap:4px;">
                 👤 الفني: <strong style="color:#2563eb;">${o.tech || 'غير محدد بعد'}</strong>
@@ -1089,7 +1116,6 @@
                 >
                   ${techOpts}
                 </select>
-                <!-- زر تنبيه الفني المباشر -->
                 <button type="button" onclick="sendDirectAlertToTech('${o.id}')" class="btn btn-warning" style="width:auto; padding:6px 10px; font-size:11px; white-space:nowrap;" title="إرسال تنبيه للفني المسند">
                   🔔 تنبيه
                 </button>
