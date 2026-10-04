@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
     html, body { 
       background-color: #f1f5f9 !important; 
       color: #0f172a !important; 
@@ -19,8 +19,24 @@
     .hidden { display: none !important; }
     .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 12px; }
     .card { background: #ffffff !important; color: #0f172a !important; border-radius: 14px; padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-    .input-control { width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13px; outline: none; background: #ffffff !important; color: #0f172a !important; margin-bottom: 8px; }
-    .input-control:focus { border-color: #2563eb; }
+    
+    /* حقول إدخال تدعم التركيز واللمس المباشر على جميع شاشات الموبايل */
+    .input-control { 
+      width: 100%; 
+      padding: 10px 12px; 
+      border-radius: 8px; 
+      border: 1px solid #cbd5e1; 
+      font-size: 13px; 
+      outline: none; 
+      background: #ffffff !important; 
+      color: #0f172a !important; 
+      margin-bottom: 8px;
+      -webkit-user-select: text !important;
+      user-select: text !important;
+      touch-action: manipulation;
+    }
+    .input-control:focus { border-color: #2563eb; ring: 2px solid #93c5fd; }
+
     .btn { width: 100%; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none; }
     .btn-primary { background: #2563eb; color: #fff; }
     .btn-success { background: #059669; color: #fff; }
@@ -29,22 +45,26 @@
     .btn-secondary { background: #e2e8f0; color: #475569; }
     
     .header { background: #ffffff; border-bottom: 1px solid #cbd5e1; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-    .icon-btn {
+    
+    /* تصميم أيقونات المدير الاحترافي (Modern Flat Buttons) */
+    .icon-btn-pro {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
-      border-radius: 9px;
+      border-radius: 10px;
       padding: 6px 10px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
       color: #334155;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
       transition: all 0.15s ease;
     }
-    .icon-btn:active { transform: scale(0.96); background: #e2e8f0; }
-    .icon-btn-danger { background: #fee2e2; border-color: #fca5a5; color: #b91c1c; }
+    .icon-btn-pro svg { width: 16px; height: 16px; fill: currentColor; }
+    .icon-btn-pro:active { transform: scale(0.95); background: #e2e8f0; }
+    .icon-btn-pro.danger { background: #fff1f2; border-color: #fecdd3; color: #e11d48; }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 6px; }
@@ -128,8 +148,8 @@
 <body>
 
   <!-- 1. نافذة إشعار طلب للفني -->
-  <div id="modalOrderAlert" class="modal-overlay hidden">
-    <div class="modal-content" style="text-align: center; border: 2px solid #2563eb;">
+  <div id="modalOrderAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
+    <div class="modal-content" style="text-align: center; border: 2px solid #2563eb;" onclick="event.stopPropagation()">
       <div style="font-size: 42px; margin-bottom: 4px;">🔔</div>
       <h3 style="font-size: 18px; font-weight: 900; color: #2563eb; margin-bottom: 6px;">طلب جديد مسند إليك!</h3>
       <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; text-align: right; font-size: 13px; line-height: 1.6; margin-bottom: 12px;">
@@ -140,14 +160,14 @@
       </div>
       <div class="grid-2">
         <a id="alertCallBtn" href="tel:" class="btn btn-success" onclick="dismissOrderAlert()">📞 اتصال فوراً</a>
-        <button type="button" onclick="dismissOrderAlert()" class="btn btn-secondary">إغلاق</button>
+        <button type="button" onclick="dismissOrderAlert()" class="btn btn-secondary">إغلاق وتوقف الرنين</button>
       </div>
     </div>
   </div>
 
   <!-- 2. نافذة إشعار للمدير بتحديثات الفنيين -->
-  <div id="modalAdminNotification" class="modal-overlay hidden">
-    <div class="modal-content" id="adminNotifBox" style="text-align: center; border: 2px solid #2563eb;">
+  <div id="modalAdminNotification" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
+    <div class="modal-content" id="adminNotifBox" style="text-align: center; border: 2px solid #2563eb;" onclick="event.stopPropagation()">
       <div id="adminNotifIcon" style="font-size: 42px; margin-bottom: 4px;">📢</div>
       <h3 id="adminNotifTitle" style="font-size: 18px; font-weight: 900; margin-bottom: 6px;">تحديث جديد من الفني</h3>
       <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; text-align: right; font-size: 13px; line-height: 1.6; margin-bottom: 12px;">
@@ -160,8 +180,8 @@
   </div>
 
   <!-- 3. نافذة إشعار البونص / الخصم للفني -->
-  <div id="modalBonusAlert" class="modal-overlay hidden">
-    <div class="modal-content" id="bonusAlertBox" style="text-align: center; border: 2px solid #059669;">
+  <div id="modalBonusAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
+    <div class="modal-content" id="bonusAlertBox" style="text-align: center; border: 2px solid #059669;" onclick="event.stopPropagation()">
       <div id="bonusAlertIcon" style="font-size: 42px; margin-bottom: 4px;">🎁</div>
       <h3 id="bonusAlertTitle" style="font-size: 18px; font-weight: 900; color: #059669; margin-bottom: 4px;">مبروك! نزل لك بونص جديد</h3>
       <p id="bonusAlertReason" style="font-size: 12px; color: #475569; margin-bottom: 10px; font-weight: 700;"></p>
@@ -229,7 +249,7 @@
     </div>
   </div>
 
-  <!-- 1. شاشة المدير الرئيسية -->
+  <!-- 1. شاشة المدير الرئيسية (بأيقونات حديثة وتصميم متكامل) -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -237,17 +257,20 @@
         <span id="adminDate" style="font-size: 10px; color: #64748b; font-weight: 700;"></span>
       </div>
       <div style="display: flex; gap: 6px; align-items: center;">
-        <button type="button" onclick="triggerManualSync()" class="icon-btn" title="تحديث السحابة">
-          <span>🔄</span>
-          <span style="font-size: 11px;">تحديث</span>
+        <!-- أيقونة التحديث الاحترافية -->
+        <button type="button" onclick="triggerManualSync()" class="icon-btn-pro" title="تحديث السحابة">
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          <span>تحديث</span>
         </button>
-        <button type="button" onclick="openSettingsPage()" class="icon-btn" title="الإعدادات">
-          <span>⚙</span>
-          <span style="font-size: 11px;">الإعدادات</span>
+        <!-- أيقونة الإعدادات الاحترافية -->
+        <button type="button" onclick="openSettingsPage()" class="icon-btn-pro" title="الإعدادات">
+          <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+          <span>الإعدادات</span>
         </button>
-        <button type="button" onclick="handleLogout()" class="icon-btn icon-btn-danger" title="تسجيل الخروج">
-          <span>🚪</span>
-          <span style="font-size: 11px;">خروج</span>
+        <!-- أيقونة تسجيل الخروج الاحترافية -->
+        <button type="button" onclick="handleLogout()" class="icon-btn-pro danger" title="تسجيل الخروج">
+          <svg viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+          <span>خروج</span>
         </button>
       </div>
     </header>
@@ -272,11 +295,26 @@
         </div>
       </div>
 
-      <!-- تسجيل طلب جديد -->
+      <!-- تسجيل طلب جديد مع معالجة التركيز التلقائي لاسم العميل -->
       <div class="card" style="border: 1.5px solid #93c5fd;">
         <div class="grid-2">
-          <input type="text" id="newCustName" placeholder="اسم العميل *" class="input-control">
-          <input type="tel" id="newCustPhone" placeholder="رقم الهاتف (اختياري)" class="input-control">
+          <input 
+            type="text" 
+            id="newCustName" 
+            placeholder="اسم العميل *" 
+            class="input-control" 
+            tabindex="1"
+            inputmode="text"
+            autocomplete="off"
+          >
+          <input 
+            type="tel" 
+            id="newCustPhone" 
+            placeholder="رقم الهاتف (اختياري)" 
+            class="input-control" 
+            tabindex="2"
+            inputmode="tel"
+          >
         </div>
         <div class="grid-2" style="margin-bottom: 8px;">
           <select id="newJobType" class="input-control" style="margin-bottom: 0; font-weight: 700;">
@@ -297,11 +335,11 @@
   <div id="screenOrdersPage" class="hidden">
     <header class="header">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <button type="button" onclick="backToAdminHome()" class="icon-btn" style="padding: 4px 10px; font-size: 12px;">← رجوع</button>
+        <button type="button" onclick="backToAdminHome()" class="icon-btn-pro" style="padding: 4px 10px; font-size: 12px;">← رجوع</button>
         <h3 id="ordersPageTitle" style="font-size: 15px; font-weight: 900; color: #0f172a;">الأعطال</h3>
       </div>
-      <button type="button" onclick="triggerManualSync()" class="icon-btn" title="تحديث">
-        <span>🔄</span>
+      <button type="button" onclick="triggerManualSync()" class="icon-btn-pro" title="تحديث">
+        <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
       </button>
     </header>
 
@@ -313,17 +351,16 @@
     </div>
   </div>
 
-  <!-- 3. صفحة الإعدادات المستقلة مع السجل اليومي للبونص -->
+  <!-- 3. صفحة الإعدادات المستقلة -->
   <div id="screenSettingsPage" class="hidden">
     <header class="header">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <button type="button" onclick="backToAdminHomeFromSettings()" class="icon-btn" style="padding: 4px 10px; font-size: 12px;">← رجوع</button>
+        <button type="button" onclick="backToAdminHomeFromSettings()" class="icon-btn-pro" style="padding: 4px 10px; font-size: 12px;">← رجوع</button>
         <h3 style="font-size: 15px; font-weight: 900; color: #2563eb;">⚙ لوحة الإعدادات</h3>
       </div>
     </header>
 
     <div class="container" style="padding-bottom: 60px;">
-      <!-- خصم أو سلفة -->
       <div class="card" style="background: #fff1f2 !important; border-color: #fecdd3;">
         <h5 style="font-size: 13px; font-weight: 900; color: #e11d48; margin-bottom: 8px;">➖ تسجيل سلفة أو خصم كاش:</h5>
         <select id="deductTechSelect" class="input-control"></select>
@@ -332,7 +369,6 @@
         <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 8px; font-size: 12px;">خصم من الرصيد ➖</button>
       </div>
 
-      <!-- التحكم في حساب الفني -->
       <div class="card">
         <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">🛠 التحكم في حساب وسجل الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
@@ -359,7 +395,6 @@
         </button>
       </div>
 
-      <!-- قسم السجل اليومي للبونص والخصومات -->
       <div class="card" style="border: 1.5px solid #cbd5e1;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <h5 style="font-size: 13px; font-weight: 900; color: #0f172a;">📊 سجل حركات البونص والخصومات:</h5>
@@ -373,7 +408,6 @@
         <div id="bonusHistoryLogList" style="max-height: 250px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
       </div>
 
-      <!-- إضافة فني جديد -->
       <div class="card">
         <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">👷 إضافة فني جديد:</h5>
         <input type="text" id="addTechName" placeholder="اسم الفني بالكامل" class="input-control">
@@ -384,7 +418,6 @@
         <button type="button" onclick="addNewTechAccount()" class="btn btn-primary" style="padding: 8px; font-size: 12px;">إضافة الفني ➕</button>
       </div>
 
-      <!-- تأمين وحماية بيانات المدير -->
       <div class="card" style="border: 2px solid #2563eb;">
         <h5 style="font-size: 13px; font-weight: 900; color: #2563eb; margin-bottom: 4px;">🔐 أمان حساب المدير:</h5>
         <p style="font-size: 11px; color: #64748b; margin-bottom: 8px;">يمكنك تغيير اسم المستخدم وكلمة المرور في أي وقت لحماية التطبيق.</p>
@@ -397,7 +430,7 @@
     </div>
   </div>
 
-  <!-- 4. شاشة الفني مع سجل المكافآت -->
+  <!-- 4. شاشة الفني -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -405,11 +438,11 @@
         <span style="font-size: 10px; color: #475569; font-weight: 700;">أعطالي</span>
       </div>
       <div style="display: flex; gap: 5px;">
-        <button type="button" onclick="triggerManualSync()" class="icon-btn" title="تحديث السحابة">
-          <span>🔄</span>
+        <button type="button" onclick="triggerManualSync()" class="icon-btn-pro" title="تحديث السحابة">
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
         </button>
-        <button type="button" onclick="handleLogout()" class="icon-btn icon-btn-danger" title="خروج">
-          <span>🚪</span>
+        <button type="button" onclick="handleLogout()" class="icon-btn-pro danger" title="خروج">
+          <svg viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
         </button>
       </div>
     </header>
@@ -437,7 +470,6 @@
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
-    // تم تغيير الحساب الافتراضي إلى حساب قوي وغير قابل للتخمين
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'mega_admin', pass: 'M@g@#2026!Sec' },
       { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0 },
@@ -451,6 +483,8 @@
     let adminFilter = 'pending';
     let selectedTechFilter = 'all';
     let globalAudioCtx = null;
+    let isChimePlaying = false;
+    let activeChimeNodes = [];
     let lastOrderAlertId = null;
     let lastBonusAlertId = null;
     let lastAdminAlertId = null;
@@ -468,8 +502,22 @@
       } catch(e) {}
     }
 
+    // إيقاف التنبيه الصوتي والاهتزاز فوراً عند فتح أو التفاعل مع الإشعار
+    function stopAlertChimeNow() {
+      isChimePlaying = false;
+      if (activeChimeNodes && activeChimeNodes.length > 0) {
+        activeChimeNodes.forEach(node => {
+          try { node.stop(); } catch(e){}
+        });
+        activeChimeNodes = [];
+      }
+      if (navigator.vibrate) {
+        try { navigator.vibrate(0); } catch(e){}
+      }
+    }
+
     function playTone(freq, start, duration) {
-      if (!globalAudioCtx) return;
+      if (!globalAudioCtx || !isChimePlaying) return;
       try {
         const osc = globalAudioCtx.createOscillator();
         const gain = globalAudioCtx.createGain();
@@ -480,12 +528,16 @@
         gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
         osc.start(start);
         osc.stop(start + duration);
+        activeChimeNodes.push(osc);
       } catch(e) {}
     }
 
     function triggerAlertChime(isDeduct = false) {
       unlockAudioSystem();
       if (!globalAudioCtx) return;
+      stopAlertChimeNow();
+      isChimePlaying = true;
+
       const t = globalAudioCtx.currentTime;
       const repetitions = 8;
       for (let i = 0; i < repetitions; i++) {
@@ -623,6 +675,7 @@
     }
 
     function dismissAdminNotification() {
+      stopAlertChimeNow();
       if (lastAdminAlertId) {
         localStorage.setItem('last_dismissed_admin_alert', lastAdminAlertId);
       }
@@ -630,6 +683,7 @@
     }
 
     function dismissOrderAlert() {
+      stopAlertChimeNow();
       if (lastOrderAlertId && currentUser) {
         localStorage.setItem('last_dismissed_ord_' + currentUser.name, lastOrderAlertId);
       }
@@ -637,13 +691,13 @@
     }
 
     function dismissBonusAlert() {
+      stopAlertChimeNow();
       if (lastBonusAlertId && currentUser) {
         localStorage.setItem('last_dismissed_bn_' + currentUser.name, lastBonusAlertId);
       }
       document.getElementById('modalBonusAlert').classList.add('hidden');
     }
 
-    // تسجيل الدخول المؤمّن بدون أي ثغرات أو باسوردات افتراضية سهلة
     function handleLogin() {
       unlockAudioSystem();
       const u = (document.getElementById('logUser').value || '').trim().toLowerCase();
@@ -661,6 +715,7 @@
     }
 
     function handleLogout() {
+      stopAlertChimeNow();
       currentUser = null;
       localStorage.removeItem('saved_active_user');
       document.getElementById('screenAdmin').classList.add('hidden');
@@ -949,12 +1004,20 @@
     }
 
     function saveNewOrder() {
-      const name = document.getElementById('newCustName').value.trim();
-      const phone = document.getElementById('newCustPhone').value.trim();
+      const nameInput = document.getElementById('newCustName');
+      const phoneInput = document.getElementById('newCustPhone');
+      const descInput = document.getElementById('newCustDesc');
+
+      const name = nameInput.value.trim();
+      const phone = phoneInput.value.trim();
       const jobType = document.getElementById('newJobType').value;
-      const desc = document.getElementById('newCustDesc').value.trim();
+      const desc = descInput.value.trim();
       
-      if (!name) return alert('أدخل اسم العميل أولاً');
+      if (!name) {
+        alert('أدخل اسم العميل أولاً');
+        nameInput.focus();
+        return;
+      }
 
       appOrders.unshift({
         id: 'ORD-' + Date.now().toString().slice(-5),
@@ -969,9 +1032,9 @@
         date: getToday()
       });
 
-      document.getElementById('newCustName').value = '';
-      document.getElementById('newCustPhone').value = '';
-      document.getElementById('newCustDesc').value = '';
+      nameInput.value = '';
+      phoneInput.value = '';
+      descInput.value = '';
       renderAdmin();
       syncUp();
       alert('تم حفظ الطلب بنجاح ✓');
@@ -1291,6 +1354,7 @@
       });
     }
 
+    // دوال الفني
     function renderTech() {
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
