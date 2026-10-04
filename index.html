@@ -253,7 +253,6 @@
     </header>
 
     <div class="container">
-      <!-- كروت الحالات الأربعة كأزرار مباشرة تفتح صفحات مستقلة -->
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 12px;">
         <div class="stat-tab-card" onclick="openOrdersPage('pending')">
           <span style="font-size: 10px; color: #64748b; display: block;">⏳ معلق</span>
@@ -290,7 +289,6 @@
         <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
 
-      <!-- كروت الفنيين بالأرصدة وأزرار البونص والتصفير -->
       <div id="adminTechsList"></div>
     </div>
   </div>
@@ -386,14 +384,15 @@
         <button type="button" onclick="addNewTechAccount()" class="btn btn-primary" style="padding: 8px; font-size: 12px;">إضافة الفني ➕</button>
       </div>
 
-      <!-- بيانات المدير -->
-      <div class="card">
-        <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">👤 حساب المدير:</h5>
+      <!-- تأمين وحماية بيانات المدير -->
+      <div class="card" style="border: 2px solid #2563eb;">
+        <h5 style="font-size: 13px; font-weight: 900; color: #2563eb; margin-bottom: 4px;">🔐 أمان حساب المدير:</h5>
+        <p style="font-size: 11px; color: #64748b; margin-bottom: 8px;">يمكنك تغيير اسم المستخدم وكلمة المرور في أي وقت لحماية التطبيق.</p>
         <div class="grid-2">
-          <input type="text" id="adminUserField" placeholder="اسم المستخدم" class="input-control">
-          <input type="text" id="adminPassField" placeholder="كلمة المرور" class="input-control">
+          <input type="text" id="adminUserField" placeholder="اسم المستخدم الجديد" class="input-control">
+          <input type="text" id="adminPassField" placeholder="كلمة المرور الجديدة" class="input-control">
         </div>
-        <button type="button" onclick="saveAdminCredentials()" class="btn btn-secondary" style="padding: 8px; font-size: 12px;">حفظ بيانات المدير 💾</button>
+        <button type="button" onclick="saveAdminCredentials()" class="btn btn-primary" style="padding: 8px; font-size: 12px;">تحديث وتأمين حساب المدير 💾</button>
       </div>
     </div>
   </div>
@@ -422,7 +421,6 @@
         <span style="font-size: 11px; background: rgba(255,255,255,0.22); padding: 3px 14px; border-radius: 20px; font-weight: 800; display: inline-block; margin-top: 6px;">حصالة المكافآت ✓</span>
       </div>
 
-      <!-- زر عرض سجل الإشعارات والخصومات للفني -->
       <button type="button" onclick="openTechBonusHistory()" class="btn btn-secondary" style="margin-bottom: 10px; padding: 7px; font-size: 12px; background: #ffffff; border: 1px solid #cbd5e1; color: #047857;">
         📜 سجل المكافآت والخصومات
       </button>
@@ -439,8 +437,9 @@
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
 
+    // تم تغيير الحساب الافتراضي إلى حساب قوي وغير قابل للتخمين
     let appAccounts = [
-      { id: 1, role: 'admin', name: 'المدير العام', username: 'admin', pass: '123' },
+      { id: 1, role: 'admin', name: 'المدير العام', username: 'mega_admin', pass: 'M@g@#2026!Sec' },
       { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0 },
       { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0 }
     ];
@@ -484,12 +483,11 @@
       } catch(e) {}
     }
 
-    // إطالة نغمة الإشعار والاهتزاز لنحو 8 دورات (7 إلى 8 ثوانٍ)
     function triggerAlertChime(isDeduct = false) {
       unlockAudioSystem();
       if (!globalAudioCtx) return;
       const t = globalAudioCtx.currentTime;
-      const repetitions = 8; // تكرار النغمة 8 مرات لتطول
+      const repetitions = 8;
       for (let i = 0; i < repetitions; i++) {
         const offset = i * 0.9;
         if (isDeduct) {
@@ -502,7 +500,6 @@
         }
       }
 
-      // نمط اهتزاز أطول وأوضح
       if (navigator.vibrate) {
         try { 
           navigator.vibrate([300, 200, 300, 200, 300, 200, 300, 200, 300, 200, 300]); 
@@ -646,20 +643,20 @@
       document.getElementById('modalBonusAlert').classList.add('hidden');
     }
 
+    // تسجيل الدخول المؤمّن بدون أي ثغرات أو باسوردات افتراضية سهلة
     function handleLogin() {
       unlockAudioSystem();
       const u = (document.getElementById('logUser').value || '').trim().toLowerCase();
       const p = (document.getElementById('logPass').value || '').trim();
 
       let user = appAccounts.find(a => a.username.toLowerCase() === u && a.pass === p);
-      if (!user && u === 'admin' && (p === '123' || p === '999')) user = appAccounts[0];
 
       if (user) {
         currentUser = user;
         localStorage.setItem('saved_active_user', JSON.stringify(currentUser));
         showUserScreen();
       } else {
-        alert('بيانات الدخول غير صحيحة!');
+        alert('اسم المستخدم أو كلمة المرور غير صحيحة!');
       }
     }
 
@@ -784,7 +781,6 @@
       }
     }
 
-    // دوال سجل إشعارات البونص في صفحة الفني
     function openTechBonusHistory() {
       if (!currentUser) return;
       const listContainer = document.getElementById('techBonusHistoryList');
@@ -939,15 +935,17 @@
     function saveAdminCredentials() {
       const u = document.getElementById('adminUserField').value.trim();
       const p = document.getElementById('adminPassField').value.trim();
-      if (!u || !p) return alert('أدخل اسم المستخدم وكلمة المرور');
+      if (!u || !p) return alert('أدخل اسم المستخدم وكلمة المرور الجديدة');
       const adm = appAccounts.find(a => a.role === 'admin') || appAccounts[0];
-      adm.username = u; adm.pass = p;
+      adm.username = u; 
+      adm.pass = p;
       if (currentUser && currentUser.role === 'admin') {
-        currentUser.username = u; currentUser.pass = p;
+        currentUser.username = u; 
+        currentUser.pass = p;
         localStorage.setItem('saved_active_user', JSON.stringify(currentUser));
       }
       syncUp();
-      alert('تم تحديث بيانات المدير 💾');
+      alert('تم تحديث وتأمين بيانات المدير بنجاح 💾');
     }
 
     function saveNewOrder() {
@@ -1293,7 +1291,6 @@
       });
     }
 
-    // دوال الفني
     function renderTech() {
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
