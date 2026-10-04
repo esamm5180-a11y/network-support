@@ -49,7 +49,11 @@
     .badge-assigned { background: #dbeafe; color: #1d4ed8; }
     .badge-postponed { background: #ffedd5; color: #c2410c; }
     .badge-done { background: #dcfce7; color: #15803d; }
-    .badge-job-type { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+    /* ألوان شارات أنواع العمليات */
+    .badge-job-fault { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+    .badge-job-install { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .badge-job-check { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
 
     .bonus-card-green {
       background: linear-gradient(135deg, #10b981, #047857) !important;
@@ -90,7 +94,7 @@
 </head>
 <body onclick="unlockAudioSystem()">
 
-  <!-- 1. نافذة إشعار عطل جديد للفني -->
+  <!-- 1. نافذة إشعار طلب جديد للفني -->
   <div id="modalOrderAlert" class="modal-overlay hidden">
     <div class="modal-content" style="text-align: center; border: 2px solid #2563eb;">
       <div style="font-size: 42px; margin-bottom: 4px;">🔔</div>
@@ -184,7 +188,7 @@
         <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 7px; font-size: 12px;">خصم من الرصيد ➖</button>
       </div>
 
-      <!-- تعديل بيانات ورصيد الفني + مسح سجل أعطاله -->
+      <!-- تعديل بيانات ورصيد الفني + مسح سجل الطلبات -->
       <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 6px;">🛠️ التحكم في حساب وسجل الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
@@ -291,7 +295,7 @@
         </div>
       </div>
 
-      <!-- تسجيل عطل/تركيب جديد -->
+      <!-- تسجيل طلب جديد مع الاختيارات الثلاثة (عطل / تركيبه جديده / تشييك) -->
       <div class="card" style="border: 1.5px solid #93c5fd;">
         <div class="grid-2">
           <input type="text" id="newCustName" placeholder="اسم العميل *" class="input-control">
@@ -300,7 +304,8 @@
         <div class="grid-2" style="margin-bottom: 8px;">
           <select id="newJobType" class="input-control" style="margin-bottom: 0; font-weight: 700;">
             <option value="عطل">عطل</option>
-            <option value="تركيب">تركيب</option>
+            <option value="تركيبه جديده">تركيبه جديده</option>
+            <option value="تشييك">تشييك</option>
           </select>
           <input type="text" id="newCustDesc" placeholder="ملاحظات إضافية (اختياري)" class="input-control" style="margin-bottom: 0;">
         </div>
@@ -323,7 +328,7 @@
     </div>
   </div>
 
-  <!-- شاشة الفني النظيفة والمحدثة -->
+  <!-- شاشة الفني -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -769,7 +774,7 @@
       alert('تم تحديث بيانات المدير 💾');
     }
 
-    // حفظ العطل/التركيب مع تحديد نوع العملية
+    // حفظ الطلب مع دعم: عطل / تركيبه جديده / تشييك
     function saveNewOrder() {
       const name = document.getElementById('newCustName').value.trim();
       const phone = document.getElementById('newCustPhone').value.trim();
@@ -967,6 +972,11 @@
           badgeText = 'تم الإسناد';
         }
 
+        // تمييز لون نوع العملية في لوحة المدير
+        let jobBadgeClass = 'badge-job-fault';
+        if (o.jobType === 'تركيبه جديده') jobBadgeClass = 'badge-job-install';
+        else if (o.jobType === 'تشييك') jobBadgeClass = 'badge-job-check';
+
         let techOpts = '<option value="">اختر الفني للإسناد...</option>';
         techs.forEach(t => {
           techOpts += `<option value="${t.name}" ${o.tech === t.name ? 'selected' : ''}>${t.name}</option>`;
@@ -977,7 +987,7 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <div>
                 <strong style="font-size:14px;">${o.customer}</strong>
-                <span class="badge badge-jobType" style="margin-right: 4px; font-size: 10px;">${o.jobType || 'عطل'}</span>
+                <span class="badge ${jobBadgeClass}" style="margin-right: 4px; font-size: 10px;">${o.jobType || 'عطل'}</span>
                 ${o.phone ? `<a href="tel:${o.phone}" style="color:#2563eb; text-decoration:none; font-size:12px; font-weight:700; margin-right:6px;">📞 ${o.phone}</a>` : `<span style="color:#94a3b8; font-size:11px; margin-right:6px;">(بدون رقم)</span>`}
               </div>
               <span class="badge ${badgeClass}">${badgeText}</span>
@@ -1025,7 +1035,7 @@
       });
     }
 
-    // دوال صفحة الفني: إظهار نوع العملية أمام الاسم وإلغاء كلمة عطل تحته
+    // دوال الفني: تلوين وتخصيص نوع الطلب (عطل / تركيبه جديده / تشييك)
     function renderTech() {
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
@@ -1050,9 +1060,14 @@
         const isDone = o.status === 'done';
         const isPostponed = o.status === 'postponed';
 
-        // البادج أمام الاسم: يظهر نوع العملية (عطل أو تركيب)، أو مؤجل، أو تم الحل
-        let badgeClass = 'badge-job-type';
+        let badgeClass = 'badge-job-fault';
         let badgeText = o.jobType || 'عطل';
+
+        if (o.jobType === 'تركيبه جديده') {
+          badgeClass = 'badge-job-install';
+        } else if (o.jobType === 'تشييك') {
+          badgeClass = 'badge-job-check';
+        }
 
         if (isDone) {
           badgeClass = 'badge-done';
