@@ -368,9 +368,9 @@
         <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 8px; font-size: 12px;">خصم من الرصيد ➖</button>
       </div>
 
-      <!-- التحكم في حساب الفني ورابط الجروب -->
+      <!-- التحكم في حساب الفني -->
       <div class="card">
-        <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">🛠 التحكم في حساب الفني ورابط الجروب:</h5>
+        <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">🛠 التحكم في حساب وسجل الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
         
         <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">تعديل الرصيد يدوياً:</label>
@@ -380,8 +380,6 @@
         </div>
 
         <input type="text" id="settingsTechName" placeholder="الاسم" class="input-control">
-        <input type="url" id="settingsTechGroup" placeholder="رابط جروب واتساب الفني (https://chat.whatsapp.com/...)" class="input-control" style="direction: ltr;">
-        
         <div class="grid-2">
           <input type="text" id="settingsTechUser" placeholder="اليوزر" class="input-control">
           <input type="text" id="settingsTechPass" placeholder="الباسورد" class="input-control">
@@ -414,7 +412,6 @@
       <div class="card">
         <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">👷 إضافة فني جديد:</h5>
         <input type="text" id="addTechName" placeholder="اسم الفني بالكامل" class="input-control">
-        <input type="url" id="addTechGroup" placeholder="رابط جروب واتساب الفني (اختياري)" class="input-control" style="direction: ltr;">
         <div class="grid-2">
           <input type="text" id="addTechUser" placeholder="اليوزر" class="input-control">
           <input type="text" id="addTechPass" placeholder="الباسورد" class="input-control">
@@ -476,8 +473,8 @@
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'mega_admin', pass: 'M@g@#2026!Sec' },
-      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0, lastSeen: 0, groupLink: '' },
-      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0, lastSeen: 0, groupLink: '' }
+      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0, lastSeen: 0 },
+      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0, lastSeen: 0 }
     ];
 
     let appOrders = [];
@@ -808,7 +805,6 @@
       if (tech) {
         document.getElementById('settingsTechBal').value = tech.accumulatedBonus || 0;
         document.getElementById('settingsTechName').value = tech.name;
-        document.getElementById('settingsTechGroup').value = tech.groupLink || '';
         document.getElementById('settingsTechUser').value = tech.username;
         document.getElementById('settingsTechPass').value = tech.pass;
       }
@@ -956,7 +952,6 @@
     function saveSelectedTechAccount() {
       const selId = document.getElementById('settingsTechSelect').value;
       const newName = document.getElementById('settingsTechName').value.trim();
-      const newGroup = document.getElementById('settingsTechGroup').value.trim();
       const newUser = document.getElementById('settingsTechUser').value.trim();
       const newPass = document.getElementById('settingsTechPass').value.trim();
       if (!newName || !newUser || !newPass) return alert('يرجى ملء جميع الخانات');
@@ -964,7 +959,6 @@
       if (tech) {
         const oldName = tech.name;
         tech.name = newName;
-        tech.groupLink = newGroup;
         tech.username = newUser;
         tech.pass = newPass;
         if (oldName !== newName) {
@@ -994,13 +988,11 @@
 
     function addNewTechAccount() {
       const name = document.getElementById('addTechName').value.trim();
-      const groupLink = document.getElementById('addTechGroup').value.trim();
       const user = document.getElementById('addTechUser').value.trim();
       const pass = document.getElementById('addTechPass').value.trim();
       if (!name || !user || !pass) return alert('يرجى ملء جميع البيانات');
-      appAccounts.push({ id: Date.now(), role: 'tech', name, groupLink: groupLink || '', username: user, pass, accumulatedBonus: 0, lastSeen: 0 });
+      appAccounts.push({ id: Date.now(), role: 'tech', name, username: user, pass, accumulatedBonus: 0, lastSeen: 0 });
       document.getElementById('addTechName').value = '';
-      document.getElementById('addTechGroup').value = '';
       document.getElementById('addTechUser').value = '';
       document.getElementById('addTechPass').value = '';
       populateSettingsTechSelects();
@@ -1125,36 +1117,6 @@
       }).catch(() => {
         alert('حدث خطأ أثناء إرسال التنبيه، تأكد من الاتصال.');
       });
-    }
-
-    // إرسال الإشعار لجروب واتساب الفني بالصيغة المحددة
-    function sendWhatsAppGroupAlert(orderId) {
-      const ord = appOrders.find(o => o.id === orderId);
-      if (!ord || !ord.tech) {
-        return alert('يرجى إسناد الطلب لفني أولاً!');
-      }
-
-      const techObj = appAccounts.find(a => a.name === ord.tech);
-      let groupUrl = techObj ? (techObj.groupLink || '') : '';
-
-      const msgText = `🔔 تم تحديث قائمة مهامك، يرجى مراجعة تطبيق أعطالي.`;
-
-      // نسخ النص تلقائياً للحافظة تحسباً
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(msgText).catch(() => {});
-      }
-
-      if (!groupUrl) {
-        groupUrl = prompt(`أدخل رابط جروب واتساب الفني (${ord.tech}):\n(مثال: https://chat.whatsapp.com/...)`, '');
-        if (!groupUrl) return;
-        if (techObj) {
-          techObj.groupLink = groupUrl;
-          syncUp();
-        }
-      }
-
-      // فتح الجروب مباشرة
-      window.open(groupUrl, '_blank');
     }
 
     function deleteOrder(orderId) {
@@ -1402,14 +1364,10 @@
                 >
                   ${techOpts}
                 </select>
-                <!-- زر إرسال تنبيه إلى جروب الواتساب -->
-                <button type="button" onclick="sendWhatsAppGroupAlert('${o.id}')" class="btn btn-success" style="width:auto; padding:6px 8px; font-size:11px; white-space:nowrap;" title="إرسال إشعار لجروب الواتس">
-                  💬 واتس
-                </button>
-                <button type="button" onclick="sendDirectAlertToTech('${o.id}')" class="btn btn-warning" style="width:auto; padding:6px 8px; font-size:11px; white-space:nowrap;" title="رنين داخل التطبيق">
+                <button type="button" onclick="sendDirectAlertToTech('${o.id}')" class="btn btn-warning" style="width:auto; padding:6px 10px; font-size:11px; white-space:nowrap;" title="رنين داخل التطبيق">
                   🔔 رنين
                 </button>
-                <button type="button" onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:6px 8px; font-size:11px;">✕</button>
+                <button type="button" onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:6px 10px; font-size:11px;">✕</button>
               </div>
             ` : `
               <div style="text-align:left; margin-top: 4px;">
@@ -1421,7 +1379,6 @@
       });
     }
 
-    // دوال الفني
     function renderTech() {
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
