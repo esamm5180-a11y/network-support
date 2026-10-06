@@ -77,7 +77,6 @@
     .badge-job-install { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
     .badge-job-check { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
 
-    /* مؤشر الاتصال المباشر */
     .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 4px; }
     .status-online { background-color: #10b981; box-shadow: 0 0 6px rgba(16,185,129,0.7); }
     .status-offline { background-color: #94a3b8; }
@@ -150,7 +149,7 @@
 </head>
 <body>
 
-  <!-- 1. نافذة إشعار طلب للفني -->
+  <!-- نافذة إشعار طلب للفني -->
   <div id="modalOrderAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
     <div class="modal-content" style="text-align: center; border: 2px solid #2563eb;" onclick="event.stopPropagation()">
       <div style="font-size: 42px; margin-bottom: 4px;">🔔</div>
@@ -168,7 +167,7 @@
     </div>
   </div>
 
-  <!-- 2. نافذة إشعار للمدير بتحديثات الفنيين -->
+  <!-- نافذة إشعار للمدير -->
   <div id="modalAdminNotification" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
     <div class="modal-content" id="adminNotifBox" style="text-align: center; border: 2px solid #2563eb;" onclick="event.stopPropagation()">
       <div id="adminNotifIcon" style="font-size: 42px; margin-bottom: 4px;">📢</div>
@@ -182,7 +181,7 @@
     </div>
   </div>
 
-  <!-- 3. نافذة إشعار البونص / الخصم للفني -->
+  <!-- نافذة إشعار البونص / الخصم للفني -->
   <div id="modalBonusAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
     <div class="modal-content" id="bonusAlertBox" style="text-align: center; border: 2px solid #059669;" onclick="event.stopPropagation()">
       <div id="bonusAlertIcon" style="font-size: 42px; margin-bottom: 4px;">🎁</div>
@@ -196,7 +195,7 @@
     </div>
   </div>
 
-  <!-- 4. نافذة سجل إشعارات وحركات البونص للفني -->
+  <!-- سجل المكافآت للفني -->
   <div id="modalTechBonusHistory" class="modal-overlay hidden">
     <div class="modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
@@ -208,7 +207,7 @@
     </div>
   </div>
 
-  <!-- 5. نافذة إنهاء العطل للفني -->
+  <!-- نافذة حل العطل -->
   <div id="modalSolveOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #059669;">تأكيد حل المشكلة ✓</h4>
@@ -222,7 +221,7 @@
     </div>
   </div>
 
-  <!-- 6. نافذة تأجيل العطل للفني -->
+  <!-- نافذة تأجيل العطل -->
   <div id="modalPostponeOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #d97706;">تأجيل موعد الطلب ⏳</h4>
@@ -327,7 +326,6 @@
         <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
 
-      <!-- قائمة الفنيين مع مؤشر الاتصال المباشر (Online / Offline) -->
       <div id="adminTechsList"></div>
     </div>
   </div>
@@ -370,8 +368,9 @@
         <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 8px; font-size: 12px;">خصم من الرصيد ➖</button>
       </div>
 
+      <!-- التحكم في حساب الفني ورابط الجروب -->
       <div class="card">
-        <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">🛠 التحكم في حساب وسجل الفني:</h5>
+        <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">🛠 التحكم في حساب الفني ورابط الجروب:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
         
         <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">تعديل الرصيد يدوياً:</label>
@@ -381,6 +380,8 @@
         </div>
 
         <input type="text" id="settingsTechName" placeholder="الاسم" class="input-control">
+        <input type="url" id="settingsTechGroup" placeholder="رابط جروب واتساب الفني (https://chat.whatsapp.com/...)" class="input-control" style="direction: ltr;">
+        
         <div class="grid-2">
           <input type="text" id="settingsTechUser" placeholder="اليوزر" class="input-control">
           <input type="text" id="settingsTechPass" placeholder="الباسورد" class="input-control">
@@ -409,9 +410,11 @@
         <div id="bonusHistoryLogList" style="max-height: 250px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
       </div>
 
+      <!-- إضافة فني جديد -->
       <div class="card">
         <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">👷 إضافة فني جديد:</h5>
         <input type="text" id="addTechName" placeholder="اسم الفني بالكامل" class="input-control">
+        <input type="url" id="addTechGroup" placeholder="رابط جروب واتساب الفني (اختياري)" class="input-control" style="direction: ltr;">
         <div class="grid-2">
           <input type="text" id="addTechUser" placeholder="اليوزر" class="input-control">
           <input type="text" id="addTechPass" placeholder="الباسورد" class="input-control">
@@ -473,8 +476,8 @@
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'mega_admin', pass: 'M@g@#2026!Sec' },
-      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0, lastSeen: 0 },
-      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0, lastSeen: 0 }
+      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0, lastSeen: 0, groupLink: '' },
+      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0, lastSeen: 0, groupLink: '' }
     ];
 
     let appOrders = [];
@@ -564,7 +567,6 @@
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
-    // إرسال إشارة بقاء الفني متصلاً بالسحابة (Heartbeat)
     function sendTechHeartbeat() {
       if (!currentUser || currentUser.role !== 'tech') return;
       const now = Date.now();
@@ -806,6 +808,7 @@
       if (tech) {
         document.getElementById('settingsTechBal').value = tech.accumulatedBonus || 0;
         document.getElementById('settingsTechName').value = tech.name;
+        document.getElementById('settingsTechGroup').value = tech.groupLink || '';
         document.getElementById('settingsTechUser').value = tech.username;
         document.getElementById('settingsTechPass').value = tech.pass;
       }
@@ -953,6 +956,7 @@
     function saveSelectedTechAccount() {
       const selId = document.getElementById('settingsTechSelect').value;
       const newName = document.getElementById('settingsTechName').value.trim();
+      const newGroup = document.getElementById('settingsTechGroup').value.trim();
       const newUser = document.getElementById('settingsTechUser').value.trim();
       const newPass = document.getElementById('settingsTechPass').value.trim();
       if (!newName || !newUser || !newPass) return alert('يرجى ملء جميع الخانات');
@@ -960,6 +964,7 @@
       if (tech) {
         const oldName = tech.name;
         tech.name = newName;
+        tech.groupLink = newGroup;
         tech.username = newUser;
         tech.pass = newPass;
         if (oldName !== newName) {
@@ -989,11 +994,13 @@
 
     function addNewTechAccount() {
       const name = document.getElementById('addTechName').value.trim();
+      const groupLink = document.getElementById('addTechGroup').value.trim();
       const user = document.getElementById('addTechUser').value.trim();
       const pass = document.getElementById('addTechPass').value.trim();
       if (!name || !user || !pass) return alert('يرجى ملء جميع البيانات');
-      appAccounts.push({ id: Date.now(), role: 'tech', name, username: user, pass, accumulatedBonus: 0, lastSeen: 0 });
+      appAccounts.push({ id: Date.now(), role: 'tech', name, groupLink: groupLink || '', username: user, pass, accumulatedBonus: 0, lastSeen: 0 });
       document.getElementById('addTechName').value = '';
+      document.getElementById('addTechGroup').value = '';
       document.getElementById('addTechUser').value = '';
       document.getElementById('addTechPass').value = '';
       populateSettingsTechSelects();
@@ -1120,6 +1127,36 @@
       });
     }
 
+    // إرسال الإشعار لجروب واتساب الفني بالصيغة المحددة
+    function sendWhatsAppGroupAlert(orderId) {
+      const ord = appOrders.find(o => o.id === orderId);
+      if (!ord || !ord.tech) {
+        return alert('يرجى إسناد الطلب لفني أولاً!');
+      }
+
+      const techObj = appAccounts.find(a => a.name === ord.tech);
+      let groupUrl = techObj ? (techObj.groupLink || '') : '';
+
+      const msgText = `🔔 تم تحديث قائمة مهامك، يرجى مراجعة تطبيق أعطالي.`;
+
+      // نسخ النص تلقائياً للحافظة تحسباً
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(msgText).catch(() => {});
+      }
+
+      if (!groupUrl) {
+        groupUrl = prompt(`أدخل رابط جروب واتساب الفني (${ord.tech}):\n(مثال: https://chat.whatsapp.com/...)`, '');
+        if (!groupUrl) return;
+        if (techObj) {
+          techObj.groupLink = groupUrl;
+          syncUp();
+        }
+      }
+
+      // فتح الجروب مباشرة
+      window.open(groupUrl, '_blank');
+    }
+
     function deleteOrder(orderId) {
       if (confirm('حذف هذا الطلب نهائياً من النظام وجميع الفنيين؟')) {
         appOrders = appOrders.filter(o => o.id !== orderId);
@@ -1208,7 +1245,6 @@
       renderAdminOrders();
     }
 
-    // عرض كروت الفنيين مع نقطة الاتصال الأخضر/الرمادي
     function renderAdmin() {
       const pendingCount = appOrders.filter(o => o.status === 'pending' && (!o.tech || o.tech === '')).length;
       const assignedCount = appOrders.filter(o => o.status === 'pending' && Boolean(o.tech)).length;
@@ -1226,7 +1262,6 @@
       const now = Date.now();
 
       techs.forEach(t => {
-        // إذا كان الفني أرسل إشارة خلال آخر 30 ثانية يعتبر متصلاً ومفتوحاً لديه التطبيق
         const isOnline = t.lastSeen && (now - t.lastSeen < 30000);
         const statusClass = isOnline ? 'status-online' : 'status-offline';
         const statusText = isOnline ? 'متصل الآن' : 'غير متصل';
@@ -1367,10 +1402,14 @@
                 >
                   ${techOpts}
                 </select>
-                <button type="button" onclick="sendDirectAlertToTech('${o.id}')" class="btn btn-warning" style="width:auto; padding:6px 10px; font-size:11px; white-space:nowrap;" title="إرسال تنبيه للفني المسند">
-                  🔔 تنبيه
+                <!-- زر إرسال تنبيه إلى جروب الواتساب -->
+                <button type="button" onclick="sendWhatsAppGroupAlert('${o.id}')" class="btn btn-success" style="width:auto; padding:6px 8px; font-size:11px; white-space:nowrap;" title="إرسال إشعار لجروب الواتس">
+                  💬 واتس
                 </button>
-                <button type="button" onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:6px 10px; font-size:11px;">✕</button>
+                <button type="button" onclick="sendDirectAlertToTech('${o.id}')" class="btn btn-warning" style="width:auto; padding:6px 8px; font-size:11px; white-space:nowrap;" title="رنين داخل التطبيق">
+                  🔔 رنين
+                </button>
+                <button type="button" onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:6px 8px; font-size:11px;">✕</button>
               </div>
             ` : `
               <div style="text-align:left; margin-top: 4px;">
@@ -1382,6 +1421,7 @@
       });
     }
 
+    // دوال الفني
     function renderTech() {
       const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
       document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
@@ -1570,7 +1610,6 @@
             appOrders = Array.isArray(data.orders) ? data.orders : [];
             if (Array.isArray(data.bonusRecords)) bonusRecords = data.bonusRecords;
 
-            // مزامنة حالة اتصال الفنيين من عقدة presence
             if (data.presence) {
               Object.keys(data.presence).forEach(techId => {
                 const target = appAccounts.find(a => a.id == techId);
@@ -1616,7 +1655,7 @@
       }
       syncDown();
       setInterval(syncDown, 3000);
-      setInterval(sendTechHeartbeat, 10000); // إرسال نبض اتصال للفني كل 10 ثوانٍ
+      setInterval(sendTechHeartbeat, 10000);
     };
   </script>
 </body>
