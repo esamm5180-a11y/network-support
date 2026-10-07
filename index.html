@@ -76,6 +76,7 @@
     .badge-job-fault { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
     .badge-job-install { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
     .badge-job-check { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .badge-job-repeat { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 
     .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 4px; }
     .status-online { background-color: #10b981; box-shadow: 0 0 6px rgba(16,185,129,0.7); }
@@ -148,6 +149,34 @@
   </style>
 </head>
 <body>
+
+  <!-- نافذة تعديل بيانات العميل أو العطل -->
+  <div id="modalEditOrder" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
+        <h4 style="font-size: 15px; font-weight: 900; color: #2563eb;">✏️ تعديل بيانات العطل</h4>
+        <button type="button" onclick="closeEditOrderModal()" style="border: none; background: transparent; font-size: 18px; cursor: pointer; color: #64748b;">✕</button>
+      </div>
+      <input type="hidden" id="editOrderId">
+      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">اسم العميل:</label>
+      <input type="text" id="editCustName" class="input-control">
+      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">رقم الهاتف:</label>
+      <input type="tel" id="editCustPhone" class="input-control">
+      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">نوع الطلب:</label>
+      <select id="editJobType" class="input-control" style="font-weight: 700;">
+        <option value="عطل">عطل</option>
+        <option value="عطل متكرر">عطل متكرر</option>
+        <option value="تركيبه جديده">تركيبه جديده</option>
+        <option value="تشييك">تشييك</option>
+      </select>
+      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">الملاحظات:</label>
+      <input type="text" id="editCustDesc" class="input-control">
+      <div class="grid-2" style="margin-top: 6px;">
+        <button type="button" onclick="submitEditOrder()" class="btn btn-primary">حفظ التعديل 💾</button>
+        <button type="button" onclick="closeEditOrderModal()" class="btn btn-secondary">إلغاء</button>
+      </div>
+    </div>
+  </div>
 
   <!-- نافذة إشعار طلب للفني -->
   <div id="modalOrderAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
@@ -318,6 +347,7 @@
         <div class="grid-2" style="margin-bottom: 8px;">
           <select id="newJobType" class="input-control" style="margin-bottom: 0; font-weight: 700;">
             <option value="عطل">عطل</option>
+            <option value="عطل متكرر">عطل متكرر</option>
             <option value="تركيبه جديده">تركيبه جديده</option>
             <option value="تشييك">تشييك</option>
           </select>
@@ -741,6 +771,7 @@
       document.getElementById('modalBonusAlert').classList.add('hidden');
       document.getElementById('modalTechBonusHistory').classList.add('hidden');
       document.getElementById('modalAdminNotification').classList.add('hidden');
+      document.getElementById('modalEditOrder').classList.add('hidden');
       document.getElementById('screenLogin').classList.remove('hidden');
     }
 
@@ -1055,6 +1086,66 @@
       alert('تم حفظ الطلب بنجاح ✓');
     }
 
+    // دوال تعديل العطل بعد الإسناد أو في أي وقت
+    function openEditOrderModal(orderId) {
+      const ord = appOrders.find(o => o.id === orderId);
+      if (!ord) return;
+      document.getElementById('editOrderId').value = ord.id;
+      document.getElementById('editCustName').value = ord.customer;
+      document.getElementById('editCustPhone').value = ord.phone || '';
+      document.getElementById('editJobType').value = ord.jobType || 'عطل';
+      document.getElementById('editCustDesc').value = ord.desc || '';
+      document.getElementById('modalEditOrder').classList.remove('hidden');
+    }
+
+    function closeEditOrderModal() {
+      document.getElementById('modalEditOrder').classList.add('hidden');
+    }
+
+    function submitEditOrder() {
+      const id = document.getElementById('editOrderId').value;
+      const ord = appOrders.find(o => o.id === id);
+      if (!ord) return;
+
+      const newName = document.getElementById('editCustName').value.trim();
+      if (!newName) return alert('اسم العميل مطلوب');
+
+      ord.customer = newName;
+      ord.phone = document.getElementById('editCustPhone').value.trim();
+      ord.jobType = document.getElementById('editJobType').value;
+      ord.desc = document.getElementById('editCustDesc').value.trim();
+
+      closeEditOrderModal();
+      renderAdmin();
+      syncUp();
+      alert('تم تحديث بيانات العطل والعميل بنجاح 💾');
+    }
+
+    // تحويل العطل (المنتهي أو المؤجل) إلى عطل متكرر
+    function markAsRepeatedFault(orderId) {
+      const ord = appOrders.find(o => o.id === orderId);
+      if (!ord) return;
+
+      if (confirm(`هل تريد تحويل طلب العميل (${ord.customer}) إلى (عطل متكرر) وإعادته لحالة معلق للإسناد من جديد؟`)) {
+        ord.jobType = 'عطل متكرر';
+        ord.status = 'pending';
+        ord.tech = ''; // إلغاء الفني لتقوم بإسناده من جديد أو الإبقاء عليه
+
+        let extraNote = '';
+        if (ord.doneReason) extraNote = ` [كان منجزاً: ${ord.doneReason}]`;
+        if (ord.postponeReason) extraNote = ` [كان مؤجلاً: ${ord.postponeReason}]`;
+
+        ord.desc = (ord.desc || '') + extraNote;
+        ord.doneReason = '';
+        ord.postponeReason = '';
+        ord.date = getToday();
+
+        renderAdmin();
+        syncUp();
+        alert(`تم تحويل طلب (${ord.customer}) إلى عطل متكرر بنجاح ووضعه في قائمة المعلق 🔁`);
+      }
+    }
+
     function saveAssignDirectly(orderId, selectElem) {
       const targetTech = selectElem.value;
       if (!targetTech) return;
@@ -1315,6 +1406,7 @@
         let jobBadgeClass = 'badge-job-fault';
         if (o.jobType === 'تركيبه جديده') jobBadgeClass = 'badge-job-install';
         else if (o.jobType === 'تشييك') jobBadgeClass = 'badge-job-check';
+        else if (o.jobType === 'عطل متكرر') jobBadgeClass = 'badge-job-repeat';
 
         let techOpts = '<option value="">اختر الفني للإسناد...</option>';
         techs.forEach(t => {
@@ -1352,28 +1444,38 @@
               </div>
             ` : ''}
 
-            ${!isDone ? `
-              <div style="display:flex; gap:4px; margin-top:6px; align-items: center;">
+            <!-- أزرار الإجراءات والتحكم بالعطل -->
+            <div style="display:flex; gap:4px; margin-top:6px; align-items: center; flex-wrap: wrap;">
+              ${!isDone ? `
                 <select 
                   id="sel_${o.id}" 
                   class="input-control" 
-                  style="margin-bottom:0; padding:6px 8px; font-size:11px; font-weight:700; flex: 1;"
+                  style="margin-bottom:0; padding:6px 8px; font-size:11px; font-weight:700; flex: 1; min-width: 120px;"
                   onfocus="isUserInteractingWithSelect = true"
                   onblur="isUserInteractingWithSelect = false"
                   onchange="saveAssignDirectly('${o.id}', this)"
                 >
                   ${techOpts}
                 </select>
-                <button type="button" onclick="sendDirectAlertToTech('${o.id}')" class="btn btn-warning" style="width:auto; padding:6px 10px; font-size:11px; white-space:nowrap;" title="رنين داخل التطبيق">
+                <button type="button" onclick="sendDirectAlertToTech('${o.id}')" class="btn btn-warning" style="width:auto; padding:6px 8px; font-size:11px; white-space:nowrap;" title="رنين داخل التطبيق">
                   🔔 رنين
                 </button>
-                <button type="button" onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:6px 10px; font-size:11px;">✕</button>
-              </div>
-            ` : `
-              <div style="text-align:left; margin-top: 4px;">
-                <button onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; display:inline-flex; padding:2px 8px; font-size:10px;">حذف</button>
-              </div>
-            `}
+              ` : ''}
+
+              <!-- زر تعديل البيانات في أي وقت -->
+              <button type="button" onclick="openEditOrderModal('${o.id}')" class="btn btn-secondary" style="width:auto; padding:6px 8px; font-size:11px; white-space:nowrap;" title="تعديل بيانات العطل أو العميل">
+                ✏️ تعديل
+              </button>
+
+              <!-- زر تحويل لعطل متكرر للمنجز أو المؤجل -->
+              ${(isDone || isPostponed) ? `
+                <button type="button" onclick="markAsRepeatedFault('${o.id}')" class="btn btn-warning" style="width:auto; padding:6px 8px; font-size:11px; white-space:nowrap; background:#ea580c;" title="تحويل لعطل متكرر وإعادة إسناده">
+                  🔁 متكرر
+                </button>
+              ` : ''}
+
+              <button type="button" onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:6px 8px; font-size:11px;">✕</button>
+            </div>
           </div>
         `;
       });
@@ -1410,6 +1512,8 @@
           badgeClass = 'badge-job-install';
         } else if (o.jobType === 'تشييك') {
           badgeClass = 'badge-job-check';
+        } else if (o.jobType === 'عطل متكرر') {
+          badgeClass = 'badge-job-repeat';
         }
 
         if (isDone) {
