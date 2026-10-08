@@ -169,7 +169,7 @@
         <option value="تركيبه جديده">تركيبه جديده</option>
         <option value="تشييك">تشييك</option>
       </select>
-      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">الملاحظات:</label>
+      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">الملاحظات / العنوان:</label>
       <input type="text" id="editCustDesc" class="input-control">
       <div class="grid-2" style="margin-top: 6px;">
         <button type="button" onclick="submitEditOrder()" class="btn btn-primary">حفظ التعديل 💾</button>
@@ -1086,7 +1086,6 @@
       alert('تم حفظ الطلب بنجاح ✓');
     }
 
-    // دوال تعديل العطل بعد الإسناد أو في أي وقت
     function openEditOrderModal(orderId) {
       const ord = appOrders.find(o => o.id === orderId);
       if (!ord) return;
@@ -1121,28 +1120,27 @@
       alert('تم تحديث بيانات العطل والعميل بنجاح 💾');
     }
 
-    // تحويل العطل (المنتهي أو المؤجل) إلى عطل متكرر
+    // تحويل العطل لمتكرر بدون كتابة "كان مؤجلاً" أو أي نصوص سابقة ليكون العطل نظيفاً وجديداً
     function markAsRepeatedFault(orderId) {
       const ord = appOrders.find(o => o.id === orderId);
       if (!ord) return;
 
-      if (confirm(`هل تريد تحويل طلب العميل (${ord.customer}) إلى (عطل متكرر) وإعادته لحالة معلق للإسناد من جديد؟`)) {
+      if (confirm(`هل تريد تحويل طلب العميل (${ord.customer}) إلى (عطل متكرر) ونقله مباشرة إلى المعلق كطلب جديد؟`)) {
         ord.jobType = 'عطل متكرر';
         ord.status = 'pending';
-        ord.tech = ''; // إلغاء الفني لتقوم بإسناده من جديد أو الإبقاء عليه
+        ord.tech = ''; 
 
-        let extraNote = '';
-        if (ord.doneReason) extraNote = ` [كان منجزاً: ${ord.doneReason}]`;
-        if (ord.postponeReason) extraNote = ` [كان مؤجلاً: ${ord.postponeReason}]`;
-
-        ord.desc = (ord.desc || '') + extraNote;
+        // إزالة أي عبارات تأجيل أو إنجاز سابقة وتنظيف الوصف تماماً
+        if (ord.desc) {
+          ord.desc = ord.desc.replace(/\[كان مؤجلاً:.*?\]/g, '').replace(/\[كان منجزاً:.*?\]/g, '').trim();
+        }
         ord.doneReason = '';
         ord.postponeReason = '';
         ord.date = getToday();
 
         renderAdmin();
         syncUp();
-        alert(`تم تحويل طلب (${ord.customer}) إلى عطل متكرر بنجاح ووضعه في قائمة المعلق 🔁`);
+        alert(`تم نقل طلب (${ord.customer}) إلى المعلق كطلب جديد بدون تفاصيل التأجيل السابقة ✓`);
       }
     }
 
@@ -1444,7 +1442,6 @@
               </div>
             ` : ''}
 
-            <!-- أزرار الإجراءات والتحكم بالعطل -->
             <div style="display:flex; gap:4px; margin-top:6px; align-items: center; flex-wrap: wrap;">
               ${!isDone ? `
                 <select 
@@ -1462,14 +1459,12 @@
                 </button>
               ` : ''}
 
-              <!-- زر تعديل البيانات في أي وقت -->
               <button type="button" onclick="openEditOrderModal('${o.id}')" class="btn btn-secondary" style="width:auto; padding:6px 8px; font-size:11px; white-space:nowrap;" title="تعديل بيانات العطل أو العميل">
                 ✏️ تعديل
               </button>
 
-              <!-- زر تحويل لعطل متكرر للمنجز أو المؤجل -->
               ${(isDone || isPostponed) ? `
-                <button type="button" onclick="markAsRepeatedFault('${o.id}')" class="btn btn-warning" style="width:auto; padding:6px 8px; font-size:11px; white-space:nowrap; background:#ea580c;" title="تحويل لعطل متكرر وإعادة إسناده">
+                <button type="button" onclick="markAsRepeatedFault('${o.id}')" class="btn btn-warning" style="width:auto; padding:6px 8px; font-size:11px; white-space:nowrap; background:#ea580c;" title="تحويل لعطل متكرر ونقله للمعلق كطلب جديد">
                   🔁 متكرر
                 </button>
               ` : ''}
@@ -1687,37 +1682,4 @@
               if (updated) currentUser = updated;
               if (currentUser.role === 'admin') {
                 renderAdmin();
-                renderBonusHistoryLog();
-              } else {
-                renderTech();
-              }
-            }
-          }
-        })
-        .catch(() => {});
-    }
-
-    function syncUp() {
-      fetch(`${FIREBASE_DB}/bonus_system_data.json`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ accounts: appAccounts, orders: appOrders, bonusRecords: bonusRecords })
-      }).catch(() => {});
-    }
-
-    window.onload = function() {
-      const saved = localStorage.getItem('saved_active_user');
-      if (saved) {
-        try {
-          currentUser = JSON.parse(saved);
-          showUserScreen();
-          if (currentUser.role === 'tech') sendTechHeartbeat();
-        } catch(e) {}
-      }
-      syncDown();
-      setInterval(syncDown, 3000);
-      setInterval(sendTechHeartbeat, 10000);
-    };
-  </script>
-</body>
-</html>
+                
