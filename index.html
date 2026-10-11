@@ -78,6 +78,10 @@
     .badge-job-check { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
     .badge-job-repeat { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 
+    /* شارات التوقيت (اليوم / أمس) */
+    .badge-time-today { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; font-size: 10px; }
+    .badge-time-yesterday { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; font-size: 10px; font-weight: 900; }
+
     .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 4px; }
     .status-online { background-color: #10b981; box-shadow: 0 0 6px rgba(16,185,129,0.7); }
     .status-offline { background-color: #94a3b8; }
@@ -264,7 +268,7 @@
     </div>
   </div>
 
-  <!-- شاشة الدخول (ظاهرة بشكل افتراضي لمنع أي شاشة بيضاء) -->
+  <!-- شاشة الدخول -->
   <div id="screenLogin" class="container" style="min-height: 85vh; display: flex; align-items: center; justify-content: center;">
     <div class="card" style="width: 100%; text-align: center; padding: 24px 18px;">
       <div style="width: 60px; height: 60px; background: #2563eb; color: #fff; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; font-size: 26px;">
@@ -594,6 +598,17 @@
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
+    // دالة فحص ما إذا كان العطل من اليوم أو من أمس
+    function getOrderTimeBadge(orderDate) {
+      if (!orderDate) return '';
+      const today = getToday();
+      if (orderDate === today) {
+        return `<span class="badge badge-time-today">اليوم 🟢</span>`;
+      } else {
+        return `<span class="badge badge-time-yesterday">عطل أمس ⚠️</span>`;
+      }
+    }
+
     function sendTechHeartbeat() {
       if (!currentUser || currentUser.role !== 'tech') return;
       const now = Date.now();
@@ -779,7 +794,6 @@
       document.getElementById('screenLogin').classList.remove('hidden');
     }
 
-    // فتح الشاشات بطريقة آمنة تماماً تمنع أي شاشة بيضاء
     function showUserScreen() {
       try {
         if (!currentUser) {
@@ -1142,7 +1156,7 @@
       alert('تم تحديث بيانات العطل والعميل بنجاح 💾');
     }
 
-    // تنظيف الوصف بالكامل وإلغاء أي نصوص تأجيل
+    // تنظيف الوصف بالكامل وإلغاء أي نصوص تأجيل ليعود العطل نظيفاً
     function markAsRepeatedFault(orderId) {
       const ord = appOrders.find(o => o.id === orderId);
       if (!ord) return;
@@ -1434,6 +1448,8 @@
         else if (o.jobType === 'تشييك') jobBadgeClass = 'badge-job-check';
         else if (o.jobType === 'عطل متكرر') jobBadgeClass = 'badge-job-repeat';
 
+        const timeBadgeHtml = getOrderTimeBadge(o.date);
+
         let techOpts = '<option value="">اختر الفني للإسناد...</option>';
         techs.forEach(t => {
           techOpts += `<option value="${t.name}" ${o.tech === t.name ? 'selected' : ''}>${t.name}</option>`;
@@ -1445,7 +1461,10 @@
               <span style="font-size:12px; font-weight:800; color:#1e293b; display:inline-flex; align-items:center; gap:4px;">
                 👤 الفني: <strong style="color:#2563eb;">${o.tech || 'غير محدد بعد'}</strong>
               </span>
-              <span class="badge ${badgeClass}">${badgeText}</span>
+              <div style="display:flex; gap:4px; align-items:center;">
+                ${timeBadgeHtml}
+                <span class="badge ${badgeClass}">${badgeText}</span>
+              </div>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
@@ -1513,6 +1532,16 @@
         const pendingList = myOrders.filter(o => o.status !== 'done');
         const doneList = myOrders.filter(o => o.status === 'done');
 
+        // ترتيب الأعطال المطلوبة: أعطال أمس أولاً ثم أعطال اليوم
+        const today = getToday();
+        pendingList.sort((a, b) => {
+          const aIsToday = (a.date === today);
+          const bIsToday = (b.date === today);
+          if (!aIsToday && bIsToday) return -1;
+          if (aIsToday && !bIsToday) return 1;
+          return 0;
+        });
+
         document.getElementById('countTechPending').innerText = pendingList.length;
         document.getElementById('countTechDone').innerText = doneList.length;
 
@@ -1548,6 +1577,8 @@
             badgeText = 'مؤجل ⏳';
           }
 
+          const timeBadgeHtml = getOrderTimeBadge(o.date);
+
           let phoneBtnHtml = '';
           if (o.phone && o.phone.trim() !== '') {
             phoneBtnHtml = `<a href="tel:${o.phone}" class="btn btn-success" style="padding:6px; font-size:11px;">📞 اتصال</a>`;
@@ -1559,7 +1590,10 @@
             <div class="card">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <strong style="font-size:15px; color:#0f172a;">${o.customer}</strong>
-                <span class="badge ${badgeClass}">${badgeText}</span>
+                <div style="display:flex; gap:4px; align-items:center;">
+                  ${timeBadgeHtml}
+                  <span class="badge ${badgeClass}">${badgeText}</span>
+                </div>
               </div>
               
               ${o.desc && o.desc.trim() !== '' ? `
