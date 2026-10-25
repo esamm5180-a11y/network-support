@@ -528,6 +528,27 @@
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
 
+    // دالة تحويل وقت آخر اتصال لنص مفهوم بالعربية
+    function formatLastSeen(timestamp) {
+      if (!timestamp) return 'لم يسجل دخول بعد';
+      const diffMinutes = Math.floor((Date.now() - timestamp) / 60000);
+
+      if (diffMinutes < 1) return 'الآن';
+      if (diffMinutes === 1) return 'منذ دقيقة';
+      if (diffMinutes === 2) return 'منذ دقيقتين';
+      if (diffMinutes >= 3 && diffMinutes <= 10) return `منذ ${diffMinutes} دقائق`;
+      if (diffMinutes < 60) return `منذ ${diffMinutes} دقيقة`;
+      
+      const diffHours = Math.floor(diffMinutes / 60);
+      if (diffHours === 1) return 'منذ ساعة';
+      if (diffHours === 2) return 'منذ ساعتين';
+      if (diffHours >= 3 && diffHours <= 10) return `منذ ${diffHours} ساعات`;
+      if (diffHours < 24) return `منذ ${diffHours} ساعة`;
+
+      const date = new Date(timestamp);
+      return `${date.toLocaleDateString('ar-EG')} ${date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
+    }
+
     function unlockAudioSystem() {
       try {
         if (!globalAudioCtx) {
@@ -1359,15 +1380,15 @@
         const now = Date.now();
 
         techs.forEach(t => {
-          const isOnline = t.lastSeen && (now - t.lastSeen < 30000);
+          const isOnline = t.lastSeen && (now - t.lastSeen < 35000);
           const statusClass = isOnline ? 'status-online' : 'status-offline';
-          const statusText = isOnline ? 'متصل الآن' : 'غير متصل';
-          const statusTextColor = isOnline ? '#10b981' : '#94a3b8';
+          const statusText = isOnline ? 'متصل الآن' : `آخر ظهور: ${formatLastSeen(t.lastSeen)}`;
+          const statusTextColor = isOnline ? '#10b981' : '#64748b';
 
           techBox.innerHTML += `
             <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <div style="display:flex; align-items:center; gap:4px;">
+                <div style="display:flex; align-items:center; gap:4px; flex-wrap: wrap;">
                   <span class="status-dot ${statusClass}"></span>
                   <strong style="font-size:14px;">${t.name}</strong>
                   <span style="font-size:10px; font-weight:700; color:${statusTextColor};">(${statusText})</span>
@@ -1601,7 +1622,7 @@
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <strong style="font-size:15px; color:#0f172a;">${o.customer}</strong>
                 <div style="display:flex; gap:4px; align-items:center;">
-                  <!-- تبديل مكان نوع العطل/الطلب ليكون أولاً ثم التاريخ -->
+                  <!-- عرض نوع العطل/الطلب أولاً ثم التاريخ -->
                   <span class="badge ${jobBadgeClass}">${displayJobText}</span>
                   ${timeBadgeHtml}
                   ${statusBadgeHtml}
