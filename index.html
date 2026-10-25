@@ -76,6 +76,7 @@
     .badge-job-fault { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
     .badge-job-install { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
     .badge-job-check { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .badge-job-inspect { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
     .badge-job-repeat { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 
     /* شارات التوقيت (اليوم / أمس) */
@@ -171,6 +172,7 @@
         <option value="عطل">عطل</option>
         <option value="عطل متكرر">عطل متكرر</option>
         <option value="تركيبه جديده">تركيبه جديده</option>
+        <option value="معاينة">معاينة</option>
         <option value="تشييك">تشييك</option>
       </select>
       <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">الملاحظات / العنوان:</label>
@@ -353,6 +355,7 @@
             <option value="عطل">عطل</option>
             <option value="عطل متكرر">عطل متكرر</option>
             <option value="تركيبه جديده">تركيبه جديده</option>
+            <option value="معاينة">معاينة</option>
             <option value="تشييك">تشييك</option>
           </select>
           <input type="text" id="newCustDesc" placeholder="ملاحظات إضافية (اختياري)" class="input-control" style="margin-bottom: 0;">
@@ -1445,6 +1448,7 @@
 
         let jobBadgeClass = 'badge-job-fault';
         if (o.jobType === 'تركيبه جديده') jobBadgeClass = 'badge-job-install';
+        else if (o.jobType === 'معاينة') jobBadgeClass = 'badge-job-inspect';
         else if (o.jobType === 'تشييك') jobBadgeClass = 'badge-job-check';
         else if (o.jobType === 'عطل متكرر') jobBadgeClass = 'badge-job-repeat';
 
@@ -1563,6 +1567,8 @@
 
           if (o.jobType === 'تركيبه جديده') {
             badgeClass = 'badge-job-install';
+          } else if (o.jobType === 'معاينة') {
+            badgeClass = 'badge-job-inspect';
           } else if (o.jobType === 'تشييك') {
             badgeClass = 'badge-job-check';
           } else if (o.jobType === 'عطل متكرر') {
