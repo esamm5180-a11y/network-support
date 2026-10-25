@@ -172,7 +172,7 @@
         <option value="عطل">عطل</option>
         <option value="عطل متكرر">عطل متكرر</option>
         <option value="تركيبه جديده">تركيبه جديده</option>
-        <option value="معاينة">معاينة</option>
+        <option value="معاينه جديده">معاينه جديده</option>
         <option value="تشييك">تشييك</option>
       </select>
       <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">الملاحظات / العنوان:</label>
@@ -355,7 +355,7 @@
             <option value="عطل">عطل</option>
             <option value="عطل متكرر">عطل متكرر</option>
             <option value="تركيبه جديده">تركيبه جديده</option>
-            <option value="معاينة">معاينة</option>
+            <option value="معاينه جديده">معاينه جديده</option>
             <option value="تشييك">تشييك</option>
           </select>
           <input type="text" id="newCustDesc" placeholder="ملاحظات إضافية (اختياري)" class="input-control" style="margin-bottom: 0;">
@@ -1131,7 +1131,11 @@
       document.getElementById('editOrderId').value = ord.id;
       document.getElementById('editCustName').value = ord.customer;
       document.getElementById('editCustPhone').value = ord.phone || '';
-      document.getElementById('editJobType').value = ord.jobType || 'عطل';
+      
+      let curJob = ord.jobType || 'عطل';
+      if (curJob === 'معاينة') curJob = 'معاينه جديده';
+      document.getElementById('editJobType').value = curJob;
+
       document.getElementById('editCustDesc').value = ord.desc || '';
       document.getElementById('modalEditOrder').classList.remove('hidden');
     }
@@ -1448,10 +1452,11 @@
 
         let jobBadgeClass = 'badge-job-fault';
         if (o.jobType === 'تركيبه جديده') jobBadgeClass = 'badge-job-install';
-        else if (o.jobType === 'معاينة') jobBadgeClass = 'badge-job-inspect';
+        else if (o.jobType === 'معاينه جديده' || o.jobType === 'معاينة') jobBadgeClass = 'badge-job-inspect';
         else if (o.jobType === 'تشييك') jobBadgeClass = 'badge-job-check';
         else if (o.jobType === 'عطل متكرر') jobBadgeClass = 'badge-job-repeat';
 
+        const displayJobName = (o.jobType === 'معاينة') ? 'معاينه جديده' : (o.jobType || 'عطل');
         const timeBadgeHtml = getOrderTimeBadge(o.date);
 
         let techOpts = '<option value="">اختر الفني للإسناد...</option>';
@@ -1474,7 +1479,7 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <div>
                 <strong style="font-size:14px; color:#0f172a;">${o.customer}</strong>
-                <span class="badge ${jobBadgeClass}" style="margin-right: 4px; font-size: 10px;">${o.jobType || 'عطل'}</span>
+                <span class="badge ${jobBadgeClass}" style="margin-right: 4px; font-size: 10px;">${displayJobName}</span>
                 ${o.phone ? `<a href="tel:${o.phone}" style="color:#2563eb; text-decoration:none; font-size:12px; font-weight:700; margin-right:6px;">📞 ${o.phone}</a>` : `<span style="color:#94a3b8; font-size:11px; margin-right:6px;">(بدون رقم)</span>`}
               </div>
             </div>
@@ -1562,25 +1567,24 @@
           const isDone = o.status === 'done';
           const isPostponed = o.status === 'postponed';
 
-          let badgeClass = 'badge-job-fault';
-          let badgeText = o.jobType || 'عطل';
+          let jobBadgeClass = 'badge-job-fault';
+          let displayJobText = (o.jobType === 'معاينة') ? 'معاينه جديده' : (o.jobType || 'عطل');
 
           if (o.jobType === 'تركيبه جديده') {
-            badgeClass = 'badge-job-install';
-          } else if (o.jobType === 'معاينة') {
-            badgeClass = 'badge-job-inspect';
+            jobBadgeClass = 'badge-job-install';
+          } else if (o.jobType === 'معاينه جديده' || o.jobType === 'معاينة') {
+            jobBadgeClass = 'badge-job-inspect';
           } else if (o.jobType === 'تشييك') {
-            badgeClass = 'badge-job-check';
+            jobBadgeClass = 'badge-job-check';
           } else if (o.jobType === 'عطل متكرر') {
-            badgeClass = 'badge-job-repeat';
+            jobBadgeClass = 'badge-job-repeat';
           }
 
+          let statusBadgeHtml = '';
           if (isDone) {
-            badgeClass = 'badge-done';
-            badgeText = 'تم الحل ✓';
+            statusBadgeHtml = `<span class="badge badge-done">تم الحل ✓</span>`;
           } else if (isPostponed) {
-            badgeClass = 'badge-postponed';
-            badgeText = 'مؤجل ⏳';
+            statusBadgeHtml = `<span class="badge badge-postponed">مؤجل ⏳</span>`;
           }
 
           const timeBadgeHtml = getOrderTimeBadge(o.date);
@@ -1597,8 +1601,10 @@
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <strong style="font-size:15px; color:#0f172a;">${o.customer}</strong>
                 <div style="display:flex; gap:4px; align-items:center;">
+                  <!-- تبديل مكان نوع العطل/الطلب ليكون أولاً ثم التاريخ -->
+                  <span class="badge ${jobBadgeClass}">${displayJobText}</span>
                   ${timeBadgeHtml}
-                  <span class="badge ${badgeClass}">${badgeText}</span>
+                  ${statusBadgeHtml}
                 </div>
               </div>
               
