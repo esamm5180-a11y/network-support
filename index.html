@@ -508,9 +508,10 @@
     let selectedDateFilter = 'all';
     let isUserInteractingWithSelect = false;
 
-    // علامات سريعة لفحص التغيير فقط بدون JSON.stringify كبير
     let lastOrdersCount = -1;
     let lastAccountsBonusSum = -1;
+    let lastAdminAlertId = null;
+    let lastOrderAlertId = null;
 
     function getToday() {
       const d = new Date();
@@ -557,13 +558,16 @@
       }).catch(() => {});
     }
 
+    // فحص الإشعارات المنفصلة السريعة
     function checkIncomingAlerts(data) {
       if (!currentUser || !data) return;
+
+      // 1. تنبيه الفني عند إسناد عطل
       if (currentUser.role === 'tech' && data.latestOrderAlert && data.latestOrderAlert.targetTech === currentUser.name) {
         const alert = data.latestOrderAlert;
         const dismissed = localStorage.getItem('last_dismissed_ord_' + currentUser.name);
-        if (alert.alertId !== dismissed) {
-          localStorage.setItem('last_dismissed_ord_' + currentUser.name, alert.alertId);
+        if (alert.alertId && alert.alertId !== dismissed && alert.alertId !== lastOrderAlertId) {
+          lastOrderAlertId = alert.alertId;
           document.getElementById('alertCustName').innerText = alert.customer || 'عميل';
           document.getElementById('alertJobTypeBadge').innerText = alert.jobType || 'عطل';
           document.getElementById('alertCustPhone').innerText = alert.phone || 'بدون رقم';
@@ -577,13 +581,51 @@
           document.getElementById('modalOrderAlert').classList.remove('hidden');
         }
       }
+
+      // 2. تنبيه المدير عند حل عطل أو تأجيله من الفني
+      if (currentUser.role === 'admin' && data.latestAdminAlert) {
+        const aAlert = data.latestAdminAlert;
+        const dismissedAdmin = localStorage.getItem('last_dismissed_admin_alert');
+        if (aAlert.id && aAlert.id !== dismissedAdmin && aAlert.id !== lastAdminAlertId) {
+          lastAdminAlertId = aAlert.id;
+          document.getElementById('adminNotifTech').innerText = aAlert.tech || 'الفني';
+          document.getElementById('adminNotifCust').innerText = aAlert.customer || 'العميل';
+          document.getElementById('adminNotifDetail').innerText = aAlert.detail || 'بدون تفاصيل';
+
+          const icon = document.getElementById('adminNotifIcon');
+          const title = document.getElementById('adminNotifTitle');
+          const box = document.getElementById('adminNotifBox');
+
+          if (aAlert.type === 'done') {
+            box.style.borderColor = '#059669';
+            title.innerText = '✅ تم حل الطلب بواسطة الفني';
+            title.style.color = '#059669';
+            icon.innerText = '🎉';
+          } else {
+            box.style.borderColor = '#d97706';
+            title.innerText = '⏳ قام الفني بتأجيل الطلب';
+            title.style.color = '#d97706';
+            icon.innerText = '⏳';
+          }
+
+          document.getElementById('modalAdminNotification').classList.remove('hidden');
+          // تحديث الجدول فوراً عند استلام إشعار جديد
+          syncDown(true);
+        }
+      }
     }
 
     function dismissAdminNotification() {
+      if (lastAdminAlertId) {
+        localStorage.setItem('last_dismissed_admin_alert', lastAdminAlertId);
+      }
       document.getElementById('modalAdminNotification').classList.add('hidden');
     }
 
     function dismissOrderAlert() {
+      if (lastOrderAlertId && currentUser) {
+        localStorage.setItem('last_dismissed_ord_' + currentUser.name, lastOrderAlertId);
+      }
       document.getElementById('modalOrderAlert').classList.add('hidden');
     }
 
@@ -928,6 +970,22 @@
       if (ord) {
         ord.tech = targetTech;
         if (ord.status === 'postponed') ord.status = 'pending';
+
+        // إرسال تنبيه فوري للفني في مسار منفصل سريع
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            alertId: 'ALERT-ORD-' + Date.now(),
+            targetTech: targetTech,
+            customer: ord.customer,
+            phone: ord.phone || '',
+            jobType: ord.jobType || 'عطل',
+            desc: ord.desc || '',
+            sentAt: Date.now()
+          })
+        }).catch(() => {});
+
         syncUp();
         renderAdmin();
       }
@@ -1123,7 +1181,6 @@
         return;
       }
 
-      // عرض أول 40 عطل لتسريع المتصفح وعدم التهنيج
       const renderSlice = filtered.slice(0, 40);
 
       renderSlice.forEach(o => {
@@ -1243,10 +1300,27 @@
 
     function submitSolveOrder() {
       const id = document.getElementById('solveOrderId').value;
+      const reason = document.getElementById('solveReasonText').value.trim() || 'تم الإنجاز بنجاح';
       const ord = appOrders.find(o => o.id === id);
+
       if (ord) {
         ord.status = 'done';
-        ord.doneReason = document.getElementById('solveReasonText').value.trim() || 'تم الإنجاز بنجاح';
+        ord.doneReason = reason;
+
+        // إرسال التنبيه للمدير فوراً في مسار منفصل
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: 'DONE-' + Date.now(),
+            type: 'done',
+            tech: currentUser.name,
+            customer: ord.customer,
+            detail: reason,
+            sentAt: Date.now()
+          })
+        }).catch(() => {});
+
         closeSolveModal();
         renderTech();
         syncUp();
@@ -1265,13 +1339,48 @@
 
     function submitPostponeOrder() {
       const id = document.getElementById('postponeOrderId').value;
+      const reason = document.getElementById('postponeReasonText').value.trim() || 'تم التأجيل';
       const ord = appOrders.find(o => o.id === id);
+
       if (ord) {
         ord.status = 'postponed';
-        ord.postponeReason = document.getElementById('postponeReasonText').value.trim() || 'تم التأجيل';
+        ord.postponeReason = reason;
+
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: 'POSTPONE-' + Date.now(),
+            type: 'postpone',
+            tech: currentUser.name,
+            customer: ord.customer,
+            detail: reason,
+            sentAt: Date.now()
+          })
+        }).catch(() => {});
+
         closePostponeModal();
         renderTech();
         syncUp();
+      }
+    }
+
+    // فحص دوري سريع جداً (كل ثانيتين) للتنبيهات فقط بدون استهلاك موارد
+    function fastAlertsCheck() {
+      if (!currentUser) return;
+
+      if (currentUser.role === 'admin') {
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`)
+          .then(res => res.json())
+          .then(alert => {
+            if (alert) checkIncomingAlerts({ latestAdminAlert: alert });
+          }).catch(() => {});
+      } else if (currentUser.role === 'tech') {
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`)
+          .then(res => res.json())
+          .then(alert => {
+            if (alert) checkIncomingAlerts({ latestOrderAlert: alert });
+          }).catch(() => {});
       }
     }
 
@@ -1284,7 +1393,6 @@
           const incomingOrders = Array.isArray(data.orders) ? data.orders : [];
           const incomingAccounts = Array.isArray(data.accounts) ? data.accounts : [];
 
-          // فحص سريع: هل تغير عدد الأعطال أو أرصدة الفنيين؟
           const currentBonusSum = incomingAccounts.reduce((sum, a) => sum + (Number(a.accumulatedBonus) || 0), 0);
           const isChanged = (incomingOrders.length !== lastOrdersCount) || (currentBonusSum !== lastAccountsBonusSum);
 
@@ -1333,8 +1441,11 @@
       showUserScreen();
       syncDown(true);
 
-      // استعلام خفيف كل 12 ثانية لتوفير موارد الموبايل
-      setInterval(() => syncDown(false), 12000);
+      // 1. فحص التنبيهات كل ثانيتين بشكل سريع وخفيف
+      setInterval(fastAlertsCheck, 2000);
+
+      // 2. تحديث كامل البيانات في الخلفية كل 15 ثانية
+      setInterval(() => syncDown(false), 15000);
       setInterval(sendTechHeartbeat, 30000);
     };
   </script>
