@@ -4,11 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>أعطالي</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
+    * { 
+      box-sizing: border-box; 
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Cairo", Tahoma, sans-serif; 
+      margin: 0; 
+      padding: 0; 
+      -webkit-tap-highlight-color: transparent;
+    }
     html, body { 
       background-color: #f1f5f9 !important; 
       color: #0f172a !important; 
@@ -17,12 +20,12 @@
     }
     body { padding-bottom: 40px; }
     .hidden { display: none !important; }
-    .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 12px; }
-    .card { background: #ffffff !important; color: #0f172a !important; border-radius: 14px; padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 10px; }
+    .card { background: #ffffff !important; color: #0f172a !important; border-radius: 12px; padding: 12px; margin-bottom: 8px; border: 1px solid #cbd5e1; }
     
     .input-control { 
       width: 100%; 
-      padding: 10px 12px; 
+      padding: 9px 11px; 
       border-radius: 8px; 
       border: 1px solid #cbd5e1; 
       font-size: 13px; 
@@ -30,44 +33,38 @@
       background: #ffffff !important; 
       color: #0f172a !important; 
       margin-bottom: 8px;
-      -webkit-user-select: text !important;
-      user-select: text !important;
-      touch-action: manipulation;
     }
-    .input-control:focus { border-color: #2563eb; ring: 2px solid #93c5fd; }
+    .input-control:focus { border-color: #2563eb; }
 
-    .btn { width: 100%; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none; }
+    .btn { width: 100%; padding: 9px; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none; }
     .btn-primary { background: #2563eb; color: #fff; }
     .btn-success { background: #059669; color: #fff; }
     .btn-warning { background: #d97706; color: #fff; }
     .btn-danger { background: #e11d48; color: #fff; }
     .btn-secondary { background: #e2e8f0; color: #475569; }
     
-    .header { background: #ffffff; border-bottom: 1px solid #cbd5e1; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+    .header { background: #ffffff; border-bottom: 1px solid #cbd5e1; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
     
     .icon-btn-pro {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 6px 10px;
+      border-radius: 8px;
+      padding: 5px 9px;
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 700;
       color: #334155;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       cursor: pointer;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-      transition: all 0.15s ease;
     }
-    .icon-btn-pro svg { width: 16px; height: 16px; fill: currentColor; }
-    .icon-btn-pro:active { transform: scale(0.95); background: #e2e8f0; }
+    .icon-btn-pro svg { width: 15px; height: 15px; fill: currentColor; }
     .icon-btn-pro.danger { background: #fff1f2; border-color: #fecdd3; color: #e11d48; }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 6px; }
-    .order-box { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; margin-bottom: 8px; }
-    .badge { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; }
+    .order-box { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 8px; }
+    .badge { padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 700; display: inline-block; }
     .badge-unassigned { background: #fee2e2; color: #b91c1c; }
     .badge-assigned { background: #dbeafe; color: #1d4ed8; }
     .badge-postponed { background: #ffedd5; color: #c2410c; }
@@ -79,33 +76,31 @@
     .badge-job-inspect { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
     .badge-job-repeat { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 
-    /* شارات التوقيت والتواريخ */
     .badge-time-today { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; font-size: 10px; }
-    .badge-time-yesterday { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; font-size: 10px; font-weight: 900; }
-    .badge-time-older { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size: 10px; font-weight: 800; }
+    .badge-time-yesterday { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; font-size: 10px; font-weight: 800; }
+    .badge-time-older { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size: 10px; font-weight: 700; }
 
     .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 4px; }
-    .status-online { background-color: #10b981; box-shadow: 0 0 6px rgba(16,185,129,0.7); }
+    .status-online { background-color: #10b981; }
     .status-offline { background-color: #94a3b8; }
 
     .stat-tab-card {
       background: #ffffff;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 12px;
-      padding: 10px 4px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 8px 4px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.15s ease;
     }
-    .stat-tab-card:active { transform: scale(0.96); background: #eff6ff; }
+    .stat-tab-card:active { background: #eff6ff; }
 
     .sub-filter-bar { display: flex; gap: 5px; overflow-x: auto; padding: 4px 2px 8px 2px; margin-bottom: 8px; scrollbar-width: none; }
     .sub-filter-bar::-webkit-scrollbar { display: none; }
     .tech-pill {
-      padding: 5px 12px;
+      padding: 4px 10px;
       font-size: 11px;
-      font-weight: 800;
-      border-radius: 20px;
+      font-weight: 700;
+      border-radius: 16px;
       border: 1px solid #cbd5e1;
       background: #ffffff;
       color: #475569;
@@ -119,38 +114,34 @@
     }
 
     .bonus-card-green {
-      background: linear-gradient(135deg, #10b981, #047857) !important;
+      background: #059669 !important;
       color: #ffffff !important;
-      border-radius: 18px;
-      padding: 22px 14px;
+      border-radius: 14px;
+      padding: 16px 12px;
       text-align: center;
-      border: none;
-      box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35);
       margin-bottom: 8px;
     }
 
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(4px);
+      background: rgba(15, 23, 42, 0.6);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 14px;
+      padding: 12px;
       z-index: 999;
     }
     .modal-content {
       background: #ffffff !important;
       color: #0f172a !important;
       width: 100%;
-      max-width: 440px;
-      border-radius: 18px;
-      padding: 18px;
-      max-height: 90vh;
+      max-width: 420px;
+      border-radius: 14px;
+      padding: 16px;
+      max-height: 85vh;
       overflow-y: auto;
       border: 1px solid #cbd5e1;
-      -webkit-overflow-scrolling: touch;
     }
   </style>
 </head>
@@ -159,8 +150,8 @@
   <!-- نافذة تعديل بيانات العميل أو العطل -->
   <div id="modalEditOrder" class="modal-overlay hidden">
     <div class="modal-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
-        <h4 style="font-size: 15px; font-weight: 900; color: #2563eb;">✏️ تعديل بيانات العطل</h4>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px;">
+        <h4 style="font-size: 14px; font-weight: 800; color: #2563eb;">✏️ تعديل بيانات العطل</h4>
         <button type="button" onclick="closeEditOrderModal()" style="border: none; background: transparent; font-size: 18px; cursor: pointer; color: #64748b;">✕</button>
       </div>
       <input type="hidden" id="editOrderId">
@@ -188,9 +179,9 @@
   <!-- نافذة إشعار طلب للفني -->
   <div id="modalOrderAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
     <div class="modal-content" style="text-align: center; border: 2px solid #2563eb;" onclick="event.stopPropagation()">
-      <div style="font-size: 42px; margin-bottom: 4px;">🔔</div>
-      <h3 style="font-size: 18px; font-weight: 900; color: #2563eb; margin-bottom: 6px;">طلب جديد مسند إليك!</h3>
-      <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; text-align: right; font-size: 13px; line-height: 1.6; margin-bottom: 12px;">
+      <div style="font-size: 36px; margin-bottom: 4px;">🔔</div>
+      <h3 style="font-size: 17px; font-weight: 800; color: #2563eb; margin-bottom: 6px;">طلب جديد مسند إليك!</h3>
+      <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; text-align: right; font-size: 12px; line-height: 1.5; margin-bottom: 10px;">
         <div><strong>العميل:</strong> <span id="alertCustName" style="font-weight: 800;"></span></div>
         <div><strong>النوع:</strong> <span id="alertJobTypeBadge" style="font-weight: 800; color: #2563eb;"></span></div>
         <div><strong>الهاتف:</strong> <span id="alertCustPhone" style="font-weight: 800; direction: ltr; display: inline-block;"></span></div>
@@ -206,9 +197,9 @@
   <!-- نافذة إشعار للمدير -->
   <div id="modalAdminNotification" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
     <div class="modal-content" id="adminNotifBox" style="text-align: center; border: 2px solid #2563eb;" onclick="event.stopPropagation()">
-      <div id="adminNotifIcon" style="font-size: 42px; margin-bottom: 4px;">📢</div>
-      <h3 id="adminNotifTitle" style="font-size: 18px; font-weight: 900; margin-bottom: 6px;">تحديث جديد من الفني</h3>
-      <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; text-align: right; font-size: 13px; line-height: 1.6; margin-bottom: 12px;">
+      <div id="adminNotifIcon" style="font-size: 36px; margin-bottom: 4px;">📢</div>
+      <h3 id="adminNotifTitle" style="font-size: 17px; font-weight: 800; margin-bottom: 6px;">تحديث جديد من الفني</h3>
+      <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; text-align: right; font-size: 12px; line-height: 1.5; margin-bottom: 10px;">
         <div><strong>الفني:</strong> <span id="adminNotifTech" style="color: #2563eb; font-weight: 800;"></span></div>
         <div><strong>العميل:</strong> <span id="adminNotifCust" style="font-weight: 800;"></span></div>
         <div><strong>البيان / السبب:</strong> <span id="adminNotifDetail"></span></div>
@@ -220,12 +211,12 @@
   <!-- نافذة إشعار البونص / الخصم للفني -->
   <div id="modalBonusAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
     <div class="modal-content" id="bonusAlertBox" style="text-align: center; border: 2px solid #059669;" onclick="event.stopPropagation()">
-      <div id="bonusAlertIcon" style="font-size: 42px; margin-bottom: 4px;">🎁</div>
-      <h3 id="bonusAlertTitle" style="font-size: 18px; font-weight: 900; color: #059669; margin-bottom: 4px;">مبروك! نزل لك بونص جديد</h3>
-      <p id="bonusAlertReason" style="font-size: 12px; color: #475569; margin-bottom: 10px; font-weight: 700;"></p>
-      <div id="bonusAlertCard" style="background: #ecfdf5; border-radius: 12px; padding: 12px; margin-bottom: 14px;">
+      <div id="bonusAlertIcon" style="font-size: 36px; margin-bottom: 4px;">🎁</div>
+      <h3 id="bonusAlertTitle" style="font-size: 17px; font-weight: 800; color: #059669; margin-bottom: 4px;">مبروك! نزل لك بونص جديد</h3>
+      <p id="bonusAlertReason" style="font-size: 12px; color: #475569; margin-bottom: 8px; font-weight: 700;"></p>
+      <div id="bonusAlertCard" style="background: #ecfdf5; border-radius: 10px; padding: 10px; margin-bottom: 12px;">
         <span id="bonusAlertLabel" style="font-size: 11px; color: #059669; font-weight: 700; display: block;">المبلغ:</span>
-        <h2 id="bonusAlertAmount" style="font-size: 34px; font-weight: 900; color: #059669; margin: 2px 0;">+0 ج</h2>
+        <h2 id="bonusAlertAmount" style="font-size: 30px; font-weight: 800; color: #059669; margin: 2px 0;">+0 ج</h2>
       </div>
       <button type="button" id="bonusAlertBtn" onclick="dismissBonusAlert()" class="btn btn-primary" style="background: #059669;">تم الاستلام ✓</button>
     </div>
@@ -234,21 +225,21 @@
   <!-- سجل المكافآت للفني -->
   <div id="modalTechBonusHistory" class="modal-overlay hidden">
     <div class="modal-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
-        <h4 style="font-size: 14px; font-weight: 900; color: #059669;">📜 سجل المكافآت والخصومات</h4>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px;">
+        <h4 style="font-size: 13px; font-weight: 800; color: #059669;">📜 سجل المكافآت والخصومات</h4>
         <button type="button" onclick="closeTechBonusHistory()" style="border: none; background: transparent; font-size: 18px; cursor: pointer; color: #64748b;">✕</button>
       </div>
-      <div id="techBonusHistoryList" style="max-height: 320px; overflow-y: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px;"></div>
-      <button type="button" onclick="closeTechBonusHistory()" class="btn btn-secondary" style="padding: 8px; font-size: 12px;">إغلاق</button>
+      <div id="techBonusHistoryList" style="max-height: 280px; overflow-y: auto; margin-bottom: 8px;"></div>
+      <button type="button" onclick="closeTechBonusHistory()" class="btn btn-secondary" style="padding: 6px; font-size: 11px;">إغلاق</button>
     </div>
   </div>
 
   <!-- نافذة حل العطل -->
   <div id="modalSolveOrder" class="modal-overlay hidden">
     <div class="modal-content">
-      <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #059669;">تأكيد حل المشكلة ✓</h4>
+      <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 6px; color: #059669;">تأكيد حل المشكلة ✓</h4>
       <input type="hidden" id="solveOrderId">
-      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">ما تم إنجازه (اختياري):</label>
+      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">ما تم إنجازه (اختياري):</label>
       <input type="text" id="solveReasonText" placeholder="مثلاً: تم التركيب أو حل المشكلة..." class="input-control">
       <div class="grid-2" style="margin-top: 6px;">
         <button type="button" onclick="submitSolveOrder()" class="btn btn-success">تأكيد الحل ✓</button>
@@ -260,9 +251,9 @@
   <!-- نافذة تأجيل العطل -->
   <div id="modalPostponeOrder" class="modal-overlay hidden">
     <div class="modal-content">
-      <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #d97706;">تأجيل موعد الطلب ⏳</h4>
+      <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 6px; color: #d97706;">تأجيل موعد الطلب ⏳</h4>
       <input type="hidden" id="postponeOrderId">
-      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">سبب التأجيل (اختياري):</label>
+      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">سبب التأجيل (اختياري):</label>
       <input type="text" id="postponeReasonText" placeholder="مثلاً: العميل غير متواجد" class="input-control">
       <div class="grid-2" style="margin-top: 6px;">
         <button type="button" onclick="submitPostponeOrder()" class="btn btn-warning">حفظ التأجيل ⏳</button>
@@ -272,13 +263,13 @@
   </div>
 
   <!-- شاشة الدخول -->
-  <div id="screenLogin" class="container" style="min-height: 85vh; display: flex; align-items: center; justify-content: center;">
-    <div class="card" style="width: 100%; text-align: center; padding: 24px 18px;">
-      <div style="width: 60px; height: 60px; background: #2563eb; color: #fff; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; font-size: 26px;">
+  <div id="screenLogin" class="container" style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+    <div class="card" style="width: 100%; text-align: center; padding: 20px 16px;">
+      <div style="width: 50px; height: 50px; background: #2563eb; color: #fff; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto; font-size: 22px;">
         📶
       </div>
-      <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 2px;">أعطالي</h2>
-      <p style="font-size: 12px; color: #475569; margin-bottom: 18px;">تسجيل الدخول للنظام</p>
+      <h2 style="font-size: 19px; font-weight: 800; margin-bottom: 2px;">أعطالي</h2>
+      <p style="font-size: 11px; color: #475569; margin-bottom: 14px;">تسجيل الدخول للنظام</p>
 
       <input type="text" id="logUser" placeholder="اسم المستخدم" class="input-control">
       <input type="password" id="logPass" placeholder="كلمة المرور" class="input-control">
@@ -291,67 +282,50 @@
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
-        <h3 style="font-size: 15px; font-weight: 900; color: #0f172a;">لوحة الإدارة</h3>
+        <h3 style="font-size: 14px; font-weight: 800; color: #0f172a;">لوحة الإدارة</h3>
         <span id="adminDate" style="font-size: 10px; color: #64748b; font-weight: 700;"></span>
       </div>
-      <div style="display: flex; gap: 6px; align-items: center;">
+      <div style="display: flex; gap: 5px; align-items: center;">
         <button type="button" onclick="triggerManualSync()" class="icon-btn-pro" title="تحديث السحابة">
           <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
           <span>تحديث</span>
         </button>
         <button type="button" onclick="openSettingsPage()" class="icon-btn-pro" title="الإعدادات">
           <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-          <span>الإعدادات</span>
         </button>
         <button type="button" onclick="handleLogout()" class="icon-btn-pro danger" title="تسجيل الخروج">
           <svg viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
-          <span>خروج</span>
         </button>
       </div>
     </header>
 
     <div class="container">
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 12px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; margin-bottom: 10px;">
         <div class="stat-tab-card" onclick="openOrdersPage('pending')">
           <span style="font-size: 10px; color: #64748b; display: block;">⏳ معلق</span>
-          <strong id="statPending" style="font-size: 15px; color: #d97706; display: block;">0</strong>
+          <strong id="statPending" style="font-size: 14px; color: #d97706; display: block;">0</strong>
         </div>
         <div class="stat-tab-card" onclick="openOrdersPage('assigned')">
           <span style="font-size: 10px; color: #64748b; display: block;">🚀 جاري</span>
-          <strong id="statAssigned" style="font-size: 15px; color: #2563eb; display: block;">0</strong>
+          <strong id="statAssigned" style="font-size: 14px; color: #2563eb; display: block;">0</strong>
         </div>
         <div class="stat-tab-card" onclick="openOrdersPage('postponed')">
           <span style="font-size: 10px; color: #64748b; display: block;">⏸️ مؤجل</span>
-          <strong id="statPostponed" style="font-size: 15px; color: #c2410c; display: block;">0</strong>
+          <strong id="statPostponed" style="font-size: 14px; color: #c2410c; display: block;">0</strong>
         </div>
         <div class="stat-tab-card" onclick="openOrdersPage('done')">
           <span style="font-size: 10px; color: #64748b; display: block;">✅ منجز</span>
-          <strong id="statDone" style="font-size: 15px; color: #059669; display: block;">0</strong>
+          <strong id="statDone" style="font-size: 14px; color: #059669; display: block;">0</strong>
         </div>
       </div>
 
       <!-- تسجيل طلب جديد -->
-      <div class="card" style="border: 1.5px solid #93c5fd;">
+      <div class="card" style="border: 1px solid #93c5fd;">
         <div class="grid-2">
-          <input 
-            type="text" 
-            id="newCustName" 
-            placeholder="اسم العميل *" 
-            class="input-control" 
-            tabindex="1"
-            inputmode="text"
-            autocomplete="off"
-          >
-          <input 
-            type="tel" 
-            id="newCustPhone" 
-            placeholder="رقم الهاتف (اختياري)" 
-            class="input-control" 
-            tabindex="2"
-            inputmode="tel"
-          >
+          <input type="text" id="newCustName" placeholder="اسم العميل *" class="input-control" autocomplete="off">
+          <input type="tel" id="newCustPhone" placeholder="الهاتف (اختياري)" class="input-control">
         </div>
-        <div class="grid-2" style="margin-bottom: 8px;">
+        <div class="grid-2" style="margin-bottom: 6px;">
           <select id="newJobType" class="input-control" style="margin-bottom: 0; font-weight: 700;">
             <option value="عطل">عطل</option>
             <option value="عطل متكرر">عطل متكرر</option>
@@ -359,7 +333,7 @@
             <option value="معاينه جديده">معاينه جديده</option>
             <option value="تشييك">تشييك</option>
           </select>
-          <input type="text" id="newCustDesc" placeholder="ملاحظات إضافية (اختياري)" class="input-control" style="margin-bottom: 0;">
+          <input type="text" id="newCustDesc" placeholder="ملاحظات إضافية" class="input-control" style="margin-bottom: 0;">
         </div>
         <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
@@ -368,12 +342,12 @@
     </div>
   </div>
 
-  <!-- 2. صفحة الأعطال المستقلة مع شريط فلتر الأيام والسجل -->
+  <!-- 2. صفحة الأعطال المستقلة -->
   <div id="screenOrdersPage" class="hidden">
     <header class="header">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <button type="button" onclick="backToAdminHome()" class="icon-btn-pro" style="padding: 4px 10px; font-size: 12px;">← رجوع</button>
-        <h3 id="ordersPageTitle" style="font-size: 15px; font-weight: 900; color: #0f172a;">الأعطال</h3>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <button type="button" onclick="backToAdminHome()" class="icon-btn-pro" style="padding: 4px 8px; font-size: 11px;">← رجوع</button>
+        <h3 id="ordersPageTitle" style="font-size: 13px; font-weight: 800; color: #0f172a;">الأعطال</h3>
       </div>
       <button type="button" onclick="triggerManualSync()" class="icon-btn-pro" title="تحديث">
         <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
@@ -381,24 +355,23 @@
     </header>
 
     <div class="container">
-      <!-- شريط فلتر الفنيين -->
       <div id="techSubFilterBar" class="sub-filter-bar hidden"></div>
 
-      <!-- سجل الأيام: فلتر سريع بالتاريخ -->
-      <div class="card" style="padding: 8px 10px; margin-bottom: 8px; background: #ffffff;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-          <span style="font-size: 11px; font-weight: 800; color: #475569;">📅 سجل الأيام (فلترة بيومها):</span>
-          <span id="selectedDateLabel" style="font-size: 10px; font-weight: 800; color: #2563eb;">عرض: الكل</span>
+      <!-- سجل الأيام -->
+      <div class="card" style="padding: 6px 8px; margin-bottom: 6px; background: #ffffff;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span style="font-size: 11px; font-weight: 700; color: #475569;">📅 فلتر التاريخ:</span>
+          <span id="selectedDateLabel" style="font-size: 10px; font-weight: 700; color: #2563eb;">الكل</span>
         </div>
-        <div style="display: flex; gap: 5px; align-items: center; flex-wrap: wrap;">
-          <button type="button" id="datePillAll" onclick="setDateFilter('all')" class="tech-pill active" style="flex: 1; padding: 4px 6px;">الكل</button>
-          <button type="button" id="datePillToday" onclick="setDateFilter('today')" class="tech-pill" style="flex: 1; padding: 4px 6px;">اليوم</button>
-          <button type="button" id="datePillYesterday" onclick="setDateFilter('yesterday')" class="tech-pill" style="flex: 1; padding: 4px 6px;">أمس</button>
-          <input type="date" id="datePickerFilter" onchange="setDateFilterCustom(this.value)" class="input-control" style="flex: 1.5; margin-bottom: 0; padding: 4px 6px; font-size: 11px; font-weight: 700; height: 28px;">
+        <div style="display: flex; gap: 4px; align-items: center;">
+          <button type="button" id="datePillAll" onclick="setDateFilter('all')" class="tech-pill active" style="flex: 1; padding: 3px;">الكل</button>
+          <button type="button" id="datePillToday" onclick="setDateFilter('today')" class="tech-pill" style="flex: 1; padding: 3px;">اليوم</button>
+          <button type="button" id="datePillYesterday" onclick="setDateFilter('yesterday')" class="tech-pill" style="flex: 1; padding: 3px;">أمس</button>
+          <input type="date" id="datePickerFilter" onchange="setDateFilterCustom(this.value)" class="input-control" style="flex: 1.5; margin-bottom: 0; padding: 2px 4px; font-size: 11px; height: 26px;">
         </div>
       </div>
 
-      <div class="card" style="padding: 10px;">
+      <div class="card" style="padding: 8px;">
         <div id="adminOrdersList"></div>
       </div>
     </div>
@@ -407,30 +380,29 @@
   <!-- 3. صفحة الإعدادات المستقلة -->
   <div id="screenSettingsPage" class="hidden">
     <header class="header">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <button type="button" onclick="backToAdminHomeFromSettings()" class="icon-btn-pro" style="padding: 4px 10px; font-size: 12px;">← رجوع</button>
-        <h3 style="font-size: 15px; font-weight: 900; color: #2563eb;">⚙ لوحة الإعدادات</h3>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <button type="button" onclick="backToAdminHomeFromSettings()" class="icon-btn-pro" style="padding: 4px 8px; font-size: 11px;">← رجوع</button>
+        <h3 style="font-size: 14px; font-weight: 800; color: #2563eb;">⚙ لوحة الإعدادات</h3>
       </div>
     </header>
 
-    <div class="container" style="padding-bottom: 60px;">
+    <div class="container" style="padding-bottom: 40px;">
       <div class="card" style="background: #fff1f2 !important; border-color: #fecdd3;">
-        <h5 style="font-size: 13px; font-weight: 900; color: #e11d48; margin-bottom: 8px;">➖ تسجيل سلفة أو خصم كاش:</h5>
+        <h5 style="font-size: 12px; font-weight: 800; color: #e11d48; margin-bottom: 6px;">➖ تسجيل سلفة أو خصم كاش:</h5>
         <select id="deductTechSelect" class="input-control"></select>
-        <input type="number" id="deductAmount" placeholder="المبلغ بالجنيه" class="input-control" style="font-weight: 900; color: #e11d48;">
-        <input type="text" id="deductReason" placeholder="السبب (مثلاً: سلفة بنزين)" class="input-control">
-        <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 8px; font-size: 12px;">خصم من الرصيد ➖</button>
+        <input type="number" id="deductAmount" placeholder="المبلغ بالجنيه" class="input-control" style="font-weight: 800; color: #e11d48;">
+        <input type="text" id="deductReason" placeholder="السبب" class="input-control">
+        <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 7px; font-size: 11px;">خصم من الرصيد ➖</button>
       </div>
 
-      <!-- التحكم في حساب الفني -->
       <div class="card">
-        <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">🛠 التحكم في حساب وسجل الفني:</h5>
+        <h5 style="font-size: 12px; font-weight: 800; margin-bottom: 6px;">🛠 التحكم في حساب الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
         
-        <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">تعديل الرصيد يدوياً:</label>
-        <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-          <input type="number" id="settingsTechBal" class="input-control" style="margin-bottom: 0; font-weight: 900; color: #059669;">
-          <button type="button" onclick="updateSelectedTechBalance()" class="btn btn-success" style="width: auto; padding: 0 12px; font-size: 11px; white-space: nowrap;">تحديث</button>
+        <label style="font-size: 10px; font-weight: 700; color: #475569; display: block; margin-bottom: 2px;">تعديل الرصيد:</label>
+        <div style="display: flex; gap: 5px; margin-bottom: 6px;">
+          <input type="number" id="settingsTechBal" class="input-control" style="margin-bottom: 0; font-weight: 800; color: #059669;">
+          <button type="button" onclick="updateSelectedTechBalance()" class="btn btn-success" style="width: auto; padding: 0 10px; font-size: 11px;">تحديث</button>
         </div>
 
         <input type="text" id="settingsTechName" placeholder="الاسم" class="input-control">
@@ -439,48 +411,45 @@
           <input type="text" id="settingsTechPass" placeholder="الباسورد" class="input-control">
         </div>
         
-        <div class="grid-2" style="margin-bottom: 8px;">
-          <button type="button" onclick="saveSelectedTechAccount()" class="btn btn-primary" style="padding: 7px; font-size: 11px;">حفظ البيانات 💾</button>
-          <button type="button" onclick="deleteSelectedTechAccount()" class="btn btn-danger" style="padding: 7px; font-size: 11px;">حذف الفني ✕</button>
+        <div class="grid-2" style="margin-bottom: 6px;">
+          <button type="button" onclick="saveSelectedTechAccount()" class="btn btn-primary" style="padding: 6px; font-size: 11px;">حفظ 💾</button>
+          <button type="button" onclick="deleteSelectedTechAccount()" class="btn btn-danger" style="padding: 6px; font-size: 11px;">حذف ✕</button>
         </div>
 
-        <button type="button" onclick="clearSelectedTechOrdersHistory()" class="btn btn-secondary" style="background: #fed7aa; color: #9a3412; border: 1px solid #fdba74; font-size: 11px; padding: 8px;">
+        <button type="button" onclick="clearSelectedTechOrdersHistory()" class="btn btn-secondary" style="background: #fed7aa; color: #9a3412; border: 1px solid #fdba74; font-size: 11px; padding: 7px;">
           مسح سجل طلبات هذا الفني 🗑️
         </button>
       </div>
 
-      <div class="card" style="border: 1.5px solid #cbd5e1;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <h5 style="font-size: 13px; font-weight: 900; color: #0f172a;">📊 سجل حركات البونص والخصومات:</h5>
-          <button type="button" onclick="clearAllBonusRecords()" class="btn btn-danger" style="width: auto; padding: 3px 8px; font-size: 10px;">مسح السجل 🗑️</button>
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <h5 style="font-size: 12px; font-weight: 800; color: #0f172a;">📊 سجل الحركات:</h5>
+          <button type="button" onclick="clearAllBonusRecords()" class="btn btn-danger" style="width: auto; padding: 2px 6px; font-size: 10px;">مسح 🗑️</button>
         </div>
         
-        <select id="historyFilterTech" class="input-control" onchange="renderBonusHistoryLog()" style="margin-bottom: 8px; font-weight: 700;">
+        <select id="historyFilterTech" class="input-control" onchange="renderBonusHistoryLog()" style="margin-bottom: 6px; font-weight: 700;">
           <option value="all">👥 جميع الفنيين</option>
         </select>
-
-        <div id="bonusHistoryLogList" style="max-height: 250px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
+        <div id="bonusHistoryLogList" style="max-height: 200px; overflow-y: auto;"></div>
       </div>
 
-      <!-- إضافة فني جديد -->
       <div class="card">
-        <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">👷 إضافة فني جديد:</h5>
-        <input type="text" id="addTechName" placeholder="اسم الفني بالكامل" class="input-control">
+        <h5 style="font-size: 12px; font-weight: 800; margin-bottom: 6px;">👷 إضافة فني جديد:</h5>
+        <input type="text" id="addTechName" placeholder="اسم الفني" class="input-control">
         <div class="grid-2">
           <input type="text" id="addTechUser" placeholder="اليوزر" class="input-control">
           <input type="text" id="addTechPass" placeholder="الباسورد" class="input-control">
         </div>
-        <button type="button" onclick="addNewTechAccount()" class="btn btn-primary" style="padding: 8px; font-size: 12px;">إضافة الفني ➕</button>
+        <button type="button" onclick="addNewTechAccount()" class="btn btn-primary" style="padding: 7px; font-size: 11px;">إضافة الفني ➕</button>
       </div>
 
-      <div class="card" style="border: 2px solid #2563eb;">
-        <h5 style="font-size: 13px; font-weight: 900; color: #2563eb; margin-bottom: 4px;">🔐 أمان حساب المدير:</h5>
-        <p style="font-size: 11px; color: #64748b; margin-bottom: 8px;">يمكنك تغيير اسم المستخدم وكلمة المرور في أي وقت لحماية التطبيق.</p>
+      <div class="card" style="border: 1px solid #2563eb;">
+        <h5 style="font-size: 12px; font-weight: 800; color: #2563eb; margin-bottom: 4px;">🔐 حساب المدير:</h5>
         <div class="grid-2">
-          <input type="text" id="adminUserField" placeholder="اسم المستخدم الجديد" class="input-control">
-          <input type="text" id="adminPassField" placeholder="كلمة المرور الجديدة" class="input-control">
+          <input type="text" id="adminUserField" placeholder="يوزر جديد" class="input-control">
+          <input type="text" id="adminPassField" placeholder="باسورد جديد" class="input-control">
         </div>
-        <button type="button" onclick="saveAdminCredentials()" class="btn btn-primary" style="padding: 8px; font-size: 12px;">تحديث وتأمين حساب المدير 💾</button>
+        <button type="button" onclick="saveAdminCredentials()" class="btn btn-primary" style="padding: 7px; font-size: 11px;">تحديث حساب المدير 💾</button>
       </div>
     </div>
   </div>
@@ -489,10 +458,10 @@
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
-        <h3 id="techDispName" style="font-size: 15px; font-weight: 900;">الفني</h3>
+        <h3 id="techDispName" style="font-size: 14px; font-weight: 800;">الفني</h3>
         <span style="font-size: 10px; color: #475569; font-weight: 700;">أعطالي</span>
       </div>
-      <div style="display: flex; gap: 5px;">
+      <div style="display: flex; gap: 4px;">
         <button type="button" onclick="triggerManualSync()" class="icon-btn-pro" title="تحديث السحابة">
           <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
         </button>
@@ -504,18 +473,17 @@
 
     <div class="container">
       <div class="bonus-card-green">
-        <span style="font-size: 12px; font-weight: 700; opacity: 0.95; display: block; margin-bottom: 4px;">إجمالي رصيد البونص المستحق لك</span>
-        <h2 id="techBonusBalance" style="font-size: 42px; font-weight: 900; margin: 4px 0; line-height: 1.1;">0 ج</h2>
-        <span style="font-size: 11px; background: rgba(255,255,255,0.22); padding: 3px 14px; border-radius: 20px; font-weight: 800; display: inline-block; margin-top: 6px;">حصالة المكافآت ✓</span>
+        <span style="font-size: 11px; opacity: 0.95; display: block; margin-bottom: 2px;">رصيد البونص المستحق</span>
+        <h2 id="techBonusBalance" style="font-size: 34px; font-weight: 800; margin: 2px 0;">0 ج</h2>
       </div>
 
-      <button type="button" onclick="openTechBonusHistory()" class="btn btn-secondary" style="margin-bottom: 10px; padding: 7px; font-size: 12px; background: #ffffff; border: 1px solid #cbd5e1; color: #047857;">
+      <button type="button" onclick="openTechBonusHistory()" class="btn btn-secondary" style="margin-bottom: 8px; padding: 6px; font-size: 11px; background: #ffffff; border: 1px solid #cbd5e1; color: #047857;">
         📜 سجل المكافآت والخصومات
       </button>
 
-      <div style="display: flex; gap: 6px; margin-bottom: 10px;">
-        <button type="button" id="tabBtnPending" onclick="switchTechTab('pending')" class="btn btn-primary" style="flex: 1; padding: 8px; font-size: 12px;">المطلوبة (<span id="countTechPending">0</span>)</button>
-        <button type="button" id="tabBtnDone" onclick="switchTechTab('done')" class="btn btn-secondary" style="flex: 1; padding: 8px; font-size: 12px;">المنجزة (<span id="countTechDone">0</span>)</button>
+      <div style="display: flex; gap: 5px; margin-bottom: 8px;">
+        <button type="button" id="tabBtnPending" onclick="switchTechTab('pending')" class="btn btn-primary" style="flex: 1; padding: 7px; font-size: 11px;">المطلوبة (<span id="countTechPending">0</span>)</button>
+        <button type="button" id="tabBtnDone" onclick="switchTechTab('done')" class="btn btn-secondary" style="flex: 1; padding: 7px; font-size: 11px;">المنجزة (<span id="countTechDone">0</span>)</button>
       </div>
 
       <div id="techOrdersList"></div>
@@ -538,17 +506,11 @@
     let adminFilter = 'pending';
     let selectedTechFilter = 'all';
     let selectedDateFilter = 'all';
-    let globalAudioCtx = null;
-    let isChimePlaying = false;
-    let activeChimeNodes = [];
-    let lastOrderAlertId = null;
-    let lastBonusAlertId = null;
-    let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
 
-    // سلاسل لمقارنة البيانات ومنع إعادة الرسم غير الضرورية
-    let lastOrdersHash = '';
-    let lastAccountsHash = '';
+    // علامات سريعة لفحص التغيير فقط بدون JSON.stringify كبير
+    let lastOrdersCount = -1;
+    let lastAccountsBonusSum = -1;
 
     function getToday() {
       const d = new Date();
@@ -566,110 +528,28 @@
       const today = getToday();
       const yesterday = getYesterday();
 
-      if (orderDate === today) {
-        return `<span class="badge badge-time-today">اليوم 🟢</span>`;
-      } else if (orderDate === yesterday) {
-        return `<span class="badge badge-time-yesterday">أمس ⚠️</span>`;
-      } else {
-        return `<span class="badge badge-time-older">📅 ${orderDate}</span>`;
-      }
+      if (orderDate === today) return `<span class="badge badge-time-today">اليوم 🟢</span>`;
+      if (orderDate === yesterday) return `<span class="badge badge-time-yesterday">أمس ⚠️</span>`;
+      return `<span class="badge badge-time-older">📅 ${orderDate}</span>`;
     }
 
     function formatLastSeen(timestamp) {
-      if (!timestamp) return 'لم يسجل دخول بعد';
+      if (!timestamp) return 'غير متصل';
       const diffMinutes = Math.floor((Date.now() - timestamp) / 60000);
-
       if (diffMinutes < 1) return 'الآن';
-      if (diffMinutes === 1) return 'منذ دقيقة';
-      if (diffMinutes === 2) return 'منذ دقيقتين';
-      if (diffMinutes >= 3 && diffMinutes <= 10) return `منذ ${diffMinutes} دقائق`;
-      if (diffMinutes < 60) return `منذ ${diffMinutes} دقيقة`;
-      
+      if (diffMinutes < 60) return `منذ ${diffMinutes} د`;
       const diffHours = Math.floor(diffMinutes / 60);
-      if (diffHours === 1) return 'منذ ساعة';
-      if (diffHours === 2) return 'منذ ساعتين';
-      if (diffHours >= 3 && diffHours <= 10) return `منذ ${diffHours} ساعات`;
-      if (diffHours < 24) return `منذ ${diffHours} ساعة`;
-
-      const date = new Date(timestamp);
-      return `${date.toLocaleDateString('ar-EG')} ${date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
+      if (diffHours < 24) return `منذ ${diffHours} س`;
+      return 'سابقاً';
     }
 
-    function unlockAudioSystem() {
-      try {
-        if (!globalAudioCtx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (AudioContext) globalAudioCtx = new AudioContext();
-        }
-        if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
-          globalAudioCtx.resume();
-        }
-      } catch(e) {}
-    }
-
-    function stopAlertChimeNow() {
-      isChimePlaying = false;
-      if (activeChimeNodes && activeChimeNodes.length > 0) {
-        activeChimeNodes.forEach(node => {
-          try { node.stop(); } catch(e){}
-        });
-        activeChimeNodes = [];
-      }
-      if (navigator.vibrate) {
-        try { navigator.vibrate(0); } catch(e){}
-      }
-    }
-
-    function playTone(freq, start, duration) {
-      if (!globalAudioCtx || !isChimePlaying) return;
-      try {
-        const osc = globalAudioCtx.createOscillator();
-        const gain = globalAudioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(globalAudioCtx.destination);
-        osc.frequency.setValueAtTime(freq, start);
-        gain.gain.setValueAtTime(0.25, start);
-        gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
-        osc.start(start);
-        osc.stop(start + duration);
-        activeChimeNodes.push(osc);
-      } catch(e) {}
-    }
-
-    function triggerAlertChime(isDeduct = false) {
-      unlockAudioSystem();
-      if (!globalAudioCtx) return;
-      stopAlertChimeNow();
-      isChimePlaying = true;
-
-      const t = globalAudioCtx.currentTime;
-      const repetitions = 8;
-      for (let i = 0; i < repetitions; i++) {
-        const offset = i * 0.9;
-        if (isDeduct) {
-          playTone(659.25, t + offset, 0.25);
-          playTone(523.25, t + offset + 0.2, 0.35);
-        } else {
-          playTone(523.25, t + offset, 0.2);
-          playTone(659.25, t + offset + 0.18, 0.2);
-          playTone(783.99, t + offset + 0.35, 0.35);
-        }
-      }
-
-      if (navigator.vibrate) {
-        try { 
-          navigator.vibrate([300, 200, 300, 200, 300, 200, 300, 200, 300, 200, 300]); 
-        } catch(e){}
-      }
-    }
+    function stopAlertChimeNow() {}
+    function triggerAlertChime() {}
 
     function sendTechHeartbeat() {
       if (!currentUser || currentUser.role !== 'tech') return;
       const now = Date.now();
       currentUser.lastSeen = now;
-      const meInList = appAccounts.find(a => a.id === currentUser.id);
-      if (meInList) meInList.lastSeen = now;
-
       fetch(`${FIREBASE_DB}/bonus_system_data/presence/${currentUser.id}.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -679,150 +559,46 @@
 
     function checkIncomingAlerts(data) {
       if (!currentUser || !data) return;
-
-      if (currentUser.role === 'tech') {
-        if (data.latestOrderAlert && data.latestOrderAlert.targetTech === currentUser.name) {
-          const alert = data.latestOrderAlert;
-          const dismissed = localStorage.getItem('last_dismissed_ord_' + currentUser.name);
-          if (alert.alertId !== dismissed && alert.alertId !== lastOrderAlertId) {
-            lastOrderAlertId = alert.alertId;
-            document.getElementById('alertCustName').innerText = alert.customer || 'عميل';
-            document.getElementById('alertJobTypeBadge').innerText = alert.jobType || 'عطل';
-            document.getElementById('alertCustPhone').innerText = alert.phone || 'بدون رقم';
-            
-            const descRow = document.getElementById('alertDescRow');
-            if (alert.desc && alert.desc.trim()) {
-              document.getElementById('alertCustDesc').innerText = alert.desc;
-              descRow.style.display = 'block';
-            } else {
-              descRow.style.display = 'none';
-            }
-            
-            const callBtn = document.getElementById('alertCallBtn');
-            if (alert.phone) {
-              callBtn.href = `tel:${alert.phone}`;
-              callBtn.classList.remove('hidden');
-            } else {
-              callBtn.classList.add('hidden');
-            }
-
-            document.getElementById('modalOrderAlert').classList.remove('hidden');
-            triggerAlertChime(false);
-          }
-        }
-
-        if (data.latestBonusAlert && data.latestBonusAlert.targetTech === currentUser.name) {
-          const alert = data.latestBonusAlert;
-          const dismissed = localStorage.getItem('last_dismissed_bn_' + currentUser.name);
-          if (alert.bonusId !== dismissed && alert.bonusId !== lastBonusAlertId) {
-            lastBonusAlertId = alert.bonusId;
-            const isNeg = Number(alert.amount) < 0;
-            const box = document.getElementById('bonusAlertBox');
-            const card = document.getElementById('bonusAlertCard');
-            const title = document.getElementById('bonusAlertTitle');
-            const icon = document.getElementById('bonusAlertIcon');
-            const label = document.getElementById('bonusAlertLabel');
-            const amt = document.getElementById('bonusAlertAmount');
-            const btn = document.getElementById('bonusAlertBtn');
-
-            if (isNeg) {
-              box.style.borderColor = '#e11d48';
-              card.style.background = '#fff1f2';
-              title.innerText = 'تنبيه: تم تسجيل خصم / سلفة';
-              title.style.color = '#e11d48';
-              icon.innerText = '⚠️';
-              label.innerText = 'المبلغ المخصوم:';
-              label.style.color = '#e11d48';
-              amt.innerText = `${alert.amount} ج`;
-              amt.style.color = '#e11d48';
-              btn.style.background = '#e11d48';
-            } else {
-              box.style.borderColor = '#059669';
-              card.style.background = '#ecfdf5';
-              title.innerText = 'مبروك! نزل لك بونص جديد';
-              title.style.color = '#059669';
-              icon.innerText = '🎁';
-              label.innerText = 'المبلغ المضاف:';
-              label.style.color = '#059669';
-              amt.innerText = `+${alert.amount} ج`;
-              amt.style.color = '#059669';
-              btn.style.background = '#059669';
-            }
-
-            document.getElementById('bonusAlertReason').innerText = alert.reason ? `السبب: ${alert.reason}` : (isNeg ? 'خصم مالي' : 'مكافأة إنجاز');
-            document.getElementById('modalBonusAlert').classList.remove('hidden');
-            triggerAlertChime(isNeg);
-          }
-        }
-      }
-
-      if (currentUser.role === 'admin' && data.latestAdminAlert) {
-        const aAlert = data.latestAdminAlert;
-        const dismissedAdmin = localStorage.getItem('last_dismissed_admin_alert');
-        if (aAlert.id !== dismissedAdmin && aAlert.id !== lastAdminAlertId) {
-          lastAdminAlertId = aAlert.id;
-          document.getElementById('adminNotifTech').innerText = aAlert.tech;
-          document.getElementById('adminNotifCust').innerText = aAlert.customer;
-          document.getElementById('adminNotifDetail').innerText = aAlert.detail || 'بدون تفاصيل';
-
-          const icon = document.getElementById('adminNotifIcon');
-          const title = document.getElementById('adminNotifTitle');
-          const box = document.getElementById('adminNotifBox');
-
-          if (aAlert.type === 'done') {
-            box.style.borderColor = '#059669';
-            title.innerText = '✅ تم حل الطلب بواسطة الفني';
-            title.style.color = '#059669';
-            icon.innerText = '🎉';
+      if (currentUser.role === 'tech' && data.latestOrderAlert && data.latestOrderAlert.targetTech === currentUser.name) {
+        const alert = data.latestOrderAlert;
+        const dismissed = localStorage.getItem('last_dismissed_ord_' + currentUser.name);
+        if (alert.alertId !== dismissed) {
+          localStorage.setItem('last_dismissed_ord_' + currentUser.name, alert.alertId);
+          document.getElementById('alertCustName').innerText = alert.customer || 'عميل';
+          document.getElementById('alertJobTypeBadge').innerText = alert.jobType || 'عطل';
+          document.getElementById('alertCustPhone').innerText = alert.phone || 'بدون رقم';
+          const callBtn = document.getElementById('alertCallBtn');
+          if (alert.phone) {
+            callBtn.href = `tel:${alert.phone}`;
+            callBtn.classList.remove('hidden');
           } else {
-            box.style.borderColor = '#d97706';
-            title.innerText = '⏳ قام الفني بتأجيل الطلب';
-            title.style.color = '#d97706';
-            icon.innerText = '⏳';
+            callBtn.classList.add('hidden');
           }
-
-          document.getElementById('modalAdminNotification').classList.remove('hidden');
-          triggerAlertChime(false);
+          document.getElementById('modalOrderAlert').classList.remove('hidden');
         }
       }
     }
 
     function dismissAdminNotification() {
-      stopAlertChimeNow();
-      if (lastAdminAlertId) {
-        localStorage.setItem('last_dismissed_admin_alert', lastAdminAlertId);
-      }
       document.getElementById('modalAdminNotification').classList.add('hidden');
     }
 
     function dismissOrderAlert() {
-      stopAlertChimeNow();
-      if (lastOrderAlertId && currentUser) {
-        localStorage.setItem('last_dismissed_ord_' + currentUser.name, lastOrderAlertId);
-      }
       document.getElementById('modalOrderAlert').classList.add('hidden');
     }
 
     function dismissBonusAlert() {
-      stopAlertChimeNow();
-      if (lastBonusAlertId && currentUser) {
-        localStorage.setItem('last_dismissed_bn_' + currentUser.name, lastBonusAlertId);
-      }
       document.getElementById('modalBonusAlert').classList.add('hidden');
     }
 
     function handleLogin() {
-      unlockAudioSystem();
       const u = (document.getElementById('logUser').value || '').trim().toLowerCase();
       const p = (document.getElementById('logPass').value || '').trim();
 
       let user = appAccounts.find(a => a.username.toLowerCase() === u && a.pass === p);
-
       if (user) {
         currentUser = user;
-        try {
-          localStorage.setItem('saved_active_user', JSON.stringify(currentUser));
-        } catch(e) {}
+        try { localStorage.setItem('saved_active_user', JSON.stringify(currentUser)); } catch(e) {}
         showUserScreen();
         if (currentUser.role === 'tech') sendTechHeartbeat();
       } else {
@@ -831,56 +607,41 @@
     }
 
     function handleLogout() {
-      stopAlertChimeNow();
       currentUser = null;
-      try {
-        localStorage.removeItem('saved_active_user');
-      } catch(e) {}
+      try { localStorage.removeItem('saved_active_user'); } catch(e) {}
       document.getElementById('screenAdmin').classList.add('hidden');
       document.getElementById('screenOrdersPage').classList.add('hidden');
       document.getElementById('screenSettingsPage').classList.add('hidden');
       document.getElementById('screenTech').classList.add('hidden');
-      document.getElementById('modalOrderAlert').classList.add('hidden');
-      document.getElementById('modalBonusAlert').classList.add('hidden');
-      document.getElementById('modalTechBonusHistory').classList.add('hidden');
-      document.getElementById('modalAdminNotification').classList.add('hidden');
-      document.getElementById('modalEditOrder').classList.add('hidden');
       document.getElementById('screenLogin').classList.remove('hidden');
     }
 
     function showUserScreen() {
-      try {
-        if (!currentUser) {
-          document.getElementById('screenLogin').classList.remove('hidden');
-          return;
-        }
-
-        document.getElementById('screenLogin').classList.add('hidden');
-
-        if (currentUser.role === 'admin') {
-          document.getElementById('screenOrdersPage').classList.add('hidden');
-          document.getElementById('screenSettingsPage').classList.add('hidden');
-          document.getElementById('screenTech').classList.add('hidden');
-          document.getElementById('screenAdmin').classList.remove('hidden');
-          document.getElementById('adminDate').innerText = getToday();
-          renderAdmin();
-        } else {
-          document.getElementById('screenAdmin').classList.add('hidden');
-          document.getElementById('screenOrdersPage').classList.add('hidden');
-          document.getElementById('screenSettingsPage').classList.add('hidden');
-          document.getElementById('screenTech').classList.remove('hidden');
-          document.getElementById('techDispName').innerText = currentUser.name || 'الفني';
-          renderTech();
-        }
-      } catch(err) {
-        console.error("Error in showUserScreen:", err);
+      if (!currentUser) {
         document.getElementById('screenLogin').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('screenLogin').classList.add('hidden');
+
+      if (currentUser.role === 'admin') {
+        document.getElementById('screenOrdersPage').classList.add('hidden');
+        document.getElementById('screenSettingsPage').classList.add('hidden');
+        document.getElementById('screenTech').classList.add('hidden');
+        document.getElementById('screenAdmin').classList.remove('hidden');
+        document.getElementById('adminDate').innerText = getToday();
+        renderAdmin();
+      } else {
+        document.getElementById('screenAdmin').classList.add('hidden');
+        document.getElementById('screenOrdersPage').classList.add('hidden');
+        document.getElementById('screenSettingsPage').classList.add('hidden');
+        document.getElementById('screenTech').classList.remove('hidden');
+        document.getElementById('techDispName').innerText = currentUser.name || 'الفني';
+        renderTech();
       }
     }
 
     function triggerManualSync() {
       syncDown(true);
-      alert('تم تحديث البيانات من السحابة بنجاح ✓');
     }
 
     function openSettingsPage() {
@@ -935,38 +696,31 @@
       container.innerHTML = '';
 
       let records = bonusRecords;
-      if (filter !== 'all') {
-        records = records.filter(b => b.tech === filter);
-      }
-
+      if (filter !== 'all') records = records.filter(b => b.tech === filter);
       if (records.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:11px; padding:12px;">لا توجد حركات مسجلة</p>';
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:11px; padding:10px;">لا توجد حركات مسجلة</p>';
         return;
       }
 
       records.forEach(b => {
         const isNeg = Number(b.amount) < 0;
-        const color = isNeg ? '#e11d48' : '#059669';
-        const sign = isNeg ? '' : '+';
-
         container.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:6px 10px; margin-bottom:5px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:5px 8px; margin-bottom:4px;">
             <div>
-              <strong style="font-size:12px; color:#1e293b; display:block;">${b.tech}</strong>
-              <span style="font-size:10px; color:#64748b;">${b.date} • ${b.reason || 'بدون سبب'}</span>
+              <strong style="font-size:11px; color:#1e293b; display:block;">${b.tech}</strong>
+              <span style="font-size:9px; color:#64748b;">${b.date} • ${b.reason || ''}</span>
             </div>
-            <strong style="font-size:13px; color:${color}; direction:ltr;">${sign}${b.amount} ج</strong>
+            <strong style="font-size:12px; color:${isNeg ? '#e11d48' : '#059669'}; direction:ltr;">${isNeg ? '' : '+'}${b.amount} ج</strong>
           </div>
         `;
       });
     }
 
     function clearAllBonusRecords() {
-      if (confirm('هل أنت متأكد من مسح سجل الحركات؟ (لن يتم المساس بأرصدة الفنيين الحالية)')) {
+      if (confirm('مسح سجل الحركات؟')) {
         bonusRecords = [];
         renderBonusHistoryLog();
         syncUp();
-        alert('تم تفريغ سجل الحركات بنجاح ✓');
       }
     }
 
@@ -974,30 +728,24 @@
       if (!currentUser) return;
       const listContainer = document.getElementById('techBonusHistoryList');
       listContainer.innerHTML = '';
-
       const myRecords = bonusRecords.filter(b => b.tech === currentUser.name);
 
       if (myRecords.length === 0) {
-        listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:20px;">لا توجد مكافآت أو خصومات مسجلة بعد</p>';
+        listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:11px; padding:15px;">لا توجد حركات</p>';
       } else {
         myRecords.forEach(b => {
           const isNeg = Number(b.amount) < 0;
-          const color = isNeg ? '#e11d48' : '#059669';
-          const bg = isNeg ? '#fff1f2' : '#ecfdf5';
-          const sign = isNeg ? '' : '+';
-
           listContainer.innerHTML += `
-            <div style="display:flex; justify-content:space-between; align-items:center; background:${bg}; border:1px solid ${isNeg ? '#fecdd3' : '#a7f3d0'}; border-radius:10px; padding:8px 12px; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; background:${isNeg ? '#fff1f2' : '#ecfdf5'}; border:1px solid ${isNeg ? '#fecdd3' : '#a7f3d0'}; border-radius:8px; padding:6px 10px; margin-bottom:5px;">
               <div>
-                <strong style="font-size:13px; color:#1e293b; display:block;">${b.reason || (isNeg ? 'خصم مالي' : 'مكافأة إنجاز')}</strong>
-                <span style="font-size:10px; color:#64748b;">التاريخ: ${b.date}</span>
+                <strong style="font-size:12px; color:#1e293b; display:block;">${b.reason || ''}</strong>
+                <span style="font-size:9px; color:#64748b;">${b.date}</span>
               </div>
-              <strong style="font-size:14px; color:${color}; direction:ltr;">${sign}${b.amount} ج</strong>
+              <strong style="font-size:13px; color:${isNeg ? '#e11d48' : '#059669'}; direction:ltr;">${isNeg ? '' : '+'}${b.amount} ج</strong>
             </div>
           `;
         });
       }
-
       document.getElementById('modalTechBonusHistory').classList.remove('hidden');
     }
 
@@ -1009,21 +757,10 @@
       const selId = document.getElementById('settingsTechSelect').value;
       const tech = appAccounts.find(a => a.id == selId);
       if (!tech) return;
-
-      const techOrdersCount = appOrders.filter(o => o.tech === tech.name).length;
-      if (techOrdersCount === 0) {
-        return alert(`لا توجد طلبات مسجلة باسم الفني (${tech.name}) حالياً.`);
-      }
-
-      if (confirm(`هل أنت متأكد من مسح جميع طلبات الفني (${tech.name}) بالكامل؟ (عددها: ${techOrdersCount})`)) {
+      if (confirm(`مسح جميع طلبات (${tech.name}) بالكامل؟`)) {
         appOrders = appOrders.filter(o => o.tech !== tech.name);
         renderAdmin();
-        fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(appOrders)
-        }).catch(() => {});
-        alert(`تم مسح سجل طلبات (${tech.name}) بنجاح ✓`);
+        syncUp();
       }
     }
 
@@ -1031,27 +768,18 @@
       const techName = document.getElementById('deductTechSelect').value;
       const amount = Number(document.getElementById('deductAmount').value);
       const reason = document.getElementById('deductReason').value.trim() || 'سلفة / خصم كاش';
-
       if (!amount || amount <= 0) return alert('أدخل مبلغ خصم صحيح');
 
       const techObj = appAccounts.find(a => a.name === techName);
       if (techObj) {
         techObj.accumulatedBonus = Math.max(0, (Number(techObj.accumulatedBonus) || 0) - amount);
         bonusRecords.unshift({ id: Date.now(), tech: techName, amount: -amount, reason: reason, date: getToday() });
-
-        fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bonusId: 'DED-' + Date.now(), targetTech: techName, amount: -amount, reason: reason, sentAt: Date.now() })
-        }).catch(() => {});
-
         document.getElementById('deductAmount').value = '';
         document.getElementById('deductReason').value = '';
         loadSelectedTechData();
         renderBonusHistoryLog();
         renderAdmin();
         syncUp();
-        alert(`تم خصم ${amount} ج من حساب (${techName}) بنجاح ➖`);
       }
     }
 
@@ -1064,7 +792,7 @@
         tech.accumulatedBonus = newBal;
         renderAdmin();
         syncUp();
-        alert(`تم تثبيت رصيد (${tech.name}) إلى ${newBal} ج ✓`);
+        alert('تم التحديث ✓');
       }
     }
 
@@ -1073,35 +801,25 @@
       const newName = document.getElementById('settingsTechName').value.trim();
       const newUser = document.getElementById('settingsTechUser').value.trim();
       const newPass = document.getElementById('settingsTechPass').value.trim();
-      if (!newName || !newUser || !newPass) return alert('يرجى ملء جميع الخانات');
       const tech = appAccounts.find(a => a.id == selId);
       if (tech) {
-        const oldName = tech.name;
         tech.name = newName;
         tech.username = newUser;
         tech.pass = newPass;
-        if (oldName !== newName) {
-          appOrders.forEach(o => { if (o.tech === oldName) o.tech = newName; });
-          bonusRecords.forEach(b => { if (b.tech === oldName) b.tech = newName; });
-        }
         populateSettingsTechSelects();
         renderAdmin();
         syncUp();
-        alert('تم تعديل بيانات الفني بنجاح ✓');
+        alert('تم الحفظ ✓');
       }
     }
 
     function deleteSelectedTechAccount() {
       const selId = document.getElementById('settingsTechSelect').value;
-      const tech = appAccounts.find(a => a.id == selId);
-      if (!tech) return;
-      if (confirm(`حذف الفني (${tech.name}) نهائياً؟`)) {
+      if (confirm('حذف الفني؟')) {
         appAccounts = appAccounts.filter(a => a.id != selId);
         populateSettingsTechSelects();
-        loadSelectedTechData();
         renderAdmin();
         syncUp();
-        alert('تم حذف الفني.');
       }
     }
 
@@ -1109,34 +827,25 @@
       const name = document.getElementById('addTechName').value.trim();
       const user = document.getElementById('addTechUser').value.trim();
       const pass = document.getElementById('addTechPass').value.trim();
-      if (!name || !user || !pass) return alert('يرجى ملء جميع البيانات');
+      if (!name || !user || !pass) return alert('يرجى ملء البيانات');
       appAccounts.push({ id: Date.now(), role: 'tech', name, username: user, pass, accumulatedBonus: 0, lastSeen: 0 });
       document.getElementById('addTechName').value = '';
       document.getElementById('addTechUser').value = '';
       document.getElementById('addTechPass').value = '';
       populateSettingsTechSelects();
-      loadSelectedTechData();
       renderAdmin();
       syncUp();
-      alert('تمت إضافة الفني بنجاح ➕');
     }
 
     function saveAdminCredentials() {
       const u = document.getElementById('adminUserField').value.trim();
       const p = document.getElementById('adminPassField').value.trim();
-      if (!u || !p) return alert('أدخل اسم المستخدم وكلمة المرور الجديدة');
+      if (!u || !p) return alert('أدخل يوزر وباسورد جديد');
       const adm = appAccounts.find(a => a.role === 'admin') || appAccounts[0];
       adm.username = u; 
       adm.pass = p;
-      if (currentUser && currentUser.role === 'admin') {
-        currentUser.username = u; 
-        currentUser.pass = p;
-        try {
-          localStorage.setItem('saved_active_user', JSON.stringify(currentUser));
-        } catch(e) {}
-      }
       syncUp();
-      alert('تم تحديث وتأمين بيانات المدير بنجاح 💾');
+      alert('تم تحديث الحساب بنجاح ✓');
     }
 
     function saveNewOrder() {
@@ -1145,22 +854,14 @@
       const descInput = document.getElementById('newCustDesc');
 
       const name = nameInput.value.trim();
-      const phone = phoneInput.value.trim();
-      const jobType = document.getElementById('newJobType').value;
-      const desc = descInput.value.trim();
-      
-      if (!name) {
-        alert('أدخل اسم العميل أولاً');
-        nameInput.focus();
-        return;
-      }
+      if (!name) return alert('أدخل اسم العميل أولاً');
 
       appOrders.unshift({
         id: 'ORD-' + Date.now().toString().slice(-5),
         customer: name,
-        phone: phone,
-        jobType: jobType || 'عطل',
-        desc: desc || '',
+        phone: phoneInput.value.trim(),
+        jobType: document.getElementById('newJobType').value || 'عطل',
+        desc: descInput.value.trim(),
         tech: '',
         status: 'pending',
         postponeReason: '',
@@ -1173,7 +874,6 @@
       descInput.value = '';
       renderAdmin();
       syncUp();
-      alert('تم حفظ الطلب بنجاح ✓');
     }
 
     function openEditOrderModal(orderId) {
@@ -1182,11 +882,7 @@
       document.getElementById('editOrderId').value = ord.id;
       document.getElementById('editCustName').value = ord.customer;
       document.getElementById('editCustPhone').value = ord.phone || '';
-      
-      let curJob = ord.jobType || 'عطل';
-      if (curJob === 'معاينة') curJob = 'معاينه جديده';
-      document.getElementById('editJobType').value = curJob;
-
+      document.getElementById('editJobType').value = ord.jobType || 'عطل';
       document.getElementById('editCustDesc').value = ord.desc || '';
       document.getElementById('modalEditOrder').classList.remove('hidden');
     }
@@ -1200,10 +896,7 @@
       const ord = appOrders.find(o => o.id === id);
       if (!ord) return;
 
-      const newName = document.getElementById('editCustName').value.trim();
-      if (!newName) return alert('اسم العميل مطلوب');
-
-      ord.customer = newName;
+      ord.customer = document.getElementById('editCustName').value.trim();
       ord.phone = document.getElementById('editCustPhone').value.trim();
       ord.jobType = document.getElementById('editJobType').value;
       ord.desc = document.getElementById('editCustDesc').value.trim();
@@ -1211,141 +904,80 @@
       closeEditOrderModal();
       renderAdmin();
       syncUp();
-      alert('تم تحديث بيانات العطل والعميل بنجاح 💾');
     }
 
     function markAsRepeatedFault(orderId) {
       const ord = appOrders.find(o => o.id === orderId);
       if (!ord) return;
-
-      if (confirm(`هل تريد تحويل طلب العميل (${ord.customer}) إلى (عطل متكرر) ونقله للمعلق كطلب جديد؟`)) {
+      if (confirm(`تحويل طلب (${ord.customer}) إلى (عطل متكرر)؟`)) {
         ord.jobType = 'عطل متكرر';
         ord.status = 'pending';
         ord.tech = ''; 
-
-        if (ord.desc) {
-          ord.desc = ord.desc
-            .replace(/\[كان مؤجلاً:.*?\]/g, '')
-            .replace(/\[كان منجزاً:.*?\]/g, '')
-            .trim();
-        }
         ord.doneReason = '';
         ord.postponeReason = '';
         ord.date = getToday();
-
         renderAdmin();
         syncUp();
-        alert(`تم نقل طلب (${ord.customer}) إلى المعلق كطلب جديد ونظيف تماماً ✓`);
       }
     }
 
     function saveAssignDirectly(orderId, selectElem) {
       const targetTech = selectElem.value;
       if (!targetTech) return;
-
       const ord = appOrders.find(o => o.id === orderId);
       if (ord) {
-        const prevTech = ord.tech;
         ord.tech = targetTech;
         if (ord.status === 'postponed') ord.status = 'pending';
-
-        fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            alertId: 'ALERT-ORD-' + Date.now(),
-            targetTech: targetTech,
-            customer: ord.customer,
-            phone: ord.phone || '',
-            jobType: ord.jobType || 'عطل',
-            desc: ord.desc || '',
-            sentAt: Date.now()
-          })
-        }).catch(() => {});
-
         syncUp();
         renderAdmin();
-
-        if (prevTech && prevTech !== targetTech) {
-          alert(`تم نقل الطلب من (${prevTech}) إلى (${targetTech}) بنجاح ✓`);
-        } else {
-          alert(`تم إسناد الطلب إلى (${targetTech}) بنجاح ✓`);
-        }
       }
     }
 
     function sendDirectAlertToTech(orderId) {
       const ord = appOrders.find(o => o.id === orderId);
-      if (!ord) return;
-
-      if (!ord.tech || ord.tech.trim() === '') {
-        return alert('يرجى إسناد العطل إلى فني أولاً لإرسال التنبيه له!');
-      }
-
-      const alertPayload = {
-        alertId: 'MANUAL-ALERT-' + Date.now(),
-        targetTech: ord.tech,
-        customer: ord.customer,
-        phone: ord.phone || '',
-        jobType: ord.jobType || 'عطل',
-        desc: ord.desc || '',
-        sentAt: Date.now()
-      };
+      if (!ord || !ord.tech) return alert('اختر فني أولاً');
 
       fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(alertPayload)
-      }).then(() => {
-        alert(`تم إرسال تنبيه فوري بالعطل للفني (${ord.tech}) الآن 🔔`);
-      }).catch(() => {
-        alert('حدث خطأ أثناء إرسال التنبيه، تأكد من الاتصال.');
-      });
+        body: JSON.stringify({
+          alertId: 'MANUAL-' + Date.now(),
+          targetTech: ord.tech,
+          customer: ord.customer,
+          phone: ord.phone || '',
+          jobType: ord.jobType || 'عطل',
+          desc: ord.desc || '',
+          sentAt: Date.now()
+        })
+      }).then(() => alert(`تم إرسال الرنين لـ (${ord.tech}) ✓`)).catch(() => {});
     }
 
     function deleteOrder(orderId) {
-      if (confirm('حذف هذا الطلب نهائياً من النظام وجميع الفنيين؟')) {
+      if (confirm('حذف هذا الطلب؟')) {
         appOrders = appOrders.filter(o => o.id !== orderId);
         renderAdmin();
-        fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(appOrders)
-        }).catch(() => {});
+        syncUp();
       }
     }
 
     function promptBonus(techName) {
       const amt = prompt(`أدخل مبلغ البونص لـ (${techName}):`, "50");
       if (amt && Number(amt) > 0) {
-        const reason = prompt('سبب البونص (اختياري):', 'مكافأة إنجاز') || 'مكافأة إنجاز';
         const t = appAccounts.find(a => a.name === techName);
         if (t) {
           t.accumulatedBonus = (Number(t.accumulatedBonus) || 0) + Number(amt);
-          bonusRecords.unshift({ id: Date.now(), tech: techName, amount: Number(amt), reason: reason, date: getToday() });
-
-          fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bonusId: 'BN-' + Date.now(), targetTech: techName, amount: Number(amt), reason: reason, sentAt: Date.now() })
-          }).catch(() => {});
-
+          bonusRecords.unshift({ id: Date.now(), tech: techName, amount: Number(amt), reason: 'مكافأة إنجاز', date: getToday() });
           renderAdmin();
           syncUp();
-          alert(`تم نزول ${amt} ج لحساب (${techName}) 🎁`);
         }
       }
     }
 
     function zeroBonus(techName) {
-      if (confirm(`تصفير حساب الفني (${techName}) بعد محاسبته؟`)) {
+      if (confirm(`تصفير حساب (${techName})؟`)) {
         const t = appAccounts.find(a => a.name === techName);
         if (t) {
-          const clearedAmt = t.accumulatedBonus;
           t.accumulatedBonus = 0;
-          if (clearedAmt > 0) {
-            bonusRecords.unshift({ id: Date.now(), tech: techName, amount: -clearedAmt, reason: 'تسليم كاش وتصفير حساب', date: getToday() });
-          }
           renderAdmin();
           syncUp();
         }
@@ -1358,10 +990,10 @@
       selectedDateFilter = 'all';
 
       const titles = {
-        'pending': '⏳ الطلبات المعلقة (غير المسندة)',
-        'assigned': '🚀 الطلبات الجارية (مسندة للفنيين)',
-        'postponed': '⏸️ الطلبات المؤجلة',
-        'done': '✅ الطلبات المنجزة'
+        'pending': '⏳ المعلقة',
+        'assigned': '🚀 الجارية',
+        'postponed': '⏸️ المؤجلة',
+        'done': '✅ المنجزة'
       };
 
       document.getElementById('ordersPageTitle').innerText = titles[type] || 'الطلبات';
@@ -1382,13 +1014,8 @@
 
     function setTechSubFilter(techName) {
       selectedTechFilter = techName;
-      const pills = document.querySelectorAll('#techSubFilterBar .tech-pill');
-      pills.forEach(p => {
-        if (p.getAttribute('data-tech') === techName) {
-          p.classList.add('active');
-        } else {
-          p.classList.remove('active');
-        }
+      document.querySelectorAll('#techSubFilterBar .tech-pill').forEach(p => {
+        p.classList.toggle('active', p.getAttribute('data-tech') === techName);
       });
       renderAdminOrders();
     }
@@ -1401,11 +1028,7 @@
     }
 
     function setDateFilterCustom(customDate) {
-      if (!customDate) {
-        selectedDateFilter = 'all';
-      } else {
-        selectedDateFilter = customDate;
-      }
+      selectedDateFilter = customDate || 'all';
       updateDateFilterUI();
       renderAdminOrders();
     }
@@ -1416,106 +1039,73 @@
       const pYest = document.getElementById('datePillYesterday');
       const lbl = document.getElementById('selectedDateLabel');
 
-      pAll.classList.remove('active');
-      pToday.classList.remove('active');
-      pYest.classList.remove('active');
-
-      if (selectedDateFilter === 'all') {
-        pAll.classList.add('active');
-        lbl.innerText = 'عرض: الكل';
-      } else if (selectedDateFilter === 'today') {
-        pToday.classList.add('active');
-        lbl.innerText = `عرض: أعطال اليوم (${getToday()})`;
-      } else if (selectedDateFilter === 'yesterday') {
-        pYest.classList.add('active');
-        lbl.innerText = `عرض: أعطال أمس (${getYesterday()})`;
-      } else {
-        lbl.innerText = `عرض يوم: ${selectedDateFilter}`;
-      }
+      pAll.classList.toggle('active', selectedDateFilter === 'all');
+      pToday.classList.toggle('active', selectedDateFilter === 'today');
+      pYest.classList.toggle('active', selectedDateFilter === 'yesterday');
+      lbl.innerText = selectedDateFilter === 'all' ? 'الكل' : selectedDateFilter;
     }
 
     function renderAdmin() {
-      try {
-        const pendingCount = appOrders.filter(o => o.status === 'pending' && (!o.tech || o.tech === '')).length;
-        const assignedCount = appOrders.filter(o => o.status === 'pending' && Boolean(o.tech)).length;
-        const postponedCount = appOrders.filter(o => o.status === 'postponed').length;
-        const doneCount = appOrders.filter(o => o.status === 'done').length;
+      const pendingCount = appOrders.filter(o => o.status === 'pending' && (!o.tech || o.tech === '')).length;
+      const assignedCount = appOrders.filter(o => o.status === 'pending' && Boolean(o.tech)).length;
+      const postponedCount = appOrders.filter(o => o.status === 'postponed').length;
+      const doneCount = appOrders.filter(o => o.status === 'done').length;
 
-        document.getElementById('statPending').innerText = pendingCount;
-        document.getElementById('statAssigned').innerText = assignedCount;
-        document.getElementById('statPostponed').innerText = postponedCount;
-        document.getElementById('statDone').innerText = doneCount;
+      document.getElementById('statPending').innerText = pendingCount;
+      document.getElementById('statAssigned').innerText = assignedCount;
+      document.getElementById('statPostponed').innerText = postponedCount;
+      document.getElementById('statDone').innerText = doneCount;
 
-        const techBox = document.getElementById('adminTechsList');
-        techBox.innerHTML = '';
-        const techs = appAccounts.filter(a => a.role === 'tech');
-        const now = Date.now();
+      const techBox = document.getElementById('adminTechsList');
+      techBox.innerHTML = '';
+      const techs = appAccounts.filter(a => a.role === 'tech');
+      const now = Date.now();
 
-        techs.forEach(t => {
-          const isOnline = t.lastSeen && (now - t.lastSeen < 35000);
-          const statusClass = isOnline ? 'status-online' : 'status-offline';
-          const statusText = isOnline ? 'متصل الآن' : `آخر ظهور: ${formatLastSeen(t.lastSeen)}`;
-          const statusTextColor = isOnline ? '#10b981' : '#64748b';
-
-          techBox.innerHTML += `
-            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-              <div>
-                <div style="display:flex; align-items:center; gap:4px; flex-wrap: wrap;">
-                  <span class="status-dot ${statusClass}"></span>
-                  <strong style="font-size:14px;">${t.name}</strong>
-                  <span style="font-size:10px; font-weight:700; color:${statusTextColor};">(${statusText})</span>
-                </div>
-                <span style="display:block; color:#059669; font-weight:900; font-size:18px;">${t.accumulatedBonus || 0} ج</span>
+      techs.forEach(t => {
+        const isOnline = t.lastSeen && (now - t.lastSeen < 45000);
+        techBox.innerHTML += `
+          <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:10px;">
+            <div>
+              <div style="display:flex; align-items:center; gap:4px;">
+                <span class="status-dot ${isOnline ? 'status-online' : 'status-offline'}"></span>
+                <strong style="font-size:13px;">${t.name}</strong>
+                <span style="font-size:10px; color:${isOnline ? '#10b981' : '#64748b'};">(${isOnline ? 'متصل' : formatLastSeen(t.lastSeen)})</span>
               </div>
-              <div style="display:flex; gap:5px;">
-                <button onclick="promptBonus('${t.name}')" class="btn btn-success" style="width:auto; padding:6px 10px; font-size:11px;">➕ بونص</button>
-                <button onclick="zeroBonus('${t.name}')" class="btn btn-secondary" style="width:auto; padding:6px 10px; font-size:11px;">تصفير</button>
-              </div>
+              <span style="display:block; color:#059669; font-weight:800; font-size:16px;">${t.accumulatedBonus || 0} ج</span>
             </div>
-          `;
+            <div style="display:flex; gap:4px;">
+              <button onclick="promptBonus('${t.name}')" class="btn btn-success" style="width:auto; padding:5px 8px; font-size:11px;">➕ بونص</button>
+              <button onclick="zeroBonus('${t.name}')" class="btn btn-secondary" style="width:auto; padding:5px 8px; font-size:11px;">تصفير</button>
+            </div>
+          </div>
+        `;
+      });
+
+      const subBar = document.getElementById('techSubFilterBar');
+      if (adminFilter === 'pending') {
+        subBar.classList.add('hidden');
+      } else {
+        subBar.classList.remove('hidden');
+        let pillsHtml = `<div class="tech-pill ${selectedTechFilter === 'all' ? 'active' : ''}" data-tech="all" onclick="setTechSubFilter('all')">الكل</div>`;
+        techs.forEach(t => {
+          pillsHtml += `<div class="tech-pill ${selectedTechFilter === t.name ? 'active' : ''}" data-tech="${t.name}" onclick="setTechSubFilter('${t.name}')">${t.name}</div>`;
         });
-
-        const subBar = document.getElementById('techSubFilterBar');
-        if (adminFilter === 'pending') {
-          subBar.classList.add('hidden');
-        } else {
-          subBar.classList.remove('hidden');
-          let pillsHtml = `<div class="tech-pill ${selectedTechFilter === 'all' ? 'active' : ''}" data-tech="all" onclick="setTechSubFilter('all')">👥 الكل</div>`;
-          techs.forEach(t => {
-            let count = 0;
-            if (adminFilter === 'assigned') count = appOrders.filter(o => o.status === 'pending' && o.tech === t.name).length;
-            else if (adminFilter === 'postponed') count = appOrders.filter(o => o.status === 'postponed' && o.tech === t.name).length;
-            else if (adminFilter === 'done') count = appOrders.filter(o => o.status === 'done' && o.tech === t.name).length;
-
-            pillsHtml += `<div class="tech-pill ${selectedTechFilter === t.name ? 'active' : ''}" data-tech="${t.name}" onclick="setTechSubFilter('${t.name}')">👤 ${t.name} (${count})</div>`;
-          });
-          subBar.innerHTML = pillsHtml;
-        }
-
-        renderAdminOrders();
-      } catch(e) {
-        console.error("Error in renderAdmin:", e);
+        subBar.innerHTML = pillsHtml;
       }
     }
 
     function renderAdminOrders() {
       if (isUserInteractingWithSelect) return;
-
       const ordBox = document.getElementById('adminOrdersList');
       if (!ordBox) return;
       ordBox.innerHTML = '';
       const techs = appAccounts.filter(a => a.role === 'tech');
 
       let filtered = [];
-      if (adminFilter === 'pending') {
-        filtered = appOrders.filter(o => o.status === 'pending' && (!o.tech || o.tech === ''));
-      } else if (adminFilter === 'assigned') {
-        filtered = appOrders.filter(o => o.status === 'pending' && Boolean(o.tech));
-      } else if (adminFilter === 'postponed') {
-        filtered = appOrders.filter(o => o.status === 'postponed');
-      } else if (adminFilter === 'done') {
-        filtered = appOrders.filter(o => o.status === 'done');
-      }
+      if (adminFilter === 'pending') filtered = appOrders.filter(o => o.status === 'pending' && (!o.tech || o.tech === ''));
+      else if (adminFilter === 'assigned') filtered = appOrders.filter(o => o.status === 'pending' && Boolean(o.tech));
+      else if (adminFilter === 'postponed') filtered = appOrders.filter(o => o.status === 'postponed');
+      else if (adminFilter === 'done') filtered = appOrders.filter(o => o.status === 'done');
 
       if (adminFilter !== 'pending' && selectedTechFilter !== 'all') {
         filtered = filtered.filter(o => o.tech === selectedTechFilter);
@@ -1524,113 +1114,66 @@
       const today = getToday();
       const yesterday = getYesterday();
 
-      if (selectedDateFilter === 'today') {
-        filtered = filtered.filter(o => o.date === today);
-      } else if (selectedDateFilter === 'yesterday') {
-        filtered = filtered.filter(o => o.date === yesterday);
-      } else if (selectedDateFilter !== 'all') {
-        filtered = filtered.filter(o => o.date === selectedDateFilter);
-      }
+      if (selectedDateFilter === 'today') filtered = filtered.filter(o => o.date === today);
+      else if (selectedDateFilter === 'yesterday') filtered = filtered.filter(o => o.date === yesterday);
+      else if (selectedDateFilter !== 'all') filtered = filtered.filter(o => o.date === selectedDateFilter);
 
       if (filtered.length === 0) {
-        ordBox.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:20px;">لا توجد طلبات مطابقة للفلتر المحدد</p>';
+        ordBox.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:15px;">لا توجد طلبات</p>';
         return;
       }
 
-      filtered.forEach(o => {
+      // عرض أول 40 عطل لتسريع المتصفح وعدم التهنيج
+      const renderSlice = filtered.slice(0, 40);
+
+      renderSlice.forEach(o => {
         const isDone = o.status === 'done';
         const isPostponed = o.status === 'postponed';
 
-        let badgeClass = 'badge-unassigned';
-        let badgeText = 'معلق';
-
-        if (isDone) {
-          badgeClass = 'badge-done';
-          badgeText = 'تم الحل ✓';
-        } else if (isPostponed) {
-          badgeClass = 'badge-postponed';
-          badgeText = 'مؤجل ⏳';
-        } else if (o.tech) {
-          badgeClass = 'badge-assigned';
-          badgeText = 'تم الإسناد';
-        }
+        let badgeClass = isDone ? 'badge-done' : (isPostponed ? 'badge-postponed' : (o.tech ? 'badge-assigned' : 'badge-unassigned'));
+        let badgeText = isDone ? 'تم الحل ✓' : (isPostponed ? 'مؤجل ⏳' : (o.tech ? 'تم الإسناد' : 'معلق'));
 
         let jobBadgeClass = 'badge-job-fault';
         if (o.jobType === 'تركيبه جديده') jobBadgeClass = 'badge-job-install';
-        else if (o.jobType === 'معاينه جديده' || o.jobType === 'معاينة') jobBadgeClass = 'badge-job-inspect';
+        else if (o.jobType === 'معاينه جديده') jobBadgeClass = 'badge-job-inspect';
         else if (o.jobType === 'تشييك') jobBadgeClass = 'badge-job-check';
         else if (o.jobType === 'عطل متكرر') jobBadgeClass = 'badge-job-repeat';
 
-        const displayJobName = (o.jobType === 'معاينة') ? 'معاينه جديده' : (o.jobType || 'عطل');
-        const timeBadgeHtml = getOrderTimeBadge(o.date);
-
-        let techOpts = '<option value="">اختر الفني للإسناد...</option>';
+        let techOpts = '<option value="">إسناد لفني...</option>';
         techs.forEach(t => {
           techOpts += `<option value="${t.name}" ${o.tech === t.name ? 'selected' : ''}>${t.name}</option>`;
         });
 
         ordBox.innerHTML += `
           <div class="order-box">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; border-bottom:1px dashed #e2e8f0; padding-bottom:5px;">
-              <span style="font-size:12px; font-weight:800; color:#1e293b; display:inline-flex; align-items:center; gap:4px;">
-                👤 الفني: <strong style="color:#2563eb;">${o.tech || 'غير محدد بعد'}</strong>
-              </span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; border-bottom:1px dashed #e2e8f0; padding-bottom:4px;">
+              <span style="font-size:11px; font-weight:700;">👤 ${o.tech || 'غير محدد'}</span>
               <div style="display:flex; gap:4px; align-items:center;">
-                ${timeBadgeHtml}
+                ${getOrderTimeBadge(o.date)}
                 <span class="badge ${badgeClass}">${badgeText}</span>
               </div>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
               <div>
-                <strong style="font-size:14px; color:#0f172a;">${o.customer}</strong>
-                <span class="badge ${jobBadgeClass}" style="margin-right: 4px; font-size: 10px;">${displayJobName}</span>
-                ${o.phone ? `<a href="tel:${o.phone}" style="color:#2563eb; text-decoration:none; font-size:12px; font-weight:700; margin-right:6px;">📞 ${o.phone}</a>` : `<span style="color:#94a3b8; font-size:11px; margin-right:6px;">(بدون رقم)</span>`}
+                <strong style="font-size:13px; color:#0f172a;">${o.customer}</strong>
+                <span class="badge ${jobBadgeClass}" style="margin-right: 3px; font-size: 10px;">${o.jobType || 'عطل'}</span>
+                ${o.phone ? `<a href="tel:${o.phone}" style="color:#2563eb; text-decoration:none; font-size:11px; font-weight:700; margin-right:4px;">📞 ${o.phone}</a>` : ''}
               </div>
             </div>
             
-            ${o.desc ? `<p style="font-size:12px; color:#475569; margin-bottom:4px;">${o.desc}</p>` : ''}
+            ${o.desc ? `<p style="font-size:11px; color:#475569; margin-bottom:4px;">${o.desc}</p>` : ''}
 
-            ${isPostponed && o.postponeReason ? `
-              <div style="font-size:11px; color:#c2410c; background:#ffedd5; padding:5px 8px; border-radius:6px; margin-bottom:6px;">
-                سبب التأجيل: ${o.postponeReason}
-              </div>
-            ` : ''}
-
-            ${isDone ? `
-              <div style="font-size:11px; color:#15803d; background:#dcfce7; padding:5px 8px; border-radius:6px; margin-bottom:6px;">
-                ما تم فعله: ${o.doneReason || 'تم الإنجاز بنجاح'}
-              </div>
-            ` : ''}
-
-            <div style="display:flex; gap:4px; margin-top:6px; align-items: center; flex-wrap: wrap;">
+            <div style="display:flex; gap:4px; margin-top:5px; align-items: center; flex-wrap: wrap;">
               ${!isDone ? `
-                <select 
-                  id="sel_${o.id}" 
-                  class="input-control" 
-                  style="margin-bottom:0; padding:6px 8px; font-size:11px; font-weight:700; flex: 1; min-width: 120px;"
-                  onfocus="isUserInteractingWithSelect = true"
-                  onblur="isUserInteractingWithSelect = false"
-                  onchange="saveAssignDirectly('${o.id}', this)"
-                >
+                <select class="input-control" style="margin-bottom:0; padding:4px 6px; font-size:11px; flex: 1;" onfocus="isUserInteractingWithSelect = true" onblur="isUserInteractingWithSelect = false" onchange="saveAssignDirectly('${o.id}', this)">
                   ${techOpts}
                 </select>
-                <button type="button" onclick="sendDirectAlertToTech('${o.id}')" class="btn btn-warning" style="width:auto; padding:6px 8px; font-size:11px; white-space:nowrap;" title="رنين داخل التطبيق">
-                  🔔 رنين
-                </button>
+                <button type="button" onclick="sendDirectAlertToTech('${o.id}')" class="btn btn-warning" style="width:auto; padding:4px 6px; font-size:10px;">🔔 رنين</button>
               ` : ''}
-
-              <button type="button" onclick="openEditOrderModal('${o.id}')" class="btn btn-secondary" style="width:auto; padding:6px 8px; font-size:11px; white-space:nowrap;" title="تعديل بيانات العطل أو العميل">
-                ✏️ تعديل
-              </button>
-
-              ${(isDone || isPostponed) ? `
-                <button type="button" onclick="markAsRepeatedFault('${o.id}')" class="btn btn-warning" style="width:auto; padding:6px 8px; font-size:11px; white-space:nowrap; background:#ea580c;" title="تحويل لعطل متكرر ونقله للمعلق كطلب جديد">
-                  🔁 متكرر
-                </button>
-              ` : ''}
-
-              <button type="button" onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:6px 8px; font-size:11px;">✕</button>
+              <button type="button" onclick="openEditOrderModal('${o.id}')" class="btn btn-secondary" style="width:auto; padding:4px 6px; font-size:10px;">✏️</button>
+              ${(isDone || isPostponed) ? `<button type="button" onclick="markAsRepeatedFault('${o.id}')" class="btn btn-warning" style="width:auto; padding:4px 6px; font-size:10px; background:#ea580c;">🔁 متكرر</button>` : ''}
+              <button type="button" onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:4px 6px; font-size:10px;">✕</button>
             </div>
           </div>
         `;
@@ -1638,125 +1181,53 @@
     }
 
     function renderTech() {
-      try {
-        const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
-        document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
+      const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
+      document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
 
-        const myOrders = appOrders.filter(o => o.tech === me.name);
-        const pendingList = myOrders.filter(o => o.status !== 'done');
-        const doneList = myOrders.filter(o => o.status === 'done');
+      const myOrders = appOrders.filter(o => o.tech === me.name);
+      const pendingList = myOrders.filter(o => o.status !== 'done');
+      const doneList = myOrders.filter(o => o.status === 'done');
 
-        const today = getToday();
-        pendingList.sort((a, b) => {
-          const aIsToday = (a.date === today);
-          const bIsToday = (b.date === today);
-          if (!aIsToday && bIsToday) return -1;
-          if (aIsToday && !bIsToday) return 1;
-          return (b.date || '').localeCompare(a.date || '');
-        });
+      document.getElementById('countTechPending').innerText = pendingList.length;
+      document.getElementById('countTechDone').innerText = doneList.length;
 
-        document.getElementById('countTechPending').innerText = pendingList.length;
-        document.getElementById('countTechDone').innerText = doneList.length;
+      const feed = document.getElementById('techOrdersList');
+      feed.innerHTML = '';
+      const list = techCurrentTab === 'pending' ? pendingList : doneList;
 
-        const feed = document.getElementById('techOrdersList');
-        feed.innerHTML = '';
-        const list = techCurrentTab === 'pending' ? pendingList : doneList;
-
-        if (list.length === 0) {
-          feed.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:20px;">لا توجد طلبات في هذا التبويب</p>';
-          return;
-        }
-
-        list.forEach(o => {
-          const isDone = o.status === 'done';
-          const isPostponed = o.status === 'postponed';
-
-          let jobBadgeClass = 'badge-job-fault';
-          let displayJobText = (o.jobType === 'معاينة') ? 'معاينه جديده' : (o.jobType || 'عطل');
-
-          if (o.jobType === 'تركيبه جديده') {
-            jobBadgeClass = 'badge-job-install';
-          } else if (o.jobType === 'معاينه جديده' || o.jobType === 'معاينة') {
-            jobBadgeClass = 'badge-job-inspect';
-          } else if (o.jobType === 'تشييك') {
-            jobBadgeClass = 'badge-job-check';
-          } else if (o.jobType === 'عطل متكرر') {
-            jobBadgeClass = 'badge-job-repeat';
-          }
-
-          let statusBadgeHtml = '';
-          if (isDone) {
-            statusBadgeHtml = `<span class="badge badge-done">تم الحل ✓</span>`;
-          } else if (isPostponed) {
-            statusBadgeHtml = `<span class="badge badge-postponed">مؤجل ⏳</span>`;
-          }
-
-          const timeBadgeHtml = getOrderTimeBadge(o.date);
-
-          let phoneBtnHtml = '';
-          if (o.phone && o.phone.trim() !== '') {
-            phoneBtnHtml = `<a href="tel:${o.phone}" class="btn btn-success" style="padding:6px; font-size:11px;">📞 اتصال</a>`;
-          } else {
-            phoneBtnHtml = `<span class="btn btn-secondary" style="padding:6px; font-size:11px; cursor:default; opacity:0.85;">بدون رقم</span>`;
-          }
-
-          feed.innerHTML += `
-            <div class="card">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <strong style="font-size:15px; color:#0f172a;">${o.customer}</strong>
-                <div style="display:flex; gap:4px; align-items:center;">
-                  <span class="badge ${jobBadgeClass}">${displayJobText}</span>
-                  ${timeBadgeHtml}
-                  ${statusBadgeHtml}
-                </div>
-              </div>
-              
-              ${o.desc && o.desc.trim() !== '' ? `
-                <p style="font-size:12px; color:#475569; margin-bottom:8px; background:#f8fafc; padding:6px 8px; border-radius:6px; border:1px solid #e2e8f0;">
-                  ${o.desc}
-                </p>
-              ` : ''}
-
-              ${isPostponed && o.postponeReason ? `
-                <div style="font-size:11px; color:#c2410c; background:#ffedd5; padding:4px 8px; border-radius:6px; margin-bottom:8px;">
-                  سبب التأجيل: ${o.postponeReason}
-                </div>
-              ` : ''}
-
-              ${isDone && o.doneReason ? `
-                <div style="font-size:11px; color:#15803d; background:#dcfce7; padding:4px 8px; border-radius:6px; margin-bottom:8px;">
-                  تم: ${o.doneReason}
-                </div>
-              ` : ''}
-
-              ${!isDone ? `
-                <div class="grid-3" style="margin-top: 4px;">
-                  ${phoneBtnHtml}
-                  <button onclick="openPostponeModal('${o.id}')" class="btn btn-warning" style="padding:6px; font-size:11px;">⏳ تأجيل</button>
-                  <button onclick="openSolveModal('${o.id}')" class="btn btn-primary" style="padding:6px; font-size:11px;">تم الحل ✓</button>
-                </div>
-              ` : `
-                <div style="text-align:left; margin-top: 4px;">
-                  ${o.phone && o.phone.trim() !== '' ? `<a href="tel:${o.phone}" class="btn btn-success" style="width:auto; display:inline-flex; padding:4px 10px; font-size:11px;">📞 اتصال</a>` : ''}
-                </div>
-              `}
-            </div>
-          `;
-        });
-      } catch(e) {
-        console.error("Error in renderTech:", e);
+      if (list.length === 0) {
+        feed.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:15px;">لا توجد طلبات</p>';
+        return;
       }
+
+      list.slice(0, 30).forEach(o => {
+        const isDone = o.status === 'done';
+        feed.innerHTML += `
+          <div class="card" style="padding:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <strong style="font-size:14px; color:#0f172a;">${o.customer}</strong>
+              <div style="display:flex; gap:3px;">
+                <span class="badge badge-job-fault">${o.jobType || 'عطل'}</span>
+                ${getOrderTimeBadge(o.date)}
+              </div>
+            </div>
+            ${o.desc ? `<p style="font-size:11px; color:#475569; margin-bottom:6px;">${o.desc}</p>` : ''}
+            ${!isDone ? `
+              <div class="grid-3" style="margin-top: 4px;">
+                ${o.phone ? `<a href="tel:${o.phone}" class="btn btn-success" style="padding:5px; font-size:10px;">📞 اتصال</a>` : '<span class="btn btn-secondary" style="padding:5px; font-size:10px;">بدون رقم</span>'}
+                <button onclick="openPostponeModal('${o.id}')" class="btn btn-warning" style="padding:5px; font-size:10px;">⏳ تأجيل</button>
+                <button onclick="openSolveModal('${o.id}')" class="btn btn-primary" style="padding:5px; font-size:10px;">تم الحل ✓</button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
     }
 
     function switchTechTab(tab) {
       techCurrentTab = tab;
-      if (tab === 'pending') {
-        document.getElementById('tabBtnPending').className = 'btn btn-primary';
-        document.getElementById('tabBtnDone').className = 'btn btn-secondary';
-      } else {
-        document.getElementById('tabBtnPending').className = 'btn btn-secondary';
-        document.getElementById('tabBtnDone').className = 'btn btn-primary';
-      }
+      document.getElementById('tabBtnPending').className = tab === 'pending' ? 'btn btn-primary' : 'btn btn-secondary';
+      document.getElementById('tabBtnDone').className = tab === 'done' ? 'btn btn-primary' : 'btn btn-secondary';
       renderTech();
     }
 
@@ -1772,26 +1243,10 @@
 
     function submitSolveOrder() {
       const id = document.getElementById('solveOrderId').value;
-      const reason = document.getElementById('solveReasonText').value.trim() || 'تم الإنجاز بنجاح';
       const ord = appOrders.find(o => o.id === id);
-
       if (ord) {
         ord.status = 'done';
-        ord.doneReason = reason;
-
-        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: 'DONE-' + Date.now(),
-            type: 'done',
-            tech: currentUser.name,
-            customer: ord.customer,
-            detail: reason,
-            sentAt: Date.now()
-          })
-        }).catch(() => {});
-
+        ord.doneReason = document.getElementById('solveReasonText').value.trim() || 'تم الإنجاز بنجاح';
         closeSolveModal();
         renderTech();
         syncUp();
@@ -1810,80 +1265,45 @@
 
     function submitPostponeOrder() {
       const id = document.getElementById('postponeOrderId').value;
-      const reason = document.getElementById('postponeReasonText').value.trim() || 'تم التأجيل';
       const ord = appOrders.find(o => o.id === id);
-
       if (ord) {
         ord.status = 'postponed';
-        ord.postponeReason = reason;
-
-        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: 'POSTPONE-' + Date.now(),
-            type: 'postpone',
-            tech: currentUser.name,
-            customer: ord.customer,
-            detail: reason,
-            sentAt: Date.now()
-          })
-        }).catch(() => {});
-
+        ord.postponeReason = document.getElementById('postponeReasonText').value.trim() || 'تم التأجيل';
         closePostponeModal();
         renderTech();
         syncUp();
       }
     }
 
-    function syncDown(forceRender = false) {
+    function syncDown(force = false) {
       fetch(`${FIREBASE_DB}/bonus_system_data.json`)
         .then(res => res.json())
         .then(data => {
           if (!data) return;
 
-          let hasOrdersChanged = false;
-          let hasAccountsChanged = false;
+          const incomingOrders = Array.isArray(data.orders) ? data.orders : [];
+          const incomingAccounts = Array.isArray(data.accounts) ? data.accounts : [];
 
-          const newOrdersStr = JSON.stringify(data.orders || []);
-          if (newOrdersStr !== lastOrdersHash) {
-            lastOrdersHash = newOrdersStr;
-            appOrders = Array.isArray(data.orders) ? data.orders : [];
-            hasOrdersChanged = true;
-          }
+          // فحص سريع: هل تغير عدد الأعطال أو أرصدة الفنيين؟
+          const currentBonusSum = incomingAccounts.reduce((sum, a) => sum + (Number(a.accumulatedBonus) || 0), 0);
+          const isChanged = (incomingOrders.length !== lastOrdersCount) || (currentBonusSum !== lastAccountsBonusSum);
 
-          const newAccountsStr = JSON.stringify(data.accounts || []);
-          if (newAccountsStr !== lastAccountsHash) {
-            lastAccountsHash = newAccountsStr;
-            if (Array.isArray(data.accounts) && data.accounts.length > 0) {
-              appAccounts = data.accounts;
-            }
-            hasAccountsChanged = true;
-          }
+          if (isChanged || force) {
+            lastOrdersCount = incomingOrders.length;
+            lastAccountsBonusSum = currentBonusSum;
+            appOrders = incomingOrders;
+            if (incomingAccounts.length > 0) appAccounts = incomingAccounts;
+            if (Array.isArray(data.bonusRecords)) bonusRecords = data.bonusRecords;
 
-          if (Array.isArray(data.bonusRecords)) bonusRecords = data.bonusRecords;
+            checkIncomingAlerts(data);
 
-          if (data.presence) {
-            Object.keys(data.presence).forEach(techId => {
-              const target = appAccounts.find(a => a.id == techId);
-              if (target && data.presence[techId].lastSeen) {
-                target.lastSeen = data.presence[techId].lastSeen;
-              }
-            });
-          }
+            if (currentUser) {
+              const updated = appAccounts.find(a => a.id === currentUser.id);
+              if (updated) currentUser = Object.assign({}, currentUser, updated);
 
-          checkIncomingAlerts(data);
-
-          if (currentUser) {
-            const updated = appAccounts.find(a => (a.username && currentUser.username && a.username.toLowerCase() === currentUser.username.toLowerCase()) || a.id === currentUser.id);
-            if (updated) {
-              currentUser = Object.assign({}, currentUser, updated);
-            }
-
-            if (forceRender || hasOrdersChanged || hasAccountsChanged) {
               if (currentUser.role === 'admin') {
                 renderAdmin();
-                renderBonusHistoryLog();
+                renderAdminOrders();
               } else {
                 renderTech();
               }
@@ -1894,8 +1314,8 @@
     }
 
     function syncUp() {
-      lastOrdersHash = JSON.stringify(appOrders);
-      lastAccountsHash = JSON.stringify(appAccounts);
+      lastOrdersCount = appOrders.length;
+      lastAccountsBonusSum = appAccounts.reduce((sum, a) => sum + (Number(a.accumulatedBonus) || 0), 0);
 
       fetch(`${FIREBASE_DB}/bonus_system_data.json`, {
         method: 'PATCH',
@@ -1907,22 +1327,15 @@
     window.onload = function() {
       try {
         const saved = localStorage.getItem('saved_active_user');
-        if (saved) {
-          currentUser = JSON.parse(saved);
-        }
-      } catch(e) {
-        currentUser = null;
-      }
+        if (saved) currentUser = JSON.parse(saved);
+      } catch(e) { currentUser = null; }
 
       showUserScreen();
-
-      if (currentUser && currentUser.role === 'tech') {
-        sendTechHeartbeat();
-      }
-
       syncDown(true);
-      setInterval(() => syncDown(false), 8000);
-      setInterval(sendTechHeartbeat, 15000);
+
+      // استعلام خفيف كل 12 ثانية لتوفير موارد الموبايل
+      setInterval(() => syncDown(false), 12000);
+      setInterval(sendTechHeartbeat, 30000);
     };
   </script>
 </body>
