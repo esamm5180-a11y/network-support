@@ -145,7 +145,7 @@
     }
   </style>
 </head>
-<body onclick="unlockAudioSystem()">
+<body onclick="unlockAudioSystem()" ontouchstart="unlockAudioSystem()">
 
   <!-- نافذة تعديل بيانات العميل أو العطل -->
   <div id="modalEditOrder" class="modal-overlay hidden">
@@ -514,7 +514,7 @@
     let lastOrderAlertId = null;
     let lastBonusAlertId = null;
 
-    // محرك الصوت والاهتزاز
+    // محرك الصوت وتوليد النغمات
     let globalAudioCtx = null;
     let isChimePlaying = false;
     let activeChimeNodes = [];
@@ -552,7 +552,7 @@
         osc.connect(gain);
         gain.connect(globalAudioCtx.destination);
         osc.frequency.setValueAtTime(freq, start);
-        gain.gain.setValueAtTime(0.3, start);
+        gain.gain.setValueAtTime(0.35, start);
         gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
         osc.start(start);
         osc.stop(start + duration);
@@ -695,6 +695,8 @@
           document.getElementById('bonusAlertReason').innerText = bAlert.reason ? `السبب: ${bAlert.reason}` : (isNeg ? 'خصم مالي' : 'مكافأة إنجاز');
           document.getElementById('modalBonusAlert').classList.remove('hidden');
           triggerAlertChime(isNeg);
+          // تحديث الرصيد المعروض للفني مباشرة
+          syncDown(true);
         }
       }
 
@@ -1158,7 +1160,7 @@
       }
     }
 
-    // تعديل إضافة البونص: السؤال عن المبلغ ثم السبب وإرسال تنبيه مباشر للفني
+    // إضافة البونص مع إرسال التنبيه الفوري لشاشة الفني
     function promptBonus(techName) {
       const amt = prompt(`أدخل مبلغ البونص لـ (${techName}):`, "50");
       if (amt && Number(amt) > 0) {
@@ -1527,7 +1529,7 @@
       }
     }
 
-    // فحص دوري فوري وسريع (كل ثانيتين) للتنبيهات الفورية فقط
+    // فحص دوري سريع ومنفصل لكل مسار إشعار (كل ثانيتين)
     function fastAlertsCheck() {
       if (!currentUser) return;
 
@@ -1538,13 +1540,18 @@
             if (alert) checkIncomingAlerts({ latestAdminAlert: alert });
           }).catch(() => {});
       } else if (currentUser.role === 'tech') {
-        fetch(`${FIREBASE_DB}/bonus_system_data.json?shallow=false`)
+        // فحص تنبيه إسناد طلب جديد
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`)
           .then(res => res.json())
-          .then(data => {
-            if (data) {
-              if (data.latestOrderAlert) checkIncomingAlerts({ latestOrderAlert: data.latestOrderAlert });
-              if (data.latestBonusAlert) checkIncomingAlerts({ latestBonusAlert: data.latestBonusAlert });
-            }
+          .then(orderAlert => {
+            if (orderAlert) checkIncomingAlerts({ latestOrderAlert: orderAlert });
+          }).catch(() => {});
+
+        // فحص تنبيه البونص/الخصم المالي فوراً وبشكل منفصل
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json`)
+          .then(res => res.json())
+          .then(bonusAlert => {
+            if (bonusAlert) checkIncomingAlerts({ latestBonusAlert: bonusAlert });
           }).catch(() => {});
       }
     }
@@ -1606,10 +1613,10 @@
       showUserScreen();
       syncDown(true);
 
-      // فحص سريع للتنبيهات كل ثانيتين
+      // فحص سريع ومباشر للتنبيهات كل ثانيتين
       setInterval(fastAlertsCheck, 2000);
 
-      // تحديث البيانات العامة كل 12 ثانية
+      // تحديث البيانات العامة في الخلفية كل 12 ثانية
       setInterval(() => syncDown(false), 12000);
       setInterval(sendTechHeartbeat, 30000);
     };
