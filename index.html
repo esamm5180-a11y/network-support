@@ -537,7 +537,7 @@
     let techCurrentTab = 'pending';
     let adminFilter = 'pending';
     let selectedTechFilter = 'all';
-    let selectedDateFilter = 'all'; // سجل الأيام: all | today | yesterday | YYYY-MM-DD
+    let selectedDateFilter = 'all';
     let globalAudioCtx = null;
     let isChimePlaying = false;
     let activeChimeNodes = [];
@@ -546,7 +546,10 @@
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
 
-    // دوال الوقت والتاريخ
+    // سلاسل لمقارنة البيانات ومنع إعادة الرسم غير الضرورية
+    let lastOrdersHash = '';
+    let lastAccountsHash = '';
+
     function getToday() {
       const d = new Date();
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -558,7 +561,6 @@
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
-    // دالة فحص وتلوين شارة التاريخ (اليوم / أمس / تاريخ اليوم بيومه للأقدم)
     function getOrderTimeBadge(orderDate) {
       if (!orderDate) return '';
       const today = getToday();
@@ -573,7 +575,6 @@
       }
     }
 
-    // دالة تحويل وقت آخر اتصال لنص مفهوم بالعربية
     function formatLastSeen(timestamp) {
       if (!timestamp) return 'لم يسجل دخول بعد';
       const diffMinutes = Math.floor((Date.now() - timestamp) / 60000);
@@ -878,7 +879,7 @@
     }
 
     function triggerManualSync() {
-      syncDown();
+      syncDown(true);
       alert('تم تحديث البيانات من السحابة بنجاح ✓');
     }
 
@@ -1213,7 +1214,6 @@
       alert('تم تحديث بيانات العطل والعميل بنجاح 💾');
     }
 
-    // تحويل العطل لمتكرر ونقله للمعلق
     function markAsRepeatedFault(orderId) {
       const ord = appOrders.find(o => o.id === orderId);
       if (!ord) return;
@@ -1370,7 +1370,7 @@
       window.scrollTo(0, 0);
 
       updateDateFilterUI();
-      renderAdmin();
+      renderAdminOrders();
     }
 
     function backToAdminHome() {
@@ -1393,7 +1393,6 @@
       renderAdminOrders();
     }
 
-    // دوال إدارة فلتر سجل الأيام
     function setDateFilter(filterType) {
       selectedDateFilter = filterType;
       document.getElementById('datePickerFilter').value = '';
@@ -1503,6 +1502,7 @@
       if (isUserInteractingWithSelect) return;
 
       const ordBox = document.getElementById('adminOrdersList');
+      if (!ordBox) return;
       ordBox.innerHTML = '';
       const techs = appAccounts.filter(a => a.role === 'tech');
 
@@ -1517,12 +1517,10 @@
         filtered = appOrders.filter(o => o.status === 'done');
       }
 
-      // فلترة الفني
       if (adminFilter !== 'pending' && selectedTechFilter !== 'all') {
         filtered = filtered.filter(o => o.tech === selectedTechFilter);
       }
 
-      // فلترة سجل الأيام (بيومها)
       const today = getToday();
       const yesterday = getYesterday();
 
@@ -1648,7 +1646,6 @@
         const pendingList = myOrders.filter(o => o.status !== 'done');
         const doneList = myOrders.filter(o => o.status === 'done');
 
-        // ترتيب الأعطال المطلوبة: الأقدم أولاً (أمس وما قبله) ثم أعطال اليوم
         const today = getToday();
         pendingList.sort((a, b) => {
           const aIsToday = (a.date === today);
@@ -1708,7 +1705,6 @@
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <strong style="font-size:15px; color:#0f172a;">${o.customer}</strong>
                 <div style="display:flex; gap:4px; align-items:center;">
-                  <!-- عرض نوع العطل أولاً ثم التاريخ الفعلي -->
                   <span class="badge ${jobBadgeClass}">${displayJobText}</span>
                   ${timeBadgeHtml}
                   ${statusBadgeHtml}
@@ -1840,33 +1836,51 @@
       }
     }
 
-    function syncDown() {
+    function syncDown(forceRender = false) {
       fetch(`${FIREBASE_DB}/bonus_system_data.json`)
         .then(res => res.json())
         .then(data => {
-          if (data) {
+          if (!data) return;
+
+          let hasOrdersChanged = false;
+          let hasAccountsChanged = false;
+
+          const newOrdersStr = JSON.stringify(data.orders || []);
+          if (newOrdersStr !== lastOrdersHash) {
+            lastOrdersHash = newOrdersStr;
+            appOrders = Array.isArray(data.orders) ? data.orders : [];
+            hasOrdersChanged = true;
+          }
+
+          const newAccountsStr = JSON.stringify(data.accounts || []);
+          if (newAccountsStr !== lastAccountsHash) {
+            lastAccountsHash = newAccountsStr;
             if (Array.isArray(data.accounts) && data.accounts.length > 0) {
               appAccounts = data.accounts;
             }
-            appOrders = Array.isArray(data.orders) ? data.orders : [];
-            if (Array.isArray(data.bonusRecords)) bonusRecords = data.bonusRecords;
+            hasAccountsChanged = true;
+          }
 
-            if (data.presence) {
-              Object.keys(data.presence).forEach(techId => {
-                const target = appAccounts.find(a => a.id == techId);
-                if (target && data.presence[techId].lastSeen) {
-                  target.lastSeen = data.presence[techId].lastSeen;
-                }
-              });
+          if (Array.isArray(data.bonusRecords)) bonusRecords = data.bonusRecords;
+
+          if (data.presence) {
+            Object.keys(data.presence).forEach(techId => {
+              const target = appAccounts.find(a => a.id == techId);
+              if (target && data.presence[techId].lastSeen) {
+                target.lastSeen = data.presence[techId].lastSeen;
+              }
+            });
+          }
+
+          checkIncomingAlerts(data);
+
+          if (currentUser) {
+            const updated = appAccounts.find(a => (a.username && currentUser.username && a.username.toLowerCase() === currentUser.username.toLowerCase()) || a.id === currentUser.id);
+            if (updated) {
+              currentUser = Object.assign({}, currentUser, updated);
             }
 
-            checkIncomingAlerts(data);
-
-            if (currentUser) {
-              const updated = appAccounts.find(a => (a.username && currentUser.username && a.username.toLowerCase() === currentUser.username.toLowerCase()) || a.id === currentUser.id);
-              if (updated) {
-                currentUser = Object.assign({}, currentUser, updated);
-              }
+            if (forceRender || hasOrdersChanged || hasAccountsChanged) {
               if (currentUser.role === 'admin') {
                 renderAdmin();
                 renderBonusHistoryLog();
@@ -1880,6 +1894,9 @@
     }
 
     function syncUp() {
+      lastOrdersHash = JSON.stringify(appOrders);
+      lastAccountsHash = JSON.stringify(appAccounts);
+
       fetch(`${FIREBASE_DB}/bonus_system_data.json`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -1903,9 +1920,9 @@
         sendTechHeartbeat();
       }
 
-      syncDown();
-      setInterval(syncDown, 3000);
-      setInterval(sendTechHeartbeat, 10000);
+      syncDown(true);
+      setInterval(() => syncDown(false), 8000);
+      setInterval(sendTechHeartbeat, 15000);
     };
   </script>
 </body>
