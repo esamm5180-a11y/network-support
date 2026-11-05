@@ -834,6 +834,8 @@
       currentUser = null;
       try {
         localStorage.removeItem('saved_active_user');
+        localStorage.removeItem('admin_current_page');
+        localStorage.removeItem('admin_current_tab');
       } catch(e) {}
       document.getElementById('screenAdmin').classList.add('hidden');
       document.getElementById('screenOrdersPage').classList.add('hidden');
@@ -857,12 +859,23 @@
         document.getElementById('screenLogin').classList.add('hidden');
 
         if (currentUser.role === 'admin') {
-          document.getElementById('screenOrdersPage').classList.add('hidden');
-          document.getElementById('screenSettingsPage').classList.add('hidden');
           document.getElementById('screenTech').classList.add('hidden');
-          document.getElementById('screenAdmin').classList.remove('hidden');
           document.getElementById('adminDate').innerText = getToday();
-          renderAdmin();
+
+          // استرجاع الصفحة النشطة للمدير قبل الريفريش
+          const savedPage = localStorage.getItem('admin_current_page') || 'home';
+          const savedTab = localStorage.getItem('admin_current_tab') || 'pending';
+
+          if (savedPage === 'orders') {
+            openOrdersPage(savedTab);
+          } else if (savedPage === 'settings') {
+            openSettingsPage();
+          } else {
+            document.getElementById('screenOrdersPage').classList.add('hidden');
+            document.getElementById('screenSettingsPage').classList.add('hidden');
+            document.getElementById('screenAdmin').classList.remove('hidden');
+            renderAdmin();
+          }
         } else {
           document.getElementById('screenAdmin').classList.add('hidden');
           document.getElementById('screenOrdersPage').classList.add('hidden');
@@ -883,6 +896,7 @@
     }
 
     function openSettingsPage() {
+      localStorage.setItem('admin_current_page', 'settings');
       const adm = appAccounts.find(a => a.role === 'admin') || appAccounts[0];
       document.getElementById('adminUserField').value = adm.username;
       document.getElementById('adminPassField').value = adm.pass;
@@ -891,14 +905,17 @@
       renderBonusHistoryLog();
 
       document.getElementById('screenAdmin').classList.add('hidden');
+      document.getElementById('screenOrdersPage').classList.add('hidden');
       document.getElementById('screenSettingsPage').classList.remove('hidden');
       window.scrollTo(0, 0);
     }
 
     function backToAdminHomeFromSettings() {
+      localStorage.setItem('admin_current_page', 'home');
       document.getElementById('screenSettingsPage').classList.add('hidden');
       document.getElementById('screenAdmin').classList.remove('hidden');
       window.scrollTo(0, 0);
+      renderAdmin();
     }
 
     function populateSettingsTechSelects() {
@@ -1357,6 +1374,10 @@
       selectedTechFilter = 'all';
       selectedDateFilter = 'all';
 
+      // حفظ الصفحة والقسم في التخزين المحلي
+      localStorage.setItem('admin_current_page', 'orders');
+      localStorage.setItem('admin_current_tab', type);
+
       const titles = {
         'pending': '⏳ الطلبات المعلقة (غير المسندة)',
         'assigned': '🚀 الطلبات الجارية (مسندة للفنيين)',
@@ -1366,6 +1387,7 @@
 
       document.getElementById('ordersPageTitle').innerText = titles[type] || 'الطلبات';
       document.getElementById('screenAdmin').classList.add('hidden');
+      document.getElementById('screenSettingsPage').classList.add('hidden');
       document.getElementById('screenOrdersPage').classList.remove('hidden');
       window.scrollTo(0, 0);
 
@@ -1374,7 +1396,9 @@
     }
 
     function backToAdminHome() {
+      localStorage.setItem('admin_current_page', 'home');
       document.getElementById('screenOrdersPage').classList.add('hidden');
+      document.getElementById('screenSettingsPage').classList.add('hidden');
       document.getElementById('screenAdmin').classList.remove('hidden');
       window.scrollTo(0, 0);
       renderAdmin();
@@ -1503,6 +1527,7 @@
       if (isUserInteractingWithSelect) return;
 
       const ordBox = document.getElementById('adminOrdersList');
+      if (!ordBox) return;
       ordBox.innerHTML = '';
       const techs = appAccounts.filter(a => a.role === 'tech');
 
