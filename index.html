@@ -192,7 +192,6 @@
       border-color: #2563eb !important;
     }
 
-    /* كارت البونص الأخضر الجذاب القديم */
     .bonus-card-green {
       background: linear-gradient(135deg, #10b981, #047857) !important;
       background-color: #10b981 !important;
@@ -625,7 +624,6 @@
     let lastBonusAlertId = null;
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
-    let realtimeEventSource = null;
 
     function forceLightModeEverywhere() {
       try {
@@ -788,19 +786,19 @@
 
       const t = globalAudioCtx.currentTime;
       for (let i = 0; i < 3; i++) {
-        const offset = i * 0.5;
+        const offset = i * 0.45;
         if (isDeduct) {
-          playTone(520, t + offset, 0.18);
-          playTone(440, t + offset + 0.12, 0.22);
+          playTone(520, t + offset, 0.16);
+          playTone(440, t + offset + 0.1, 0.2);
         } else {
-          playTone(587.33, t + offset, 0.14);
-          playTone(880, t + offset + 0.14, 0.22);
+          playTone(587.33, t + offset, 0.12);
+          playTone(880, t + offset + 0.12, 0.2);
         }
       }
 
       if (navigator.vibrate) {
         try { 
-          navigator.vibrate([200, 100, 200]); 
+          navigator.vibrate([200, 80, 200]); 
         } catch(e){}
       }
     }
@@ -850,6 +848,7 @@
           document.getElementById('modalOrderAlert').classList.remove('hidden');
           triggerAlertChime(false);
           notifyNative('طلب جديد مسند إليك! 🔔', `العميل: ${alert.customer} (${alert.jobType})`);
+          syncDown(true);
         }
       }
 
@@ -900,6 +899,7 @@
           } else {
             notifyNative('مبروك! نزل لك بونص جديد 🎁', `المبلغ: +${alert.amount} ج - السبب: ${alert.reason || 'مكافأة'}`);
           }
+          syncDown(true);
         }
       }
 
@@ -932,6 +932,7 @@
 
           document.getElementById('modalAdminNotification').classList.remove('hidden');
           triggerAlertChime(false);
+          syncDown(true);
         }
       }
     }
@@ -977,7 +978,6 @@
           localStorage.setItem('saved_active_user', JSON.stringify(currentUser));
         } catch(e) {}
         showUserScreen();
-        initRealtimeStream();
         if (currentUser.role === 'tech') sendTechHeartbeat();
       } else {
         toastNative('اسم المستخدم أو كلمة المرور غير صحيحة!');
@@ -986,10 +986,6 @@
 
     function handleLogout() {
       stopAlertChimeNow();
-      if (realtimeEventSource) {
-        try { realtimeEventSource.close(); } catch(e){}
-        realtimeEventSource = null;
-      }
       currentUser = null;
       try {
         localStorage.removeItem('saved_active_user');
@@ -1431,6 +1427,7 @@
         ord.tech = targetTech;
         if (ord.status === 'postponed') ord.status = 'pending';
 
+        // إرسال فوري مباشر عبر PUT
         fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -2046,97 +2043,70 @@
       }
     }
 
-    // تقنية البث المباشر الفوري الحقيقي (Server-Sent Events) لسرعة وصول الأعطال والردود
-    function initRealtimeStream() {
-      if (realtimeEventSource) {
-        try { realtimeEventSource.close(); } catch(e){}
-      }
+    // فحص فائق السرعة للإشعارات (كل ثانية بدون كاش نهائياً)
+    let isFetchingInstantAlert = false;
+    function instantAlertsCheck() {
+      if (!currentUser || isFetchingInstantAlert) return;
+      isFetchingInstantAlert = true;
 
-      try {
-        realtimeEventSource = new EventSource(`${FIREBASE_DB}/bonus_system_data.json`);
+      const t = Date.now();
 
-        realtimeEventSource.addEventListener('put', function(e) {
-          try {
-            const res = JSON.parse(e.data);
-            if (res && res.path === '/') {
-              handleFullDatabaseUpdate(res.data);
-            } else if (res && res.path && res.data) {
-              handlePartialDatabaseUpdate(res.path, res.data);
-            }
-          } catch(err) {}
-        });
-
-        realtimeEventSource.addEventListener('patch', function(e) {
-          try {
-            const res = JSON.parse(e.data);
-            if (res && res.data) {
-              handlePartialDatabaseUpdate(res.path || '/', res.data);
-            }
-          } catch(err) {}
-        });
-
-        realtimeEventSource.onerror = function() {
-          // إعادة المحاولة التلقائية في الخلفية
-        };
-      } catch(err) {
-        // Fallback في حال عدم دعم الـ WebView للـ EventSource
-      }
-    }
-
-    function handleFullDatabaseUpdate(data) {
-      if (!data) return;
-
-      if (Array.isArray(data.accounts) && data.accounts.length > 0) {
-        appAccounts = data.accounts;
-      }
-      appOrders = Array.isArray(data.orders) ? data.orders : [];
-      if (Array.isArray(data.bonusRecords)) bonusRecords = data.bonusRecords;
-
-      if (data.presence) {
-        Object.keys(data.presence).forEach(techId => {
-          const target = appAccounts.find(a => a.id == techId);
-          if (target && data.presence[techId].lastSeen) {
-            target.lastSeen = data.presence[techId].lastSeen;
-          }
-        });
-      }
-
-      checkIncomingAlerts(data);
-
-      if (currentUser) {
-        const updated = appAccounts.find(a => (a.username && currentUser.username && a.username.toLowerCase() === currentUser.username.toLowerCase()) || a.id === currentUser.id);
-        if (updated) {
-          currentUser = Object.assign({}, currentUser, updated);
-        }
-        if (currentUser.role === 'admin') {
-          renderAdmin();
-        } else {
-          renderTech();
-        }
-      }
-    }
-
-    function handlePartialDatabaseUpdate(path, data) {
-      if (!path) return;
-
-      if (path === '/orders' || path.startsWith('/orders/')) {
-        syncDown(false);
-      } else if (path === '/latestOrderAlert') {
-        checkIncomingAlerts({ latestOrderAlert: data });
-      } else if (path === '/latestAdminAlert') {
-        checkIncomingAlerts({ latestAdminAlert: data });
-      } else if (path === '/latestBonusAlert') {
-        checkIncomingAlerts({ latestBonusAlert: data });
-      } else if (path === '/accounts' || path.startsWith('/accounts/')) {
-        syncDown(false);
+      if (currentUser.role === 'admin') {
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json?ts=${t}`, { cache: 'no-store' })
+          .then(res => res.json())
+          .then(alert => {
+            if (alert) checkIncomingAlerts({ latestAdminAlert: alert });
+          })
+          .catch(() => {})
+          .finally(() => { isFetchingInstantAlert = false; });
+      } else if (currentUser.role === 'tech') {
+        Promise.all([
+          fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json?ts=${t}`, { cache: 'no-store' }).then(r => r.json()).catch(() => null),
+          fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json?ts=${t}`, { cache: 'no-store' }).then(r => r.json()).catch(() => null)
+        ]).then(([orderAlert, bonusAlert]) => {
+          if (orderAlert) checkIncomingAlerts({ latestOrderAlert: orderAlert });
+          if (bonusAlert) checkIncomingAlerts({ latestBonusAlert: bonusAlert });
+        }).finally(() => { isFetchingInstantAlert = false; });
+      } else {
+        isFetchingInstantAlert = false;
       }
     }
 
     function syncDown(force = false) {
-      fetch(`${FIREBASE_DB}/bonus_system_data.json`)
+      fetch(`${FIREBASE_DB}/bonus_system_data.json?ts=${Date.now()}`, { cache: 'no-store' })
         .then(res => res.json())
         .then(data => {
-          handleFullDatabaseUpdate(data);
+          if (!data) return;
+
+          if (Array.isArray(data.accounts) && data.accounts.length > 0) {
+            appAccounts = data.accounts;
+          }
+          appOrders = Array.isArray(data.orders) ? data.orders : [];
+          if (Array.isArray(data.bonusRecords)) bonusRecords = data.bonusRecords;
+
+          if (data.presence) {
+            Object.keys(data.presence).forEach(techId => {
+              const target = appAccounts.find(a => a.id == techId);
+              if (target && data.presence[techId].lastSeen) {
+                target.lastSeen = data.presence[techId].lastSeen;
+              }
+            });
+          }
+
+          checkIncomingAlerts(data);
+
+          if (currentUser) {
+            const updated = appAccounts.find(a => (a.username && currentUser.username && a.username.toLowerCase() === currentUser.username.toLowerCase()) || a.id === currentUser.id);
+            if (updated) {
+              currentUser = Object.assign({}, currentUser, updated);
+            }
+            if (currentUser.role === 'admin') {
+              renderAdmin();
+              renderBonusHistoryLog();
+            } else {
+              renderTech();
+            }
+          }
         })
         .catch(() => {});
     }
@@ -2164,16 +2134,17 @@
       requestNotificationPermission();
       requestWakeLock();
 
-      if (currentUser) {
-        initRealtimeStream();
-        if (currentUser.role === 'tech') sendTechHeartbeat();
+      if (currentUser && currentUser.role === 'tech') {
+        sendTechHeartbeat();
       }
 
       syncDown(true);
 
-      // فحص أمان احتياطي خفيف كل 15 ثانية فقط للتأكيد
-      setInterval(() => syncDown(false), 15000);
-      setInterval(sendTechHeartbeat, 25000);
+      // فحص تنبيهات فوري كل ثانية واحدة بدون كاش
+      setInterval(instantAlertsCheck, 1000);
+      // تحديث كامل لقائمة الأعطال كل 6 ثوانٍ
+      setInterval(() => syncDown(false), 6000);
+      setInterval(sendTechHeartbeat, 15000);
     };
   </script>
 </body>
