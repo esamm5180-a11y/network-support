@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="color-scheme" content="only light">
   <meta name="theme-color" content="#ffffff">
-  <title>أعطال الشبكة B</title>
+  <title>أعطال الشبكة</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -192,7 +192,6 @@
       border-color: #2563eb !important;
     }
 
-    /* كارت البونص الأخضر الجذاب مثل القديم */
     .bonus-card-green {
       background: linear-gradient(135deg, #10b981, #047857) !important;
       background-color: #10b981 !important;
@@ -201,7 +200,7 @@
       padding: 22px 14px;
       text-align: center;
       border: none !important;
-      box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.28);
       margin-bottom: 12px;
     }
 
@@ -209,7 +208,7 @@
       position: fixed;
       inset: 0;
       background: rgba(15, 23, 42, 0.45);
-      backdrop-filter: blur(3px);
+      backdrop-filter: blur(2px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -565,7 +564,7 @@
     </div>
   </div>
 
-  <!-- 4. شاشة الفني (كارت البونص أخضر متدرج مثل القديم تماماً) -->
+  <!-- 4. شاشة الفني -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -583,7 +582,6 @@
     </header>
 
     <div class="container">
-      <!-- الكارت الأخضر المتدرج الجذاب -->
       <div class="bonus-card-green">
         <span style="font-size: 12px; font-weight: 700; opacity: 0.95; display: block; margin-bottom: 4px; color: #ffffff;">إجمالي رصيد البونص المستحق لك</span>
         <h2 id="techBonusBalance" style="font-size: 42px; font-weight: 900; margin: 4px 0; line-height: 1.1; color: #ffffff;">0 ج</h2>
@@ -764,6 +762,7 @@
       }
     }
 
+    // رنين خفيف وسريع الاستجابة
     function playTone(freq, start, duration) {
       if (!globalAudioCtx || !isChimePlaying) return;
       try {
@@ -772,7 +771,7 @@
         osc.connect(gain);
         gain.connect(globalAudioCtx.destination);
         osc.frequency.setValueAtTime(freq, start);
-        gain.gain.setValueAtTime(0.35, start);
+        gain.gain.setValueAtTime(0.25, start);
         gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
         osc.start(start);
         osc.stop(start + duration);
@@ -787,21 +786,21 @@
       isChimePlaying = true;
 
       const t = globalAudioCtx.currentTime;
-      for (let i = 0; i < 6; i++) {
-        const offset = i * 0.85;
+      // تقليل الحلقات لتسريع الصوت وإلغاء الحمل على المعالج
+      for (let i = 0; i < 3; i++) {
+        const offset = i * 0.55;
         if (isDeduct) {
-          playTone(659.25, t + offset, 0.25);
-          playTone(523.25, t + offset + 0.2, 0.35);
+          playTone(520, t + offset, 0.2);
+          playTone(440, t + offset + 0.15, 0.25);
         } else {
-          playTone(523.25, t + offset, 0.2);
-          playTone(659.25, t + offset + 0.18, 0.2);
-          playTone(783.99, t + offset + 0.35, 0.35);
+          playTone(587.33, t + offset, 0.15);
+          playTone(880, t + offset + 0.15, 0.25);
         }
       }
 
       if (navigator.vibrate) {
         try { 
-          navigator.vibrate([300, 200, 300, 200, 300, 200]); 
+          navigator.vibrate([200, 100, 200]); 
         } catch(e){}
       }
     }
@@ -2045,8 +2044,11 @@
       }
     }
 
+    // فحص ذكي وخفيف بدون سحب باندويث أو تجميد الواجهة
+    let isCheckingAlerts = false;
     function fastAlertsCheck() {
-      if (!currentUser) return;
+      if (!currentUser || isCheckingAlerts) return;
+      isCheckingAlerts = true;
 
       const nocache = `?t=${Date.now()}`;
 
@@ -2055,19 +2057,19 @@
           .then(res => res.json())
           .then(alert => {
             if (alert) checkIncomingAlerts({ latestAdminAlert: alert });
-          }).catch(() => {});
+          })
+          .catch(() => {})
+          .finally(() => { isCheckingAlerts = false; });
       } else if (currentUser.role === 'tech') {
-        fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json${nocache}`)
-          .then(res => res.json())
-          .then(orderAlert => {
-            if (orderAlert) checkIncomingAlerts({ latestOrderAlert: orderAlert });
-          }).catch(() => {});
-
-        fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json${nocache}`)
-          .then(res => res.json())
-          .then(bonusAlert => {
-            if (bonusAlert) checkIncomingAlerts({ latestBonusAlert: bonusAlert });
-          }).catch(() => {});
+        Promise.all([
+          fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json${nocache}`).then(r => r.json()).catch(() => null),
+          fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json${nocache}`).then(r => r.json()).catch(() => null)
+        ]).then(([orderAlert, bonusAlert]) => {
+          if (orderAlert) checkIncomingAlerts({ latestOrderAlert: orderAlert });
+          if (bonusAlert) checkIncomingAlerts({ latestBonusAlert: bonusAlert });
+        }).finally(() => { isCheckingAlerts = false; });
+      } else {
+        isCheckingAlerts = false;
       }
     }
 
@@ -2139,9 +2141,10 @@
 
       syncDown(true);
 
-      setInterval(fastAlertsCheck, 1000);
-      setInterval(() => syncDown(false), 8000);
-      setInterval(sendTechHeartbeat, 15000);
+      // تردد متزن: فحص الإشعارات كل 1.5 ثانية مدمجاً بدون تكرار طلبات، وتحديث البيانات كل 10 ثوانٍ
+      setInterval(fastAlertsCheck, 1500);
+      setInterval(() => syncDown(false), 10000);
+      setInterval(sendTechHeartbeat, 20000);
     };
   </script>
 </body>
