@@ -1,25 +1,17 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" style="background-color: #f8fafc !important; min-height: 100%;">
+<html lang="ar" dir="rtl" style="background-color: #f8fafc; min-height: 100%;">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="color-scheme" content="light only">
   <title>أعطالي</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    * { 
-      box-sizing: border-box; 
-      font-family: 'Cairo', sans-serif; 
-      margin: 0; 
-      padding: 0; 
-      -webkit-tap-highlight-color: transparent; 
-    }
-    
+    * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body { 
       background-color: #f8fafc !important; 
-      color: #0f172a !important; 
+      color: #334155 !important; 
       min-height: 100vh;
       -webkit-overflow-scrolling: touch;
     }
@@ -27,41 +19,39 @@
     .hidden { display: none !important; }
     .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 12px; }
     
-    /* بطاقات بيضاء ناصعة */
     .card { 
       background: #ffffff !important; 
-      color: #0f172a !important; 
+      color: #334155 !important; 
       border-radius: 16px; 
       padding: 14px; 
       margin-bottom: 12px; 
-      border: 1.5px solid #e2e8f0 !important; 
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04); 
+      border: 1px solid #e2e8f0; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03); 
     }
     
-    /* حقول إدخال بيضاء واضحة */
     .input-control { 
       width: 100%; 
-      padding: 11px 13px; 
-      border-radius: 10px; 
-      border: 1.5px solid #cbd5e1 !important; 
+      padding: 11px 14px; 
+      border-radius: 12px; 
+      border: 1px solid #cbd5e1; 
       font-size: 13px; 
       outline: none; 
       background: #ffffff !important; 
-      color: #0f172a !important; 
+      color: #1e293b !important; 
       margin-bottom: 10px;
       -webkit-user-select: text !important;
       user-select: text !important;
       touch-action: manipulation;
     }
     .input-control:focus { 
-      border-color: #2563eb !important; 
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); 
+      border-color: #3b82f6; 
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); 
     }
 
     .btn { 
       width: 100%; 
       padding: 11px; 
-      border-radius: 10px; 
+      border-radius: 12px; 
       font-size: 13px; 
       font-weight: 800; 
       border: none; 
@@ -71,17 +61,18 @@
       justify-content: center; 
       gap: 6px; 
       text-decoration: none; 
+      transition: all 0.15s ease; 
     }
     .btn:active { transform: scale(0.98); }
-    .btn-primary { background: #2563eb !important; color: #ffffff !important; }
-    .btn-success { background: #10b981 !important; color: #ffffff !important; }
-    .btn-warning { background: #f59e0b !important; color: #ffffff !important; }
-    .btn-danger { background: #ef4444 !important; color: #ffffff !important; }
-    .btn-secondary { background: #f1f5f9 !important; color: #475569 !important; border: 1px solid #cbd5e1 !important; }
+    .btn-primary { background: #3b82f6; color: #ffffff; }
+    .btn-success { background: #10b981; color: #ffffff; }
+    .btn-warning { background: #f59e0b; color: #ffffff; }
+    .btn-danger { background: #f43f5e; color: #ffffff; }
+    .btn-secondary { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
     
     .header { 
-      background: #ffffff !important; 
-      border-bottom: 1.5px solid #e2e8f0 !important; 
+      background: #ffffff; 
+      border-bottom: 1px solid #f1f5f9; 
       padding: 12px 16px; 
       display: flex; 
       justify-content: space-between; 
@@ -89,32 +80,31 @@
       position: sticky; 
       top: 0; 
       z-index: 10; 
-      box-shadow: 0 2px 6px rgba(0,0,0,0.02); 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02); 
     }
     
     .icon-btn-pro {
-      background: #f8fafc !important;
-      border: 1.5px solid #cbd5e1 !important;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
       border-radius: 10px;
       padding: 6px 12px;
       font-size: 12px;
       font-weight: 800;
-      color: #334155 !important;
+      color: #64748b;
       display: inline-flex;
       align-items: center;
       gap: 6px;
       cursor: pointer;
     }
     .icon-btn-pro svg { width: 16px; height: 16px; fill: currentColor; }
-    .icon-btn-pro:active { transform: scale(0.95); background: #e2e8f0 !important; }
-    .icon-btn-pro.danger { background: #fff1f2 !important; border-color: #fecdd3 !important; color: #e11d48 !important; }
+    .icon-btn-pro:active { transform: scale(0.95); background: #f1f5f9; }
+    .icon-btn-pro.danger { background: #fff1f2; border-color: #ffe4e6; color: #f43f5e; }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 6px; }
-    
     .order-box { 
-      background: #ffffff !important; 
-      border: 1.5px solid #e2e8f0 !important; 
+      background: #ffffff; 
+      border: 1px solid #e2e8f0; 
       border-radius: 14px; 
       padding: 14px; 
       margin-bottom: 10px; 
@@ -122,38 +112,38 @@
     
     .badge { padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; display: inline-block; }
     
-    .badge-unassigned { background: #fee2e2 !important; color: #b91c1c !important; border: 1px solid #fca5a5 !important; }
-    .badge-assigned { background: #dbeafe !important; color: #1d4ed8 !important; border: 1px solid #93c5fd !important; }
-    .badge-postponed { background: #ffedd5 !important; color: #c2410c !important; border: 1px solid #fdba74 !important; }
-    .badge-done { background: #dcfce7 !important; color: #15803d !important; border: 1px solid #86efac !important; }
+    .badge-unassigned { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
+    .badge-assigned { background: #eff6ff; color: #3b82f6; border: 1px solid #dbeafe; }
+    .badge-postponed { background: #fffbeb; color: #f59e0b; border: 1px solid #fef3c7; }
+    .badge-done { background: #ecfdf5; color: #10b981; border: 1px solid #d1fae5; }
 
-    .badge-job-fault { background: #fef3c7 !important; color: #b45309 !important; border: 1px solid #fde68a !important; }
-    .badge-job-install { background: #eff6ff !important; color: #1d4ed8 !important; border: 1px solid #bfdbfe !important; }
-    .badge-job-check { background: #f5f3ff !important; color: #6d28d9 !important; border: 1px solid #ddd6fe !important; }
-    .badge-job-inspect { background: #e0f2fe !important; color: #0284c7 !important; border: 1px solid #bae6fd !important; }
-    .badge-job-repeat { background: #fee2e2 !important; color: #dc2626 !important; border: 1px solid #fca5a5 !important; }
+    .badge-job-fault { background: #fff7ed; color: #f97316; border: 1px solid #ffedd5; }
+    .badge-job-install { background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
+    .badge-job-check { background: #f5f3ff; color: #8b5cf6; border: 1px solid #ede9fe; }
+    .badge-job-inspect { background: #f0fdfa; color: #0d9488; border: 1px solid #ccfbf1; }
+    .badge-job-repeat { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
 
-    .badge-time-today { background: #ecfdf5 !important; color: #059669 !important; border: 1px solid #a7f3d0 !important; font-size: 11px; }
-    .badge-time-yesterday { background: #fff7ed !important; color: #ea580c !important; border: 1px solid #fed7aa !important; font-size: 11px; font-weight: 900; }
-    .badge-time-older { background: #f1f5f9 !important; color: #475569 !important; border: 1px solid #cbd5e1 !important; font-size: 11px; font-weight: 800; }
+    .badge-time-today { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; font-size: 11px; }
+    .badge-time-yesterday { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; font-size: 11px; font-weight: 800; }
+    .badge-time-older { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; font-size: 11px; font-weight: 700; }
 
-    .status-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-left: 5px; }
-    .status-online { background-color: #10b981 !important; box-shadow: 0 0 6px rgba(16,185,129,0.6); }
-    .status-offline { background-color: #94a3b8 !important; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 6px; }
+    .status-online { background-color: #10b981; }
+    .status-offline { background-color: #cbd5e1; }
 
-    /* كروت إحصائيات فاتحة ومبهجة */
     .stat-tab-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 14px;
-      padding: 12px 6px;
+      padding: 10px 4px;
       text-align: center;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
-    .stat-tab-card:active { transform: scale(0.96); }
-    .stat-pending { background: #fffbeb !important; border: 1.5px solid #fde68a !important; }
-    .stat-assigned { background: #eff6ff !important; border: 1.5px solid #bfdbfe !important; }
-    .stat-postponed { background: #fff7ed !important; border: 1.5px solid #fed7aa !important; }
-    .stat-done { background: #f0fdf4 !important; border: 1.5px solid #bbf7d0 !important; }
+    .stat-tab-card:active { background: #f8fafc; }
+    .stat-pending { background: #fffbeb !important; border-color: #fef3c7 !important; }
+    .stat-assigned { background: #eff6ff !important; border-color: #dbeafe !important; }
+    .stat-postponed { background: #fff7ed !important; border-color: #ffedd5 !important; }
+    .stat-done { background: #ecfdf5 !important; border-color: #d1fae5 !important; }
 
     .sub-filter-bar { display: flex; gap: 6px; overflow-x: auto; padding: 4px 2px 10px 2px; margin-bottom: 10px; scrollbar-width: none; }
     .sub-filter-bar::-webkit-scrollbar { display: none; }
@@ -162,35 +152,33 @@
       font-size: 12px;
       font-weight: 800;
       border-radius: 20px;
-      border: 1.5px solid #cbd5e1 !important;
-      background: #ffffff !important;
-      color: #475569 !important;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: #64748b;
       cursor: pointer;
       white-space: nowrap;
     }
     .tech-pill.active {
-      background: #2563eb !important;
+      background: #3b82f6 !important;
       color: #ffffff !important;
-      border-color: #2563eb !important;
+      border-color: #3b82f6 !important;
     }
 
-    /* كارت البونص الأخضر الأصلي المتدرج */
     .bonus-card-green {
-      background: linear-gradient(135deg, #10b981, #047857) !important;
-      color: #ffffff !important;
+      background: #ecfdf5 !important;
+      color: #065f46 !important;
       border-radius: 18px;
-      padding: 22px 14px;
+      padding: 20px 14px;
       text-align: center;
-      border: none !important;
-      box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35);
+      border: 1.5px solid #a7f3d0;
       margin-bottom: 12px;
     }
 
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(4px);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(3px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -199,15 +187,15 @@
     }
     .modal-content {
       background: #ffffff !important;
-      color: #0f172a !important;
+      color: #1e293b !important;
       width: 100%;
       max-width: 440px;
       border-radius: 18px;
       padding: 20px;
       max-height: 90vh;
       overflow-y: auto;
-      border: 1.5px solid #e2e8f0 !important;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
       -webkit-overflow-scrolling: touch;
     }
   </style>
@@ -217,16 +205,16 @@
   <!-- نافذة تعديل بيانات العميل أو العطل -->
   <div id="modalEditOrder" class="modal-overlay hidden">
     <div class="modal-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
-        <h4 style="font-size: 15px; font-weight: 900; color: #2563eb;">✏️ تعديل بيانات العطل</h4>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+        <h4 style="font-size: 15px; font-weight: 900; color: #3b82f6;">✏️ تعديل بيانات العطل</h4>
         <button type="button" onclick="closeEditOrderModal()" style="border: none; background: transparent; font-size: 20px; cursor: pointer; color: #94a3b8;">✕</button>
       </div>
       <input type="hidden" id="editOrderId">
-      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">اسم العميل:</label>
+      <label style="font-size: 11px; font-weight: 700; color: #64748b; display: block; margin-bottom: 3px;">اسم العميل:</label>
       <input type="text" id="editCustName" class="input-control">
-      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">رقم الهاتف:</label>
+      <label style="font-size: 11px; font-weight: 700; color: #64748b; display: block; margin-bottom: 3px;">رقم الهاتف:</label>
       <input type="tel" id="editCustPhone" class="input-control">
-      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">نوع الطلب:</label>
+      <label style="font-size: 11px; font-weight: 700; color: #64748b; display: block; margin-bottom: 3px;">نوع الطلب:</label>
       <select id="editJobType" class="input-control" style="font-weight: 700;">
         <option value="عطل">عطل</option>
         <option value="عطل متكرر">عطل متكرر</option>
@@ -234,7 +222,7 @@
         <option value="معاينه جديده">معاينه جديده</option>
         <option value="تشييك">تشييك</option>
       </select>
-      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">الملاحظات / العنوان:</label>
+      <label style="font-size: 11px; font-weight: 700; color: #64748b; display: block; margin-bottom: 3px;">الملاحظات / العنوان:</label>
       <input type="text" id="editCustDesc" class="input-control">
       <div class="grid-2" style="margin-top: 8px;">
         <button type="button" onclick="submitEditOrder()" class="btn btn-primary">حفظ التعديل 💾</button>
@@ -245,12 +233,12 @@
 
   <!-- نافذة إشعار طلب للفني -->
   <div id="modalOrderAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
-    <div class="modal-content" style="text-align: center; border: 2px solid #2563eb !important;" onclick="event.stopPropagation()">
-      <div style="font-size: 42px; margin-bottom: 4px;">🔔</div>
-      <h3 style="font-size: 18px; font-weight: 900; color: #2563eb; margin-bottom: 6px;">طلب جديد مسند إليك!</h3>
-      <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: right; font-size: 13px; line-height: 1.6; margin-bottom: 12px;">
-        <div><strong>العميل:</strong> <span id="alertCustName" style="font-weight: 800; color: #0f172a;"></span></div>
-        <div><strong>النوع:</strong> <span id="alertJobTypeBadge" style="font-weight: 800; color: #2563eb;"></span></div>
+    <div class="modal-content" style="text-align: center; border: 2px solid #3b82f6;" onclick="event.stopPropagation()">
+      <div style="font-size: 40px; margin-bottom: 4px;">🔔</div>
+      <h3 style="font-size: 18px; font-weight: 900; color: #3b82f6; margin-bottom: 8px;">طلب جديد مسند إليك!</h3>
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: right; font-size: 13px; line-height: 1.6; margin-bottom: 12px;">
+        <div><strong>العميل:</strong> <span id="alertCustName" style="font-weight: 800; color: #1e293b;"></span></div>
+        <div><strong>النوع:</strong> <span id="alertJobTypeBadge" style="font-weight: 800; color: #3b82f6;"></span></div>
         <div><strong>الهاتف:</strong> <span id="alertCustPhone" style="font-weight: 800; direction: ltr; display: inline-block;"></span></div>
         <div id="alertDescRow"><strong>ملاحظات:</strong> <span id="alertCustDesc"></span></div>
       </div>
@@ -263,12 +251,12 @@
 
   <!-- نافذة إشعار للمدير -->
   <div id="modalAdminNotification" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
-    <div class="modal-content" id="adminNotifBox" style="text-align: center; border: 2px solid #2563eb !important;" onclick="event.stopPropagation()">
-      <div id="adminNotifIcon" style="font-size: 42px; margin-bottom: 4px;">📢</div>
-      <h3 id="adminNotifTitle" style="font-size: 18px; font-weight: 900; margin-bottom: 6px;">تحديث جديد من الفني</h3>
-      <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: right; font-size: 13px; line-height: 1.6; margin-bottom: 12px;">
-        <div><strong>الفني:</strong> <span id="adminNotifTech" style="color: #2563eb; font-weight: 800;"></span></div>
-        <div><strong>العميل:</strong> <span id="adminNotifCust" style="font-weight: 800; color: #0f172a;"></span></div>
+    <div class="modal-content" id="adminNotifBox" style="text-align: center; border: 2px solid #3b82f6;" onclick="event.stopPropagation()">
+      <div id="adminNotifIcon" style="font-size: 40px; margin-bottom: 4px;">📢</div>
+      <h3 id="adminNotifTitle" style="font-size: 18px; font-weight: 900; margin-bottom: 8px;">تحديث جديد من الفني</h3>
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: right; font-size: 13px; line-height: 1.6; margin-bottom: 12px;">
+        <div><strong>الفني:</strong> <span id="adminNotifTech" style="color: #3b82f6; font-weight: 800;"></span></div>
+        <div><strong>العميل:</strong> <span id="adminNotifCust" style="font-weight: 800; color: #1e293b;"></span></div>
         <div><strong>البيان / السبب:</strong> <span id="adminNotifDetail"></span></div>
       </div>
       <button type="button" onclick="dismissAdminNotification()" class="btn btn-primary">حسناً ✓</button>
@@ -277,23 +265,23 @@
 
   <!-- نافذة إشعار البونص / الخصم للفني -->
   <div id="modalBonusAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
-    <div class="modal-content" id="bonusAlertBox" style="text-align: center; border: 2px solid #10b981 !important;" onclick="event.stopPropagation()">
-      <div id="bonusAlertIcon" style="font-size: 42px; margin-bottom: 4px;">🎁</div>
-      <h3 id="bonusAlertTitle" style="font-size: 18px; font-weight: 900; color: #059669; margin-bottom: 4px;">مبروك! نزل لك بونص جديد</h3>
+    <div class="modal-content" id="bonusAlertBox" style="text-align: center; border: 2px solid #10b981;" onclick="event.stopPropagation()">
+      <div id="bonusAlertIcon" style="font-size: 40px; margin-bottom: 4px;">🎁</div>
+      <h3 id="bonusAlertTitle" style="font-size: 18px; font-weight: 900; color: #10b981; margin-bottom: 4px;">مبروك! نزل لك بونص جديد</h3>
       <p id="bonusAlertReason" style="font-size: 12px; color: #64748b; margin-bottom: 10px; font-weight: 700;"></p>
-      <div id="bonusAlertCard" style="background: #ecfdf5; border-radius: 12px; padding: 14px; margin-bottom: 14px; border: 1.5px solid #a7f3d0;">
+      <div id="bonusAlertCard" style="background: #ecfdf5; border-radius: 12px; padding: 14px; margin-bottom: 14px; border: 1px solid #a7f3d0;">
         <span id="bonusAlertLabel" style="font-size: 11px; color: #059669; font-weight: 700; display: block;">المبلغ:</span>
-        <h2 id="bonusAlertAmount" style="font-size: 34px; font-weight: 900; color: #059669; margin: 2px 0;">+0 ج</h2>
+        <h2 id="bonusAlertAmount" style="font-size: 36px; font-weight: 900; color: #059669; margin: 2px 0;">+0 ج</h2>
       </div>
-      <button type="button" id="bonusAlertBtn" onclick="dismissBonusAlert()" class="btn btn-primary" style="background: #10b981 !important;">تم الاستلام ✓</button>
+      <button type="button" id="bonusAlertBtn" onclick="dismissBonusAlert()" class="btn btn-primary" style="background: #10b981;">تم الاستلام ✓</button>
     </div>
   </div>
 
   <!-- سجل المكافآت للفني -->
   <div id="modalTechBonusHistory" class="modal-overlay hidden">
     <div class="modal-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
-        <h4 style="font-size: 14px; font-weight: 900; color: #059669;">📜 سجل المكافآت والخصومات</h4>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+        <h4 style="font-size: 14px; font-weight: 900; color: #10b981;">📜 سجل المكافآت والخصومات</h4>
         <button type="button" onclick="closeTechBonusHistory()" style="border: none; background: transparent; font-size: 20px; cursor: pointer; color: #94a3b8;">✕</button>
       </div>
       <div id="techBonusHistoryList" style="max-height: 320px; overflow-y: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px;"></div>
@@ -304,9 +292,9 @@
   <!-- نافذة حل العطل -->
   <div id="modalSolveOrder" class="modal-overlay hidden">
     <div class="modal-content">
-      <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #059669;">تأكيد حل المشكلة ✓</h4>
+      <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #10b981;">تأكيد حل المشكلة ✓</h4>
       <input type="hidden" id="solveOrderId">
-      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">ما تم إنجازه (اختياري):</label>
+      <label style="font-size: 11px; font-weight: 700; color: #64748b; display: block; margin-bottom: 4px;">ما تم إنجازه (اختياري):</label>
       <input type="text" id="solveReasonText" placeholder="مثلاً: تم التركيب أو حل المشكلة..." class="input-control">
       <div class="grid-2" style="margin-top: 6px;">
         <button type="button" onclick="submitSolveOrder()" class="btn btn-success">تأكيد الحل ✓</button>
@@ -318,9 +306,9 @@
   <!-- نافذة تأجيل العطل -->
   <div id="modalPostponeOrder" class="modal-overlay hidden">
     <div class="modal-content">
-      <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #d97706;">تأجيل موعد الطلب ⏳</h4>
+      <h4 style="font-size: 15px; font-weight: 900; margin-bottom: 8px; color: #f59e0b;">تأجيل موعد الطلب ⏳</h4>
       <input type="hidden" id="postponeOrderId">
-      <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">سبب التأجيل (اختياري):</label>
+      <label style="font-size: 11px; font-weight: 700; color: #64748b; display: block; margin-bottom: 4px;">سبب التأجيل (اختياري):</label>
       <input type="text" id="postponeReasonText" placeholder="مثلاً: العميل غير متواجد" class="input-control">
       <div class="grid-2" style="margin-top: 6px;">
         <button type="button" onclick="submitPostponeOrder()" class="btn btn-warning">حفظ التأجيل ⏳</button>
@@ -331,11 +319,11 @@
 
   <!-- شاشة الدخول -->
   <div id="screenLogin" class="container" style="min-height: 85vh; display: flex; align-items: center; justify-content: center;">
-    <div class="card" style="width: 100%; text-align: center; padding: 28px 20px; border: 1.5px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
-      <div style="width: 64px; height: 64px; background: #2563eb; color: #fff; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px auto; font-size: 28px; box-shadow: 0 6px 16px rgba(37,99,235,0.3);">
+    <div class="card" style="width: 100%; text-align: center; padding: 30px 22px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+      <div style="width: 60px; height: 60px; background: #eff6ff; color: #3b82f6; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; font-size: 26px; border: 1.5px solid #dbeafe;">
         📶
       </div>
-      <h2 style="font-size: 22px; font-weight: 900; color: #0f172a; margin-bottom: 2px;">أعطالي</h2>
+      <h2 style="font-size: 22px; font-weight: 900; color: #1e293b; margin-bottom: 2px;">أعطالي</h2>
       <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">تسجيل الدخول للنظام</p>
 
       <input type="text" id="logUser" placeholder="اسم المستخدم" class="input-control">
@@ -345,12 +333,12 @@
     </div>
   </div>
 
-  <!-- 1. شاشة المدير الرئيسية (فاتحة بيضاء ناصعة) -->
+  <!-- 1. شاشة المدير الرئيسية -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
-        <h3 style="font-size: 16px; font-weight: 900; color: #0f172a;">لوحة الإدارة</h3>
-        <span id="adminDate" style="font-size: 11px; color: #64748b; font-weight: 700;"></span>
+        <h3 style="font-size: 16px; font-weight: 900; color: #1e293b;">لوحة الإدارة</h3>
+        <span id="adminDate" style="font-size: 11px; color: #94a3b8; font-weight: 700;"></span>
       </div>
       <div style="display: flex; gap: 6px; align-items: center;">
         <button type="button" onclick="triggerManualSync()" class="icon-btn-pro" title="تحديث السحابة">
@@ -369,31 +357,29 @@
     </header>
 
     <div class="container">
-      <!-- كروت الإحصائيات الفاتحة -->
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px;">
         <div class="stat-tab-card stat-pending" onclick="openOrdersPage('pending')">
           <span style="font-size: 11px; font-weight: 800; color: #b45309; display: block;">⏳ معلق</span>
           <strong id="statPending" style="font-size: 17px; font-weight: 900; color: #d97706; display: block; margin-top: 2px;">0</strong>
         </div>
         <div class="stat-tab-card stat-assigned" onclick="openOrdersPage('assigned')">
-          <span style="font-size: 11px; font-weight: 800; color: #1d4ed8; display: block;">🚀 جاري</span>
-          <strong id="statAssigned" style="font-size: 17px; font-weight: 900; color: #2563eb; display: block; margin-top: 2px;">0</strong>
+          <span style="font-size: 11px; font-weight: 800; color: #2563eb; display: block;">🚀 جاري</span>
+          <strong id="statAssigned" style="font-size: 17px; font-weight: 900; color: #3b82f6; display: block; margin-top: 2px;">0</strong>
         </div>
         <div class="stat-tab-card stat-postponed" onclick="openOrdersPage('postponed')">
           <span style="font-size: 11px; font-weight: 800; color: #c2410c; display: block;">⏸️ مؤجل</span>
-          <strong id="statPostponed" style="font-size: 17px; font-weight: 900; color: #ea580c; display: block; margin-top: 2px;">0</strong>
+          <strong id="statPostponed" style="font-size: 17px; font-weight: 900; color: #f97316; display: block; margin-top: 2px;">0</strong>
         </div>
         <div class="stat-tab-card stat-done" onclick="openOrdersPage('done')">
-          <span style="font-size: 11px; font-weight: 800; color: #15803d; display: block;">✅ منجز</span>
+          <span style="font-size: 11px; font-weight: 800; color: #047857; display: block;">✅ منجز</span>
           <strong id="statDone" style="font-size: 17px; font-weight: 900; color: #10b981; display: block; margin-top: 2px;">0</strong>
         </div>
       </div>
 
-      <!-- تسجيل طلب جديد -->
-      <div class="card" style="border: 1.5px solid #bfdbfe !important; background: #ffffff;">
+      <div class="card" style="border: 1.5px solid #dbeafe; background: #ffffff;">
         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
-          <span style="font-size: 16px;">➕</span>
-          <h4 style="font-size: 14px; font-weight: 900; color: #1e3a8a;">تسجيل طلب عطل جديد</h4>
+          <span style="font-size: 15px; color: #3b82f6;">➕</span>
+          <h4 style="font-size: 14px; font-weight: 800; color: #1e293b;">تسجيل طلب عطل جديد</h4>
         </div>
         <div class="grid-2">
           <input 
@@ -415,7 +401,7 @@
           >
         </div>
         <div class="grid-2" style="margin-bottom: 8px;">
-          <select id="newJobType" class="input-control" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">
+          <select id="newJobType" class="input-control" style="margin-bottom: 0; font-weight: 700;">
             <option value="عطل">عطل</option>
             <option value="عطل متكرر">عطل متكرر</option>
             <option value="تركيبه جديده">تركيبه جديده</option>
@@ -427,7 +413,6 @@
         <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
 
-      <!-- قائمة الفنيين -->
       <div id="adminTechsList"></div>
     </div>
   </div>
@@ -437,7 +422,7 @@
     <header class="header">
       <div style="display: flex; align-items: center; gap: 8px;">
         <button type="button" onclick="backToAdminHome()" class="icon-btn-pro" style="padding: 5px 12px; font-size: 12px;">← رجوع</button>
-        <h3 id="ordersPageTitle" style="font-size: 15px; font-weight: 900; color: #0f172a;">الأعطال</h3>
+        <h3 id="ordersPageTitle" style="font-size: 15px; font-weight: 900; color: #1e293b;">الأعطال</h3>
       </div>
       <button type="button" onclick="triggerManualSync()" class="icon-btn-pro" title="تحديث">
         <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
@@ -447,11 +432,10 @@
     <div class="container">
       <div id="techSubFilterBar" class="sub-filter-bar hidden"></div>
 
-      <!-- سجل الأيام -->
       <div class="card" style="padding: 10px 12px; margin-bottom: 10px; background: #ffffff;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <span style="font-size: 12px; font-weight: 800; color: #475569;">📅 فلتر التاريخ:</span>
-          <span id="selectedDateLabel" style="font-size: 11px; font-weight: 800; color: #2563eb;">عرض: الكل</span>
+          <span style="font-size: 12px; font-weight: 800; color: #64748b;">📅 فلتر التاريخ:</span>
+          <span id="selectedDateLabel" style="font-size: 11px; font-weight: 800; color: #3b82f6;">عرض: الكل</span>
         </div>
         <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
           <button type="button" id="datePillAll" onclick="setDateFilter('all')" class="tech-pill active" style="flex: 1; padding: 5px 6px;">الكل</button>
@@ -461,7 +445,7 @@
         </div>
       </div>
 
-      <div class="card" style="padding: 12px; border: 1.5px solid #e2e8f0 !important;">
+      <div class="card" style="padding: 12px; border: 1px solid #e2e8f0;">
         <div id="adminOrdersList"></div>
       </div>
     </div>
@@ -472,27 +456,27 @@
     <header class="header">
       <div style="display: flex; align-items: center; gap: 8px;">
         <button type="button" onclick="backToAdminHomeFromSettings()" class="icon-btn-pro" style="padding: 5px 12px; font-size: 12px;">← رجوع</button>
-        <h3 style="font-size: 16px; font-weight: 900; color: #2563eb;">⚙ لوحة الإعدادات</h3>
+        <h3 style="font-size: 16px; font-weight: 900; color: #3b82f6;">⚙ لوحة الإعدادات</h3>
       </div>
     </header>
 
     <div class="container" style="padding-bottom: 60px;">
-      <div class="card" style="background: #fff5f5 !important; border: 1.5px solid #fecdd3 !important;">
-        <h5 style="font-size: 13px; font-weight: 900; color: #e11d48; margin-bottom: 10px;">➖ تسجيل سلفة أو خصم كاش:</h5>
+      <div class="card" style="background: #fff5f5 !important; border: 1px solid #fecdd3;">
+        <h5 style="font-size: 13px; font-weight: 900; color: #f43f5e; margin-bottom: 10px;">➖ تسجيل سلفة أو خصم كاش:</h5>
         <select id="deductTechSelect" class="input-control"></select>
-        <input type="number" id="deductAmount" placeholder="المبلغ بالجنيه" class="input-control" style="font-weight: 900; color: #e11d48;">
+        <input type="number" id="deductAmount" placeholder="المبلغ بالجنيه" class="input-control" style="font-weight: 900; color: #f43f5e;">
         <input type="text" id="deductReason" placeholder="السبب (مثلاً: سلفة بنزين)" class="input-control">
         <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 10px; font-size: 12px;">خصم من الرصيد ➖</button>
       </div>
 
       <div class="card">
-        <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 10px; color: #1e293b;">🛠 التحكم في حساب وسجل الفني:</h5>
+        <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 10px; color: #1e293b;">🛠 التحكم في حساب الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
         
-        <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">تعديل الرصيد يدوياً:</label>
+        <label style="font-size: 11px; font-weight: 700; color: #64748b; display: block; margin-bottom: 4px;">تعديل الرصيد يدوياً:</label>
         <div style="display: flex; gap: 6px; margin-bottom: 10px;">
-          <input type="number" id="settingsTechBal" class="input-control" style="margin-bottom: 0; font-weight: 900; color: #059669;">
-          <button type="button" onclick="updateSelectedTechBalance()" class="btn btn-success" style="width: auto; padding: 0 14px; font-size: 12px; white-space: nowrap;">تحديث</button>
+          <input type="number" id="settingsTechBal" class="input-control" style="margin-bottom: 0; font-weight: 900; color: #10b981;">
+          <button type="button" onclick="updateSelectedTechBalance()" class="btn btn-success" style="width: auto; padding: 0 14px; font-size: 12px;">تحديث</button>
         </div>
 
         <input type="text" id="settingsTechName" placeholder="الاسم" class="input-control">
@@ -506,10 +490,360 @@
           <button type="button" onclick="deleteSelectedTechAccount()" class="btn btn-danger" style="padding: 9px; font-size: 12px;">حذف الفني ✕</button>
         </div>
 
-        <button type="button" onclick="clearSelectedTechOrdersHistory()" class="btn btn-secondary" style="background: #fff7ed !important; color: #c2410c !important; border: 1.5px solid #fed7aa !important; font-size: 12px; padding: 10px;">
+        <button type="button" onclick="clearSelectedTechOrdersHistory()" class="btn btn-secondary" style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; font-size: 12px; padding: 10px;">
           مسح سجل طلبات هذا الفني 🗑️
         </button>
       </div>
 
       <div class="card">
-        <div style="display: flex; justify-content: space-
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h5 style="font-size: 13px; font-weight: 900; color: #1e293b;">📊 سجل الحركات والخصومات:</h5>
+          <button type="button" onclick="clearAllBonusRecords()" class="btn btn-danger" style="width: auto; padding: 4px 10px; font-size: 11px;">مسح السجل 🗑️</button>
+        </div>
+        
+        <select id="historyFilterTech" class="input-control" onchange="renderBonusHistoryLog()" style="margin-bottom: 10px; font-weight: 700;">
+          <option value="all">👥 جميع الفنيين</option>
+        </select>
+
+        <div id="bonusHistoryLogList" style="max-height: 250px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
+      </div>
+
+      <div class="card">
+        <h5 style="font-size: 13px; font-weight: 900; margin-bottom: 10px; color: #1e293b;">👷 إضافة فني جديد:</h5>
+        <input type="text" id="addTechName" placeholder="اسم الفني بالكامل" class="input-control">
+        <div class="grid-2">
+          <input type="text" id="addTechUser" placeholder="اليوزر" class="input-control">
+          <input type="text" id="addTechPass" placeholder="الباسورد" class="input-control">
+        </div>
+        <button type="button" onclick="addNewTechAccount()" class="btn btn-primary" style="padding: 10px; font-size: 13px;">إضافة الفني ➕</button>
+      </div>
+
+      <div class="card" style="border: 1.5px solid #dbeafe;">
+        <h5 style="font-size: 13px; font-weight: 900; color: #3b82f6; margin-bottom: 4px;">🔐 أمان حساب المدير:</h5>
+        <p style="font-size: 11px; color: #64748b; margin-bottom: 10px;">يمكنك تغيير اسم المستخدم وكلمة المرور في أي وقت لحماية التطبيق.</p>
+        <div class="grid-2">
+          <input type="text" id="adminUserField" placeholder="اسم المستخدم الجديد" class="input-control">
+          <input type="text" id="adminPassField" placeholder="كلمة المرور الجديدة" class="input-control">
+        </div>
+        <button type="button" onclick="saveAdminCredentials()" class="btn btn-primary" style="padding: 10px; font-size: 13px;">تحديث وتأمين حساب المدير 💾</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. شاشة الفني -->
+  <div id="screenTech" class="hidden">
+    <header class="header">
+      <div>
+        <h3 id="techDispName" style="font-size: 16px; font-weight: 900; color: #1e293b;">الفني</h3>
+        <span style="font-size: 11px; color: #64748b; font-weight: 700;">أعطالي</span>
+      </div>
+      <div style="display: flex; gap: 6px;">
+        <button type="button" onclick="triggerManualSync()" class="icon-btn-pro" title="تحديث السحابة">
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        </button>
+        <button type="button" onclick="handleLogout()" class="icon-btn-pro danger" title="خروج">
+          <svg viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="bonus-card-green">
+        <span style="font-size: 13px; font-weight: 700; opacity: 0.95; display: block; margin-bottom: 4px;">إجمالي رصيد البونص المستحق لك</span>
+        <h2 id="techBonusBalance" style="font-size: 42px; font-weight: 900; margin: 4px 0; line-height: 1.1;">0 ج</h2>
+        <span style="font-size: 11px; background: #ffffff; color: #059669; border: 1px solid #a7f3d0; padding: 4px 16px; border-radius: 20px; font-weight: 800; display: inline-block; margin-top: 6px;">حصالة المكافآت ✓</span>
+      </div>
+
+      <button type="button" onclick="openTechBonusHistory()" class="btn btn-secondary" style="margin-bottom: 12px; padding: 9px; font-size: 13px; background: #ffffff; border: 1px solid #a7f3d0; color: #047857;">
+        📜 سجل المكافآت والخصومات
+      </button>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+        <button type="button" id="tabBtnPending" onclick="switchTechTab('pending')" class="btn btn-primary" style="flex: 1; padding: 10px; font-size: 13px;">المطلوبة (<span id="countTechPending">0</span>)</button>
+        <button type="button" id="tabBtnDone" onclick="switchTechTab('done')" class="btn btn-secondary" style="flex: 1; padding: 10px; font-size: 13px;">المنجزة (<span id="countTechDone">0</span>)</button>
+      </div>
+
+      <div id="techOrdersList"></div>
+    </div>
+  </div>
+
+  <script>
+    const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
+
+    let appAccounts = [
+      { id: 1, role: 'admin', name: 'المدير العام', username: 'mega_admin', pass: 'M@g@#2026!Sec' },
+      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0, lastSeen: 0 },
+      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0, lastSeen: 0 }
+    ];
+
+    let appOrders = [];
+    let bonusRecords = [];
+    let currentUser = null;
+    let techCurrentTab = 'pending';
+    let adminFilter = 'pending';
+    let selectedTechFilter = 'all';
+    let selectedDateFilter = 'all';
+    let globalAudioCtx = null;
+    let isChimePlaying = false;
+    let activeChimeNodes = [];
+    let lastOrderAlertId = null;
+    let lastBonusAlertId = null;
+    let lastAdminAlertId = null;
+    let isUserInteractingWithSelect = false;
+
+    function notifyNative(title, message) {
+      try {
+        if (window.AndroidAPI && typeof window.AndroidAPI.showNotification === 'function') {
+          window.AndroidAPI.showNotification(String(title), String(message));
+        } else if (window.Android && typeof window.Android.showNotification === 'function') {
+          window.Android.showNotification(String(title), String(message));
+        } else if ("Notification" in window && Notification.permission === "granted") {
+          new Notification(title, { body: message });
+        }
+      } catch (e) {}
+    }
+
+    function toastNative(msg) {
+      try {
+        if (window.AndroidAPI && typeof window.AndroidAPI.showToast === 'function') {
+          window.AndroidAPI.showToast(String(msg));
+          return;
+        }
+      } catch (e) {}
+      alert(msg);
+    }
+
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          await navigator.wakeLock.request('screen');
+        }
+      } catch (err) {}
+    }
+
+    function requestNotificationPermission() {
+      try {
+        if ("Notification" in window && Notification.permission !== "granted") {
+          Notification.requestPermission();
+        }
+      } catch (e) {}
+    }
+
+    function getToday() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function getYesterday() {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function getOrderTimeBadge(orderDate) {
+      if (!orderDate) return '';
+      const today = getToday();
+      const yesterday = getYesterday();
+
+      if (orderDate === today) {
+        return `<span class="badge badge-time-today">اليوم 🟢</span>`;
+      } else if (orderDate === yesterday) {
+        return `<span class="badge badge-time-yesterday">أمس ⚠️</span>`;
+      } else {
+        return `<span class="badge badge-time-older">📅 ${orderDate}</span>`;
+      }
+    }
+
+    function formatLastSeen(timestamp) {
+      if (!timestamp) return 'لم يسجل دخول بعد';
+      const diffMinutes = Math.floor((Date.now() - timestamp) / 60000);
+
+      if (diffMinutes < 1) return 'الآن';
+      if (diffMinutes === 1) return 'منذ دقيقة';
+      if (diffMinutes === 2) return 'منذ دقيقتين';
+      if (diffMinutes >= 3 && diffMinutes <= 10) return `منذ ${diffMinutes} دقائق`;
+      if (diffMinutes < 60) return `منذ ${diffMinutes} دقيقة`;
+      
+      const diffHours = Math.floor(diffMinutes / 60);
+      if (diffHours === 1) return 'منذ ساعة';
+      if (diffHours === 2) return 'منذ ساعتين';
+      if (diffHours >= 3 && diffHours <= 10) return `منذ ${diffHours} ساعات`;
+      if (diffHours < 24) return `منذ ${diffHours} ساعة`;
+
+      const date = new Date(timestamp);
+      return `${date.toLocaleDateString('ar-EG')} ${date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
+    }
+
+    function unlockAudioSystem() {
+      try {
+        if (!globalAudioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) globalAudioCtx = new AudioContext();
+        }
+        if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
+          globalAudioCtx.resume();
+        }
+      } catch(e) {}
+    }
+
+    function stopAlertChimeNow() {
+      isChimePlaying = false;
+      if (activeChimeNodes && activeChimeNodes.length > 0) {
+        activeChimeNodes.forEach(node => {
+          try { node.stop(); } catch(e){}
+        });
+        activeChimeNodes = [];
+      }
+      if (navigator.vibrate) {
+        try { navigator.vibrate(0); } catch(e){}
+      }
+    }
+
+    function playTone(freq, start, duration) {
+      if (!globalAudioCtx || !isChimePlaying) return;
+      try {
+        const osc = globalAudioCtx.createOscillator();
+        const gain = globalAudioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(globalAudioCtx.destination);
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.35, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+        osc.start(start);
+        osc.stop(start + duration);
+        activeChimeNodes.push(osc);
+      } catch(e) {}
+    }
+
+    function triggerAlertChime(isDeduct = false) {
+      unlockAudioSystem();
+      if (!globalAudioCtx) return;
+      stopAlertChimeNow();
+      isChimePlaying = true;
+
+      const t = globalAudioCtx.currentTime;
+      for (let i = 0; i < 6; i++) {
+        const offset = i * 0.85;
+        if (isDeduct) {
+          playTone(659.25, t + offset, 0.25);
+          playTone(523.25, t + offset + 0.2, 0.35);
+        } else {
+          playTone(523.25, t + offset, 0.2);
+          playTone(659.25, t + offset + 0.18, 0.2);
+          playTone(783.99, t + offset + 0.35, 0.35);
+        }
+      }
+
+      if (navigator.vibrate) {
+        try { 
+          navigator.vibrate([300, 200, 300, 200, 300, 200]); 
+        } catch(e){}
+      }
+    }
+
+    function sendTechHeartbeat() {
+      if (!currentUser || currentUser.role !== 'tech') return;
+      const now = Date.now();
+      currentUser.lastSeen = now;
+      const meInList = appAccounts.find(a => a.id === currentUser.id);
+      if (meInList) meInList.lastSeen = now;
+
+      fetch(`${FIREBASE_DB}/bonus_system_data/presence/${currentUser.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lastSeen: now, techName: currentUser.name })
+      }).catch(() => {});
+    }
+
+    function checkIncomingAlerts(data) {
+      if (!currentUser || !data) return;
+
+      if (currentUser.role === 'tech' && data.latestOrderAlert && data.latestOrderAlert.targetTech === currentUser.name) {
+        const alert = data.latestOrderAlert;
+        const dismissed = localStorage.getItem('last_dismissed_ord_' + currentUser.name);
+        if (alert.alertId && alert.alertId !== dismissed && alert.alertId !== lastOrderAlertId) {
+          lastOrderAlertId = alert.alertId;
+          document.getElementById('alertCustName').innerText = alert.customer || 'عميل';
+          document.getElementById('alertJobTypeBadge').innerText = alert.jobType || 'عطل';
+          document.getElementById('alertCustPhone').innerText = alert.phone || 'بدون رقم';
+          
+          const descRow = document.getElementById('alertDescRow');
+          if (alert.desc && alert.desc.trim()) {
+            document.getElementById('alertCustDesc').innerText = alert.desc;
+            descRow.style.display = 'block';
+          } else {
+            descRow.style.display = 'none';
+          }
+          
+          const callBtn = document.getElementById('alertCallBtn');
+          if (alert.phone) {
+            callBtn.href = `tel:${alert.phone}`;
+            callBtn.classList.remove('hidden');
+          } else {
+            callBtn.classList.add('hidden');
+          }
+
+          document.getElementById('modalOrderAlert').classList.remove('hidden');
+          triggerAlertChime(false);
+          notifyNative('طلب جديد مسند إليك! 🔔', `العميل: ${alert.customer} (${alert.jobType})`);
+        }
+      }
+
+      if (currentUser.role === 'tech' && data.latestBonusAlert && data.latestBonusAlert.targetTech === currentUser.name) {
+        const alert = data.latestBonusAlert;
+        const dismissed = localStorage.getItem('last_dismissed_bn_' + currentUser.name);
+        if (alert.bonusId && alert.bonusId !== dismissed && alert.bonusId !== lastBonusAlertId) {
+          lastBonusAlertId = alert.bonusId;
+          const isNeg = Number(alert.amount) < 0;
+          const box = document.getElementById('bonusAlertBox');
+          const card = document.getElementById('bonusAlertCard');
+          const title = document.getElementById('bonusAlertTitle');
+          const icon = document.getElementById('bonusAlertIcon');
+          const label = document.getElementById('bonusAlertLabel');
+          const amt = document.getElementById('bonusAlertAmount');
+          const btn = document.getElementById('bonusAlertBtn');
+
+          if (isNeg) {
+            box.style.borderColor = '#f43f5e';
+            card.style.background = '#fff5f5';
+            title.innerText = 'تنبيه: تم تسجيل خصم / سلفة';
+            title.style.color = '#f43f5e';
+            icon.innerText = '⚠️';
+            label.innerText = 'المبلغ المخصوم:';
+            label.style.color = '#f43f5e';
+            amt.innerText = `${alert.amount} ج`;
+            amt.style.color = '#f43f5e';
+            btn.style.background = '#f43f5e';
+          } else {
+            box.style.borderColor = '#10b981';
+            card.style.background = '#ecfdf5';
+            title.innerText = 'مبروك! نزل لك بونص جديد 🎁';
+            title.style.color = '#059669';
+            icon.innerText = '🎁';
+            label.innerText = 'المبلغ المضاف:';
+            label.style.color = '#059669';
+            amt.innerText = `+${alert.amount} ج`;
+            amt.style.color = '#059669';
+            btn.style.background = '#10b981';
+          }
+
+          document.getElementById('bonusAlertReason').innerText = alert.reason ? `السبب: ${alert.reason}` : (isNeg ? 'خصم مالي' : 'مكافأة إنجاز');
+          document.getElementById('modalBonusAlert').classList.remove('hidden');
+          triggerAlertChime(isNeg);
+
+          if (isNeg) {
+            notifyNative('تنبيه خصم مالي ⚠️', `تم خصم ${Math.abs(alert.amount)} ج - السبب: ${alert.reason || 'خصم'}`);
+          } else {
+            notifyNative('مبروك! نزل لك بونص جديد 🎁', `المبلغ: +${alert.amount} ج - السبب: ${alert.reason || 'مكافأة'}`);
+          }
+
+          syncDown(true);
+        }
+      }
+
+      if (currentUser.role === 'admin' && data.latestAdminAlert) {
+        const aAlert = data.latestAdminAlert;
+        const dismissedAdmin = localStorage.getItem('last_dismissed_admin_alert');
+        if (aAlert.id && aAlert.id !== dismissedAdmin && aAlert.id !== lastAdminAlertId) {
+          lastAdminAlertId = aAlert.id;
+          document.getElementById('adminNotifTech').
