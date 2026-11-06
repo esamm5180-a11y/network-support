@@ -536,7 +536,7 @@
     let techCurrentTab = 'pending';
     let adminFilter = 'pending';
     let selectedTechFilter = 'all';
-    let selectedDateFilter = 'all'; // سجل الأيام: all | today | yesterday | YYYY-MM-DD
+    let selectedDateFilter = 'all';
     let globalAudioCtx = null;
     let isChimePlaying = false;
     let activeChimeNodes = [];
@@ -545,11 +545,15 @@
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
 
-    // دوال الأندرويد الأصلية (إشعار الستارة والرسائل المنبثقة السريعة Toast)
+    // دوال إشعارات أندرويد والرسائل السريعة Toast
     function notifyNative(title, message) {
       try {
         if (window.AndroidAPI && typeof window.AndroidAPI.showNotification === 'function') {
-          window.AndroidAPI.showNotification(title, message);
+          window.AndroidAPI.showNotification(String(title), String(message));
+        } else if (window.Android && typeof window.Android.showNotification === 'function') {
+          window.Android.showNotification(String(title), String(message));
+        } else if ("Notification" in window && Notification.permission === "granted") {
+          new Notification(title, { body: message });
         }
       } catch (e) {}
     }
@@ -557,14 +561,29 @@
     function toastNative(msg) {
       try {
         if (window.AndroidAPI && typeof window.AndroidAPI.showToast === 'function') {
-          window.AndroidAPI.showToast(msg);
+          window.AndroidAPI.showToast(String(msg));
           return;
         }
       } catch (e) {}
       alert(msg);
     }
 
-    // دوال الوقت والتاريخ
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          await navigator.wakeLock.request('screen');
+        }
+      } catch (err) {}
+    }
+
+    function requestNotificationPermission() {
+      try {
+        if ("Notification" in window && Notification.permission !== "granted") {
+          Notification.requestPermission();
+        }
+      } catch (e) {}
+    }
+
     function getToday() {
       const d = new Date();
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -576,7 +595,6 @@
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
-    // دالة فحص وتلوين شارة التاريخ (اليوم / أمس / تاريخ اليوم بيومه للأقدم)
     function getOrderTimeBadge(orderDate) {
       if (!orderDate) return '';
       const today = getToday();
@@ -591,7 +609,6 @@
       }
     }
 
-    // دالة تحويل وقت آخر اتصال لنص مفهوم بالعربية
     function formatLastSeen(timestamp) {
       if (!timestamp) return 'لم يسجل دخول بعد';
       const diffMinutes = Math.floor((Date.now() - timestamp) / 60000);
@@ -842,6 +859,9 @@
 
     function handleLogin() {
       unlockAudioSystem();
+      requestNotificationPermission();
+      requestWakeLock();
+
       const u = (document.getElementById('logUser').value || '').trim().toLowerCase();
       const p = (document.getElementById('logPass').value || '').trim();
 
@@ -1430,7 +1450,7 @@
       window.scrollTo(0, 0);
 
       updateDateFilterUI();
-      renderAdmin();
+      renderAdminOrders();
     }
 
     function backToAdminHome() {
@@ -1843,7 +1863,6 @@
         ord.status = 'done';
         ord.doneReason = reason;
 
-        // إرسال تنبيه حل العطل للمدير وتأكيد وصوله فوراً
         fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -1856,7 +1875,7 @@
             sentAt: Date.now()
           })
         }).then(() => {
-          toastNative('تم إرسال إشعار الحل للمدير بنجاح ✓');
+          toastNative('تم تأكيد الحل وإرسال التنبيه للمدير بنجاح ✓');
         }).catch(() => {});
 
         closeSolveModal();
@@ -1884,7 +1903,6 @@
         ord.status = 'postponed';
         ord.postponeReason = reason;
 
-        // إرسال تنبيه التأجيل للمدير وتأكيد وصوله فوراً
         fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -1897,7 +1915,7 @@
             sentAt: Date.now()
           })
         }).then(() => {
-          toastNative('تم حفظ التأجيل وإشعار المدير ✓');
+          toastNative('تم حفظ التأجيل وإشعار الإدارة ✓');
         }).catch(() => {});
 
         closePostponeModal();
@@ -1906,24 +1924,26 @@
       }
     }
 
-    // فحص دوري وسريع (كل ثانيتين) للتنبيهات الفورية فقط
+    // فحص دوري فوري وسريع (كل ثانية واحدة) مع منع الكاش نهائياً
     function fastAlertsCheck() {
       if (!currentUser) return;
 
+      const nocache = `?t=${Date.now()}`;
+
       if (currentUser.role === 'admin') {
-        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`)
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json${nocache}`)
           .then(res => res.json())
           .then(alert => {
             if (alert) checkIncomingAlerts({ latestAdminAlert: alert });
           }).catch(() => {});
       } else if (currentUser.role === 'tech') {
-        fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`)
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json${nocache}`)
           .then(res => res.json())
           .then(orderAlert => {
             if (orderAlert) checkIncomingAlerts({ latestOrderAlert: orderAlert });
           }).catch(() => {});
 
-        fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json`)
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json${nocache}`)
           .then(res => res.json())
           .then(bonusAlert => {
             if (bonusAlert) checkIncomingAlerts({ latestBonusAlert: bonusAlert });
@@ -1935,35 +1955,35 @@
       fetch(`${FIREBASE_DB}/bonus_system_data.json`)
         .then(res => res.json())
         .then(data => {
-          if (data) {
-            if (Array.isArray(data.accounts) && data.accounts.length > 0) {
-              appAccounts = data.accounts;
-            }
-            appOrders = Array.isArray(data.orders) ? data.orders : [];
-            if (Array.isArray(data.bonusRecords)) bonusRecords = data.bonusRecords;
+          if (!data) return;
 
-            if (data.presence) {
-              Object.keys(data.presence).forEach(techId => {
-                const target = appAccounts.find(a => a.id == techId);
-                if (target && data.presence[techId].lastSeen) {
-                  target.lastSeen = data.presence[techId].lastSeen;
-                }
-              });
-            }
+          if (Array.isArray(data.accounts) && data.accounts.length > 0) {
+            appAccounts = data.accounts;
+          }
+          appOrders = Array.isArray(data.orders) ? data.orders : [];
+          if (Array.isArray(data.bonusRecords)) bonusRecords = data.bonusRecords;
 
-            checkIncomingAlerts(data);
-
-            if (currentUser) {
-              const updated = appAccounts.find(a => (a.username && currentUser.username && a.username.toLowerCase() === currentUser.username.toLowerCase()) || a.id === currentUser.id);
-              if (updated) {
-                currentUser = Object.assign({}, currentUser, updated);
+          if (data.presence) {
+            Object.keys(data.presence).forEach(techId => {
+              const target = appAccounts.find(a => a.id == techId);
+              if (target && data.presence[techId].lastSeen) {
+                target.lastSeen = data.presence[techId].lastSeen;
               }
-              if (currentUser.role === 'admin') {
-                renderAdmin();
-                renderBonusHistoryLog();
-              } else {
-                renderTech();
-              }
+            });
+          }
+
+          checkIncomingAlerts(data);
+
+          if (currentUser) {
+            const updated = appAccounts.find(a => (a.username && currentUser.username && a.username.toLowerCase() === currentUser.username.toLowerCase()) || a.id === currentUser.id);
+            if (updated) {
+              currentUser = Object.assign({}, currentUser, updated);
+            }
+            if (currentUser.role === 'admin') {
+              renderAdmin();
+              renderBonusHistoryLog();
+            } else {
+              renderTech();
             }
           }
         })
@@ -1989,6 +2009,8 @@
       }
 
       showUserScreen();
+      requestNotificationPermission();
+      requestWakeLock();
 
       if (currentUser && currentUser.role === 'tech') {
         sendTechHeartbeat();
@@ -1996,13 +2018,13 @@
 
       syncDown(true);
 
-      // فحص سريع للتنبيهات كل ثانيتين
-      setInterval(fastAlertsCheck, 2000);
+      // فحص فوري وسريع للتنبيهات كل ثانية واحدة
+      setInterval(fastAlertsCheck, 1000);
 
-      // تحديث البيانات العامة في الخلفية
+      // تحديث البيانات العامة في الخلفية كل 8 ثوانٍ
       setInterval(() => syncDown(false), 8000);
       setInterval(sendTechHeartbeat, 15000);
     };
   </script>
 </body>
-</html>
+  </html>
