@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" style="background-color: #f8fafc !important; color-scheme: light !important;">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="color-scheme" content="light only">
+  <meta name="color-scheme" content="only light">
+  <meta name="supported-color-schemes" content="light">
   <meta name="theme-color" content="#ffffff">
   <title>أعطال الشبكة B</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,7 +12,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      color-scheme: light only !important;
+      color-scheme: light !important;
+      --bg-page: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --border-color: #e2e8f0;
     }
     * { 
       box-sizing: border-box; 
@@ -31,7 +36,6 @@
     .hidden { display: none !important; }
     .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 12px; }
     
-    /* بطاقات بيضاء ناصعة وفاتحة */
     .card { 
       background-color: #ffffff !important; 
       background: #ffffff !important; 
@@ -40,10 +44,9 @@
       padding: 14px; 
       margin-bottom: 12px; 
       border: 1.5px solid #e2e8f0 !important; 
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05); 
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04); 
     }
     
-    /* حقول الإدخال بيضاء ناصعة */
     .input-control { 
       width: 100%; 
       padding: 11px 14px; 
@@ -62,10 +65,9 @@
     }
     .input-control:focus { 
       border-color: #2563eb !important; 
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); 
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); 
     }
 
-    /* أزرار ملونة فاتحة وواضحة */
     .btn { 
       width: 100%; 
       padding: 11px; 
@@ -126,7 +128,6 @@
       margin-bottom: 10px; 
     }
 
-    /* تنبيه العطل المتأخر أكثر من 3 ساعات */
     .order-delayed-box {
       background-color: #fff5f5 !important;
       border: 1.5px solid #fca5a5 !important;
@@ -161,7 +162,6 @@
     .status-online { background-color: #10b981 !important; }
     .status-offline { background-color: #cbd5e1 !important; }
 
-    /* كروت إحصائيات زاهية وفاتحة */
     .stat-tab-card {
       border-radius: 14px;
       padding: 12px 6px;
@@ -192,7 +192,6 @@
       border-color: #2563eb !important;
     }
 
-    /* كارت بونص الفني الفاتح */
     .bonus-card-green {
       background-color: #ecfdf5 !important;
       color: #065f46 !important;
@@ -385,7 +384,6 @@
     </header>
 
     <div class="container">
-      <!-- كروت الإحصائيات الفاتحة والملونة -->
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px;">
         <div class="stat-tab-card stat-pending" onclick="openOrdersPage('pending')">
           <span style="font-size: 11px; font-weight: 800; color: #b45309; display: block;">⏳ معلق</span>
@@ -625,10 +623,19 @@
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
 
+    // فرض النمط الفاتح برمجياً لمنع تعتيم المتصفح
+    function forceLightModeEverywhere() {
+      try {
+        document.documentElement.style.setProperty('background-color', '#f8fafc', 'important');
+        document.body.style.setProperty('background-color', '#f8fafc', 'important');
+        document.body.style.setProperty('color', '#0f172a', 'important');
+      } catch(e) {}
+    }
+
     function notifyNative(title, message) {
       try {
         if (window.AndroidAPI && typeof window.AndroidAPI.showNotification === 'function') {
-          window.AndroidAPI.showNotification(String(title), String(message));[span_1](start_span)[span_1](end_span)
+          window.AndroidAPI.showNotification(String(title), String(message));
         } else if (window.Android && typeof window.Android.showNotification === 'function') {
           window.Android.showNotification(String(title), String(message));
         } else if ("Notification" in window && Notification.permission === "granted") {
@@ -640,7 +647,7 @@
     function toastNative(msg) {
       try {
         if (window.AndroidAPI && typeof window.AndroidAPI.showToast === 'function') {
-          window.AndroidAPI.showToast(String(msg));[span_2](start_span)[span_2](end_span)
+          window.AndroidAPI.showToast(String(msg));
           return;
         }
       } catch (e) {}
@@ -958,6 +965,7 @@
       unlockAudioSystem();
       requestNotificationPermission();
       requestWakeLock();
+      forceLightModeEverywhere();
 
       const u = (document.getElementById('logUser').value || '').trim().toLowerCase();
       const p = (document.getElementById('logPass').value || '').trim();
@@ -998,6 +1006,7 @@
 
     function showUserScreen() {
       try {
+        forceLightModeEverywhere();
         if (!currentUser) {
           document.getElementById('screenLogin').classList.remove('hidden');
           return;
@@ -2116,6 +2125,7 @@
         currentUser = null;
       }
 
+      forceLightModeEverywhere();
       showUserScreen();
       requestNotificationPermission();
       requestWakeLock();
