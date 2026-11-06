@@ -1788,4 +1788,364 @@
               <div>
                 <strong style="font-size:13px; color:#0f172a;">${o.customer}</strong>
                 <span class="badge ${jobBadgeClass}" style="margin-right: 4px; font-size: 10px;">${displayJobName}</span>
-                ${o.phone ? `<a href="tel:${o.phone}" style="color:#2563eb; text-decoration:none; font-size:12px; font-weight:
+                ${o.phone ? `<a href="tel:${o.phone}" style="color:#2563eb; text-decoration:none; font-size:12px; font-weight:800; margin-right:6px;">📞 ${o.phone}</a>` : `<span style="color:#94a3b8; font-size:10px; margin-right:6px;">(بدون رقم)</span>`}
+              </div>
+            </div>
+            
+            ${o.desc ? `<p style="font-size:11px; color:#475569; margin-bottom:4px; background-color:#f8fafc; padding:5px 8px; border-radius:6px;">${o.desc}</p>` : ''}
+
+            ${isPostponed && o.postponeReason ? `
+              <div style="font-size:11px; color:#c2410c; background-color:#fff7ed; border:1px solid #fed7aa; padding:4px 8px; border-radius:6px; margin-bottom:4px;">
+                سبب التأجيل: ${o.postponeReason}
+              </div>
+            ` : ''}
+
+            ${isDone ? `
+              <div style="font-size:11px; color:#15803d; background-color:#f0fdf4; border:1px solid #bbf7d0; padding:4px 8px; border-radius:6px; margin-bottom:4px;">
+                ما تم فعله: ${o.doneReason || 'تم الإنجاز بنجاح'}
+              </div>
+            ` : ''}
+
+            <div style="display:flex; gap:5px; margin-top:6px; align-items: center; flex-wrap: wrap;">
+              ${!isDone ? `
+                <select 
+                  id="sel_${o.id}" 
+                  class="input-control" 
+                  style="margin-bottom:0; padding:5px 8px; font-size:11px; font-weight:700; flex: 1; min-width: 100px;"
+                  onfocus="isUserInteractingWithSelect = true"
+                  onblur="isUserInteractingWithSelect = false"
+                  onchange="saveAssignDirectly('${o.id}', this)"
+                >
+                  ${techOpts}
+                </select>
+                <button type="button" onclick="sendDirectAlertToTech('${o.id}')" class="btn btn-warning" style="width:auto; padding:5px 8px; font-size:11px; white-space:nowrap;" title="رنين داخل التطبيق">
+                  🔔 رنين
+                </button>
+              ` : ''}
+
+              <button type="button" onclick="openEditOrderModal('${o.id}')" class="btn btn-secondary" style="width:auto; padding:5px 8px; font-size:11px; white-space:nowrap;" title="تعديل بيانات العطل أو العميل">
+                ✏️ تعديل
+              </button>
+
+              ${(isDone || isPostponed) ? `
+                <button type="button" onclick="markAsRepeatedFault('${o.id}')" class="btn btn-warning" style="width:auto; padding:5px 8px; font-size:11px; white-space:nowrap; background-color:#ea580c !important;" title="تحويل لعطل متكرر ونقله للمعلق كطلب جديد">
+                  🔁 متكرر
+                </button>
+              ` : ''}
+
+              <button type="button" onclick="deleteOrder('${o.id}')" class="btn btn-danger" style="width:auto; padding:5px 8px; font-size:11px;">✕</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function renderTech() {
+      try {
+        const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
+        document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
+
+        const myOrders = appOrders.filter(o => o.tech === me.name);
+        const pendingList = myOrders.filter(o => o.status !== 'done');
+        const doneList = myOrders.filter(o => o.status === 'done');
+
+        const today = getToday();
+        pendingList.sort((a, b) => {
+          const aIsToday = (a.date === today);
+          const bIsToday = (b.date === today);
+          if (!aIsToday && bIsToday) return -1;
+          if (aIsToday && !bIsToday) return 1;
+          return (b.date || '').localeCompare(a.date || '');
+        });
+
+        document.getElementById('countTechPending').innerText = pendingList.length;
+        document.getElementById('countTechDone').innerText = doneList.length;
+
+        const feed = document.getElementById('techOrdersList');
+        feed.innerHTML = '';
+        const list = techCurrentTab === 'pending' ? pendingList : doneList;
+
+        if (list.length === 0) {
+          feed.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:20px;">لا توجد طلبات في هذا التبويب</p>';
+          return;
+        }
+
+        list.slice(0, 30).forEach(o => {
+          const isDone = o.status === 'done';
+          const isPostponed = o.status === 'postponed';
+
+          const delayInfo = checkOrderDelay(o);
+          const delayedClass = delayInfo.isDelayed ? 'order-delayed-box' : '';
+          const delayedBadgeHtml = delayInfo.isDelayed ? `<span class="badge badge-delayed-alert">⚠️ متأخر (${delayInfo.hours === 'سابق' ? 'أيام سابقة' : delayInfo.hours + ' س'})</span>` : '';
+
+          let jobBadgeClass = 'badge-job-fault';
+          let displayJobText = (o.jobType === 'معاينة') ? 'معاينه جديده' : (o.jobType || 'عطل');
+
+          if (o.jobType === 'تركيبه جديده') {
+            jobBadgeClass = 'badge-job-install';
+          } else if (o.jobType === 'معاينه جديده' || o.jobType === 'معاينة') {
+            jobBadgeClass = 'badge-job-inspect';
+          } else if (o.jobType === 'تشييك') {
+            jobBadgeClass = 'badge-job-check';
+          } else if (o.jobType === 'عطل متكرر') {
+            jobBadgeClass = 'badge-job-repeat';
+          }
+
+          let statusBadgeHtml = '';
+          if (isDone) {
+            statusBadgeHtml = `<span class="badge badge-done">تم الحل ✓</span>`;
+          } else if (isPostponed) {
+            statusBadgeHtml = `<span class="badge badge-postponed">مؤجل ⏳</span>`;
+          }
+
+          const timeBadgeHtml = getOrderTimeBadge(o.date);
+
+          let phoneBtnHtml = '';
+          if (o.phone && o.phone.trim() !== '') {
+            phoneBtnHtml = `<a href="tel:${o.phone}" class="btn btn-success" style="padding:6px; font-size:11px;">📞 اتصال</a>`;
+          } else {
+            phoneBtnHtml = `<span class="btn btn-secondary" style="padding:6px; font-size:11px; cursor:default; opacity:0.85;">بدون رقم</span>`;
+          }
+
+          feed.innerHTML += `
+            <div class="card ${delayedClass}">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <strong style="font-size:14px; color:#0f172a;">${o.customer}</strong>
+                <div style="display:flex; gap:3px; align-items:center; flex-wrap: wrap;">
+                  ${delayedBadgeHtml}
+                  <span class="badge ${jobBadgeClass}">${displayJobText}</span>
+                  ${timeBadgeHtml}
+                  ${statusBadgeHtml}
+                </div>
+              </div>
+              
+              ${o.desc && o.desc.trim() !== '' ? `
+                <p style="font-size:11px; color:#475569; margin-bottom:6px; background-color:#f8fafc; padding:6px 8px; border-radius:6px; border:1px solid #e2e8f0;">
+                  ${o.desc}
+                </p>
+              ` : ''}
+
+              ${isPostponed && o.postponeReason ? `
+                <div style="font-size:11px; color:#c2410c; background-color:#fff7ed; border:1px solid #fed7aa; padding:4px 8px; border-radius:6px; margin-bottom:6px;">
+                  سبب التأجيل: ${o.postponeReason}
+                </div>
+              ` : ''}
+
+              ${isDone && o.doneReason ? `
+                <div style="font-size:11px; color:#15803d; background-color:#f0fdf4; border:1px solid #bbf7d0; padding:4px 8px; border-radius:6px; margin-bottom:6px;">
+                  تم: ${o.doneReason}
+                </div>
+              ` : ''}
+
+              ${!isDone ? `
+                <div class="grid-3" style="margin-top: 5px;">
+                  ${phoneBtnHtml}
+                  <button onclick="openPostponeModal('${o.id}')" class="btn btn-warning" style="padding:6px; font-size:11px;">⏳ تأجيل</button>
+                  <button onclick="openSolveModal('${o.id}')" class="btn btn-primary" style="padding:6px; font-size:11px;">تم الحل ✓</button>
+                </div>
+              ` : `
+                <div style="text-align:left; margin-top: 5px;">
+                  ${o.phone && o.phone.trim() !== '' ? `<a href="tel:${o.phone}" class="btn btn-success" style="width:auto; display:inline-flex; padding:5px 12px; font-size:11px;">📞 اتصال</a>` : ''}
+                </div>
+              `}
+            </div>
+          `;
+        });
+      } catch(e) {
+        console.error("Error in renderTech:", e);
+      }
+    }
+
+    function switchTechTab(tab) {
+      techCurrentTab = tab;
+      if (tab === 'pending') {
+        document.getElementById('tabBtnPending').className = 'btn btn-primary';
+        document.getElementById('tabBtnDone').className = 'btn btn-secondary';
+      } else {
+        document.getElementById('tabBtnPending').className = 'btn btn-secondary';
+        document.getElementById('tabBtnDone').className = 'btn btn-primary';
+      }
+      renderTech();
+    }
+
+    function openSolveModal(id) {
+      document.getElementById('solveOrderId').value = id;
+      document.getElementById('solveReasonText').value = '';
+      document.getElementById('modalSolveOrder').classList.remove('hidden');
+    }
+
+    function closeSolveModal() {
+      document.getElementById('modalSolveOrder').classList.add('hidden');
+    }
+
+    function submitSolveOrder() {
+      const id = document.getElementById('solveOrderId').value;
+      const reason = document.getElementById('solveReasonText').value.trim() || 'تم الإنجاز بنجاح';
+      const ord = appOrders.find(o => o.id === id);
+
+      if (ord) {
+        ord.status = 'done';
+        ord.doneReason = reason;
+
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: 'DONE-' + Date.now(),
+            type: 'done',
+            tech: currentUser.name,
+            customer: ord.customer,
+            detail: reason,
+            sentAt: Date.now()
+          })
+        }).then(() => {
+          toastNative('تم تأكيد الحل وإرسال التنبيه للمدير بنجاح ✓');
+        }).catch(() => {});
+
+        closeSolveModal();
+        renderTech();
+        syncUp();
+      }
+    }
+
+    function openPostponeModal(id) {
+      document.getElementById('postponeOrderId').value = id;
+      document.getElementById('postponeReasonText').value = '';
+      document.getElementById('modalPostponeOrder').classList.remove('hidden');
+    }
+
+    function closePostponeModal() {
+      document.getElementById('modalPostponeOrder').classList.add('hidden');
+    }
+
+    function submitPostponeOrder() {
+      const id = document.getElementById('postponeOrderId').value;
+      const reason = document.getElementById('postponeReasonText').value.trim() || 'تم التأجيل';
+      const ord = appOrders.find(o => o.id === id);
+
+      if (ord) {
+        ord.status = 'postponed';
+        ord.postponeReason = reason;
+
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: 'POSTPONE-' + Date.now(),
+            type: 'postpone',
+            tech: currentUser.name,
+            customer: ord.customer,
+            detail: reason,
+            sentAt: Date.now()
+          })
+        }).then(() => {
+          toastNative('تم حفظ التأجيل وإشعار الإدارة ✓');
+        }).catch(() => {});
+
+        closePostponeModal();
+        renderTech();
+        syncUp();
+      }
+    }
+
+    function fastAlertsCheck() {
+      if (!currentUser) return;
+
+      const nocache = `?t=${Date.now()}`;
+
+      if (currentUser.role === 'admin') {
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json${nocache}`)
+          .then(res => res.json())
+          .then(alert => {
+            if (alert) checkIncomingAlerts({ latestAdminAlert: alert });
+          }).catch(() => {});
+      } else if (currentUser.role === 'tech') {
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json${nocache}`)
+          .then(res => res.json())
+          .then(orderAlert => {
+            if (orderAlert) checkIncomingAlerts({ latestOrderAlert: orderAlert });
+          }).catch(() => {});
+
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json${nocache}`)
+          .then(res => res.json())
+          .then(bonusAlert => {
+            if (bonusAlert) checkIncomingAlerts({ latestBonusAlert: bonusAlert });
+          }).catch(() => {});
+      }
+    }
+
+    function syncDown(force = false) {
+      fetch(`${FIREBASE_DB}/bonus_system_data.json`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data) return;
+
+          if (Array.isArray(data.accounts) && data.accounts.length > 0) {
+            appAccounts = data.accounts;
+          }
+          appOrders = Array.isArray(data.orders) ? data.orders : [];
+          if (Array.isArray(data.bonusRecords)) bonusRecords = data.bonusRecords;
+
+          if (data.presence) {
+            Object.keys(data.presence).forEach(techId => {
+              const target = appAccounts.find(a => a.id == techId);
+              if (target && data.presence[techId].lastSeen) {
+                target.lastSeen = data.presence[techId].lastSeen;
+              }
+            });
+          }
+
+          checkIncomingAlerts(data);
+
+          if (currentUser) {
+            const updated = appAccounts.find(a => (a.username && currentUser.username && a.username.toLowerCase() === currentUser.username.toLowerCase()) || a.id === currentUser.id);
+            if (updated) {
+              currentUser = Object.assign({}, currentUser, updated);
+            }
+            if (currentUser.role === 'admin') {
+              renderAdmin();
+              renderBonusHistoryLog();
+            } else {
+              renderTech();
+            }
+          }
+        })
+        .catch(() => {});
+    }
+
+    function syncUp() {
+      fetch(`${FIREBASE_DB}/bonus_system_data.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accounts: appAccounts, orders: appOrders, bonusRecords: bonusRecords })
+      }).catch(() => {});
+    }
+
+    window.onload = function() {
+      try {
+        const saved = localStorage.getItem('saved_active_user');
+        if (saved) {
+          currentUser = JSON.parse(saved);
+        }
+      } catch(e) {
+        currentUser = null;
+      }
+
+      forceLightModeEverywhere();
+      showUserScreen();
+      requestNotificationPermission();
+      requestWakeLock();
+
+      if (currentUser && currentUser.role === 'tech') {
+        sendTechHeartbeat();
+      }
+
+      syncDown(true);
+
+      setInterval(fastAlertsCheck, 1000);
+      setInterval(() => syncDown(false), 8000);
+      setInterval(sendTechHeartbeat, 15000);
+    };
+  </script>
+</body>
+</html>
