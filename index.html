@@ -154,7 +154,7 @@
     }
   </style>
 </head>
-<body>
+<body onclick="unlockAudioSystem()" ontouchstart="unlockAudioSystem()">
 
   <!-- نافذة تعديل بيانات العميل أو العطل -->
   <div id="modalEditOrder" class="modal-overlay hidden">
@@ -546,6 +546,17 @@
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
 
+    // دالة إرسال إشعار أندرويد أصلي عبر التطبيق
+    function sendNativeAndroidNotification(title, message) {
+      try {
+        if (window.AndroidAPI && typeof window.AndroidAPI.showNotification === 'function') {
+          window.AndroidAPI.showNotification(title, message);
+        }
+      } catch (e) {
+        console.log('Native notification error:', e);
+      }
+    }
+
     // دوال الوقت والتاريخ
     function getToday() {
       const d = new Date();
@@ -627,7 +638,7 @@
         osc.connect(gain);
         gain.connect(globalAudioCtx.destination);
         osc.frequency.setValueAtTime(freq, start);
-        gain.gain.setValueAtTime(0.25, start);
+        gain.gain.setValueAtTime(0.35, start);
         gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
         osc.start(start);
         osc.stop(start + duration);
@@ -683,7 +694,7 @@
         if (data.latestOrderAlert && data.latestOrderAlert.targetTech === currentUser.name) {
           const alert = data.latestOrderAlert;
           const dismissed = localStorage.getItem('last_dismissed_ord_' + currentUser.name);
-          if (alert.alertId !== dismissed && alert.alertId !== lastOrderAlertId) {
+          if (alert.alertId && alert.alertId !== dismissed && alert.alertId !== lastOrderAlertId) {
             lastOrderAlertId = alert.alertId;
             document.getElementById('alertCustName').innerText = alert.customer || 'عميل';
             document.getElementById('alertJobTypeBadge').innerText = alert.jobType || 'عطل';
@@ -707,13 +718,16 @@
 
             document.getElementById('modalOrderAlert').classList.remove('hidden');
             triggerAlertChime(false);
+
+            // إشعار أندرويد الأصلي للفني
+            sendNativeAndroidNotification('طلب جديد مسند إليك! 🔔', `العميل: ${alert.customer} (${alert.jobType})`);
           }
         }
 
         if (data.latestBonusAlert && data.latestBonusAlert.targetTech === currentUser.name) {
           const alert = data.latestBonusAlert;
           const dismissed = localStorage.getItem('last_dismissed_bn_' + currentUser.name);
-          if (alert.bonusId !== dismissed && alert.bonusId !== lastBonusAlertId) {
+          if (alert.bonusId && alert.bonusId !== dismissed && alert.bonusId !== lastBonusAlertId) {
             lastBonusAlertId = alert.bonusId;
             const isNeg = Number(alert.amount) < 0;
             const box = document.getElementById('bonusAlertBox');
@@ -738,7 +752,7 @@
             } else {
               box.style.borderColor = '#059669';
               card.style.background = '#ecfdf5';
-              title.innerText = 'مبروك! نزل لك بونص جديد';
+              title.innerText = 'مبروك! نزل لك بونص جديد 🎁';
               title.style.color = '#059669';
               icon.innerText = '🎁';
               label.innerText = 'المبلغ المضاف:';
@@ -751,6 +765,15 @@
             document.getElementById('bonusAlertReason').innerText = alert.reason ? `السبب: ${alert.reason}` : (isNeg ? 'خصم مالي' : 'مكافأة إنجاز');
             document.getElementById('modalBonusAlert').classList.remove('hidden');
             triggerAlertChime(isNeg);
+
+            // إشعار أندرويد الأصلي للبونص أو الخصم
+            if (isNeg) {
+              sendNativeAndroidNotification('تنبيه خصم مالي ⚠️', `تم خصم ${Math.abs(alert.amount)} ج - السبب: ${alert.reason || 'خصم مالي'}`);
+            } else {
+              sendNativeAndroidNotification('مبروك! نزل لك بونص جديد 🎁', `المبلغ: +${alert.amount} ج - السبب: ${alert.reason || 'مكافأة إنجاز'}`);
+            }
+
+            syncDown(true);
           }
         }
       }
@@ -758,10 +781,10 @@
       if (currentUser.role === 'admin' && data.latestAdminAlert) {
         const aAlert = data.latestAdminAlert;
         const dismissedAdmin = localStorage.getItem('last_dismissed_admin_alert');
-        if (aAlert.id !== dismissedAdmin && aAlert.id !== lastAdminAlertId) {
+        if (aAlert.id && aAlert.id !== dismissedAdmin && aAlert.id !== lastAdminAlertId) {
           lastAdminAlertId = aAlert.id;
-          document.getElementById('adminNotifTech').innerText = aAlert.tech;
-          document.getElementById('adminNotifCust').innerText = aAlert.customer;
+          document.getElementById('adminNotifTech').innerText = aAlert.tech || 'الفني';
+          document.getElementById('adminNotifCust').innerText = aAlert.customer || 'العميل';
           document.getElementById('adminNotifDetail').innerText = aAlert.detail || 'بدون تفاصيل';
 
           const icon = document.getElementById('adminNotifIcon');
@@ -773,15 +796,20 @@
             title.innerText = '✅ تم حل الطلب بواسطة الفني';
             title.style.color = '#059669';
             icon.innerText = '🎉';
+            // إشعار أندرويد للمدير
+            sendNativeAndroidNotification('تم حل عطل بنجاح ✅', `الفني: ${aAlert.tech} أنهى عطل ${aAlert.customer}`);
           } else {
             box.style.borderColor = '#d97706';
             title.innerText = '⏳ قام الفني بتأجيل الطلب';
             title.style.color = '#d97706';
             icon.innerText = '⏳';
+            // إشعار أندرويد للمدير
+            sendNativeAndroidNotification('تأجيل موعد عطل ⏳', `الفني: ${aAlert.tech} قام بتأجيل طلب ${aAlert.customer}`);
           }
 
           document.getElementById('modalAdminNotification').classList.remove('hidden');
           triggerAlertChime(false);
+          syncDown(true);
         }
       }
     }
@@ -1058,7 +1086,13 @@
         fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bonusId: 'DED-' + Date.now(), targetTech: techName, amount: -amount, reason: reason, sentAt: Date.now() })
+          body: JSON.stringify({ 
+            bonusId: 'DED-' + Date.now(), 
+            targetTech: techName, 
+            amount: -amount, 
+            reason: reason, 
+            sentAt: Date.now() 
+          })
         }).catch(() => {});
 
         document.getElementById('deductAmount').value = '';
@@ -1344,12 +1378,18 @@
           fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bonusId: 'BN-' + Date.now(), targetTech: techName, amount: Number(amt), reason: reason, sentAt: Date.now() })
+            body: JSON.stringify({ 
+              bonusId: 'BN-' + Date.now(), 
+              targetTech: techName, 
+              amount: Number(amt), 
+              reason: reason, 
+              sentAt: Date.now() 
+            })
           }).catch(() => {});
 
           renderAdmin();
           syncUp();
-          alert(`تم نزول ${amt} ج لحساب (${techName}) 🎁`);
+          alert(`تم نزول ${amt} ج لحساب (${techName}) - السبب: ${reason} 🎁`);
         }
       }
     }
@@ -1374,7 +1414,6 @@
       selectedTechFilter = 'all';
       selectedDateFilter = 'all';
 
-      // حفظ الصفحة والقسم في التخزين المحلي
       localStorage.setItem('admin_current_page', 'orders');
       localStorage.setItem('admin_current_tab', type);
 
@@ -1392,7 +1431,7 @@
       window.scrollTo(0, 0);
 
       updateDateFilterUI();
-      renderAdmin();
+      renderAdminOrders();
     }
 
     function backToAdminHome() {
@@ -1477,7 +1516,7 @@
         const now = Date.now();
 
         techs.forEach(t => {
-          const isOnline = t.lastSeen && (now - t.lastSeen < 35000);
+          const isOnline = t.lastSeen && (now - t.lastSeen < 45000);
           const statusClass = isOnline ? 'status-online' : 'status-offline';
           const statusText = isOnline ? 'متصل الآن' : `آخر ظهور: ${formatLastSeen(t.lastSeen)}`;
           const statusTextColor = isOnline ? '#10b981' : '#64748b';
@@ -1673,7 +1712,6 @@
         const pendingList = myOrders.filter(o => o.status !== 'done');
         const doneList = myOrders.filter(o => o.status === 'done');
 
-        // ترتيب الأعطال المطلوبة: الأقدم أولاً (أمس وما قبله) ثم أعطال اليوم
         const today = getToday();
         pendingList.sort((a, b) => {
           const aIsToday = (a.date === today);
@@ -1733,7 +1771,6 @@
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <strong style="font-size:15px; color:#0f172a;">${o.customer}</strong>
                 <div style="display:flex; gap:4px; align-items:center;">
-                  <!-- عرض نوع العطل أولاً ثم التاريخ الفعلي -->
                   <span class="badge ${jobBadgeClass}">${displayJobText}</span>
                   ${timeBadgeHtml}
                   ${statusBadgeHtml}
@@ -1865,7 +1902,32 @@
       }
     }
 
-    function syncDown() {
+    // فحص دوري وسريع (كل ثانيتين) للتنبيهات الفورية فقط
+    function fastAlertsCheck() {
+      if (!currentUser) return;
+
+      if (currentUser.role === 'admin') {
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`)
+          .then(res => res.json())
+          .then(alert => {
+            if (alert) checkIncomingAlerts({ latestAdminAlert: alert });
+          }).catch(() => {});
+      } else if (currentUser.role === 'tech') {
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`)
+          .then(res => res.json())
+          .then(orderAlert => {
+            if (orderAlert) checkIncomingAlerts({ latestOrderAlert: orderAlert });
+          }).catch(() => {});
+
+        fetch(`${FIREBASE_DB}/bonus_system_data/latestBonusAlert.json`)
+          .then(res => res.json())
+          .then(bonusAlert => {
+            if (bonusAlert) checkIncomingAlerts({ latestBonusAlert: bonusAlert });
+          }).catch(() => {});
+      }
+    }
+
+    function syncDown(force = false) {
       fetch(`${FIREBASE_DB}/bonus_system_data.json`)
         .then(res => res.json())
         .then(data => {
@@ -1929,8 +1991,13 @@
       }
 
       syncDown();
-      setInterval(syncDown, 3000);
-      setInterval(sendTechHeartbeat, 10000);
+
+      // فحص سريع للتنبيهات كل ثانيتين
+      setInterval(fastAlertsCheck, 2000);
+
+      // تحديث البيانات العامة في الخلفية
+      setInterval(syncDown, 8000);
+      setInterval(sendTechHeartbeat, 15000);
     };
   </script>
 </body>
