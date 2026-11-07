@@ -1,14 +1,5 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" style="background-color: #f8fafc !important; color-scheme: only light !important;">
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "d150c12c-0835-4228-b569-4825447c2bec",
-    });
-  });
-</script>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -59,7 +50,7 @@
       border-radius: 10px; 
       border: 1.5px solid #cbd5e1 !important; 
       font-size: 12px; 
-      font-weight: 700;
+      font-weight: 700; 
       outline: none; 
       background-color: #ffffff !important; 
       background: #ffffff !important; 
@@ -612,6 +603,25 @@
 
   <script>
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
+    const NTFY_TOPIC = "mega-network-alerts";
+
+    // دالة إرسال الإشعار الفوري لهاتفك وتطبيق ntfy
+    async function sendNtfyPush(title, message, priority = 'urgent') {
+      try {
+        await fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
+          method: 'POST',
+          body: message,
+          headers: {
+            'Title': title,
+            'Priority': priority,
+            'Tags': 'warning,wrench',
+            'Content-Type': 'text/plain; charset=utf-8'
+          }
+        });
+      } catch (err) {
+        console.error("خطأ في إرسال إشعار ntfy:", err);
+      }
+    }
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'mega_admin', pass: 'M@g@#2026!Sec' },
@@ -1340,7 +1350,7 @@
         return;
       }
 
-      appOrders.unshift({
+      const newOrder = {
         id: 'ORD-' + Date.now().toString().slice(-5),
         customer: name,
         phone: phone,
@@ -1352,14 +1362,21 @@
         doneReason: '',
         date: getToday(),
         createdAt: Date.now()
-      });
+      };
+
+      appOrders.unshift(newOrder);
+
+      // إرسال إشعار فوري عبر ntfy يصل لهاتفك وهواتف الفنيين المشتركين
+      const ntfyTitle = `طلب جديد: ${newOrder.jobType} 🚨`;
+      const ntfyBody = `العميل: ${newOrder.customer}\nالهاتف: ${newOrder.phone || 'بدون رقم'}\nالعنوان/ملاحظات: ${newOrder.desc || 'لا توجد'}`;
+      sendNtfyPush(ntfyTitle, ntfyBody);
 
       nameInput.value = '';
       phoneInput.value = '';
       descInput.value = '';
       renderAdmin();
       syncUp();
-      toastNative('تم حفظ الطلب بنجاح ✓');
+      toastNative('تم حفظ الطلب وإرسال التنبيه للهاتف بنجاح ✓');
     }
 
     function openEditOrderModal(orderId) {
@@ -1420,6 +1437,9 @@
         ord.date = getToday();
         ord.createdAt = Date.now();
 
+        // إرسال إشعار ntfy بالعطل المتكرر
+        sendNtfyPush(`عطل متكرر 🔁: ${ord.customer}`, `تم تحويل الطلب لمعلق لمتابعته فوراً.`);
+
         renderAdmin();
         syncUp();
         toastNative(`تم نقل طلب (${ord.customer}) إلى المعلق كطلب جديد ✓`);
@@ -1436,7 +1456,7 @@
         ord.tech = targetTech;
         if (ord.status === 'postponed') ord.status = 'pending';
 
-        // إرسال فوري مباشر عبر PUT
+        // إرسال فوري مباشر عبر Firebase PUT
         fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -1450,6 +1470,9 @@
             sentAt: Date.now()
           })
         }).catch(() => {});
+
+        // إرسال إشعار ntfy للهاتف باسم الفني المسند إليه
+        sendNtfyPush(`إسناد طلب للفني: ${targetTech} 👤`, `العميل: ${ord.customer} (${ord.jobType || 'عطل'})\nالهاتف: ${ord.phone || 'بدون رقم'}`);
 
         syncUp();
         renderAdmin();
@@ -1485,6 +1508,8 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(alertPayload)
       }).then(() => {
+        // إرسال إشعار ntfy فور ضغط زر الرنين
+        sendNtfyPush(`تنبيه رنين للفني: ${ord.tech} 🔔`, `العميل: ${ord.customer} - يرجى التحرك فوراً`);
         toastNative(`تم إرسال تنبيه فوري بالعطل للفني (${ord.tech}) الآن 🔔`);
       }).catch(() => {
         toastNative('حدث خطأ أثناء إرسال التنبيه، تأكد من الاتصال.');
@@ -2003,6 +2028,8 @@
             sentAt: Date.now()
           })
         }).then(() => {
+          // إرسال إشعار ntfy للمدير بإنجاز الطلب
+          sendNtfyPush(`تم إنجاز العطل ✅ (${currentUser.name})`, `العميل: ${ord.customer}\nما تم: ${reason}`);
           toastNative('تم تأكيد الحل وإرسال التنبيه للمدير بنجاح ✓');
         }).catch(() => {});
 
@@ -2043,6 +2070,8 @@
             sentAt: Date.now()
           })
         }).then(() => {
+          // إرسال إشعار ntfy للمدير بتأجيل الطلب
+          sendNtfyPush(`تم تأجيل الطلب ⏳ (${currentUser.name})`, `العميل: ${ord.customer}\nالسبب: ${reason}`);
           toastNative('تم حفظ التأجيل وإشعار الإدارة ✓');
         }).catch(() => {});
 
@@ -2052,7 +2081,7 @@
       }
     }
 
-    // فحص فائق السرعة للإشعارات (كل ثانية بدون كاش نهائياً)
+    // فحص فائق السرعة للإشعارات داخل التطبيق
     let isFetchingInstantAlert = false;
     function instantAlertsCheck() {
       if (!currentUser || isFetchingInstantAlert) return;
