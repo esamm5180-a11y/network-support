@@ -233,7 +233,7 @@
 </head>
 <body onclick="unlockAudioSystem()" ontouchstart="unlockAudioSystem()">
 
-  <!-- نافذة تعديل بيانات العميل أو العطل -->
+  <!-- Nafzet Ta3deel Bayanat el-3ameel -->
   <div id="modalEditOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
@@ -262,7 +262,7 @@
     </div>
   </div>
 
-  <!-- نافذة إشعار طلب للفني -->
+  <!-- Esh3ar Talab Gedid lel Fany -->
   <div id="modalOrderAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
     <div class="modal-content" style="text-align: center; border: 2px solid #2563eb;" onclick="event.stopPropagation()">
       <div style="font-size: 34px; margin-bottom: 4px;">🔔</div>
@@ -280,7 +280,7 @@
     </div>
   </div>
 
-  <!-- نافذة إشعار للمدير -->
+  <!-- Esh3ar lel Modeer -->
   <div id="modalAdminNotification" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
     <div class="modal-content" id="adminNotifBox" style="text-align: center; border: 2px solid #2563eb;" onclick="event.stopPropagation()">
       <div id="adminNotifIcon" style="font-size: 34px; margin-bottom: 4px;">📢</div>
@@ -294,7 +294,7 @@
     </div>
   </div>
 
-  <!-- نافذة إشعار البونص / الخصم للفني -->
+  <!-- Esh3ar Bonus aw Khasm -->
   <div id="modalBonusAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
     <div class="modal-content" id="bonusAlertBox" style="text-align: center; border: 2px solid #10b981;" onclick="event.stopPropagation()">
       <div id="bonusAlertIcon" style="font-size: 34px; margin-bottom: 4px;">🎁</div>
@@ -308,7 +308,7 @@
     </div>
   </div>
 
-  <!-- سجل المكافآت للفني -->
+  <!-- Segal el-Mokafe'at -->
   <div id="modalTechBonusHistory" class="modal-overlay hidden">
     <div class="modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
@@ -320,7 +320,7 @@
     </div>
   </div>
 
-  <!-- نافذة حل العطل -->
+  <!-- Hal el-3otl -->
   <div id="modalSolveOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 14px; font-weight: 900; margin-bottom: 6px; color: #059669;">تأكيد حل المشكلة ✓</h4>
@@ -334,7 +334,7 @@
     </div>
   </div>
 
-  <!-- نافذة تأجيل العطل -->
+  <!-- Ta'geel el-3otl -->
   <div id="modalPostponeOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 14px; font-weight: 900; margin-bottom: 6px; color: #d97706;">تأجيل موعد الطلب ⏳</h4>
@@ -348,7 +348,7 @@
     </div>
   </div>
 
-  <!-- شاشة الدخول -->
+  <!-- Shashat el-Dokhol -->
   <div id="screenLogin" class="container" style="min-height: 85vh; display: flex; align-items: center; justify-content: center;">
     <div class="card" style="width: 100%; text-align: center; padding: 26px 18px;">
       <div style="width: 52px; height: 52px; background-color: #eff6ff !important; color: #2563eb !important; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto; font-size: 22px; border: 1.5px solid #bfdbfe;">
@@ -364,7 +364,7 @@
     </div>
   </div>
 
-  <!-- 1. شاشة المدير الرئيسية -->
+  <!-- 1. Shasha el-Modeer el-Ra'eseyya -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -407,7 +407,7 @@
         </div>
       </div>
 
-      <!-- تسجيل طلب جديد -->
+      <!-- Tasgeel Talab Gedid -->
       <div class="card" style="border: 2px solid #94a3b8 !important;">
         <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
           <span style="font-size: 14px; color: #2563eb;">➕</span>
@@ -445,12 +445,12 @@
         <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
 
-      <!-- قائمة الفنيين -->
+      <!-- Qa'emat el-Fanyeen -->
       <div id="adminTechsList"></div>
     </div>
   </div>
 
-  <!-- 2. صفحة الأعطال المستقلة -->
+  <!-- 2. Safhat el-A3tal el-Mostaqella -->
   <div id="screenOrdersPage" class="hidden">
     <header class="header">
       <div style="display: flex; align-items: center; gap: 6px;">
@@ -465,7 +465,7 @@
     <div class="container">
       <div id="techSubFilterBar" class="sub-filter-bar hidden"></div>
 
-      <!-- فلتر التاريخ -->
+      <!-- Filter el-Tareekh -->
       <div class="card" style="padding: 8px 10px; margin-bottom: 8px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
           <span style="font-size: 11px; font-weight: 800; color: #475569;">📅 فلتر التاريخ:</span>
@@ -485,7 +485,7 @@
     </div>
   </div>
 
-  <!-- 3. صفحة الإعدادات المستقلة -->
+  <!-- 3. Safhat el-E3dadat -->
   <div id="screenSettingsPage" class="hidden">
     <header class="header">
       <div style="display: flex; align-items: center; gap: 6px;">
@@ -503,7 +503,7 @@
         <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 8px; font-size: 11px;">خصم من الرصيد ➖</button>
       </div>
 
-      <!-- التحكم في حساب الفني -->
+      <!-- El-Tahakkom fe Hesab el-Fany -->
       <div class="card">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 8px; color: #1e293b;">🛠 التحكم في حساب وسجل الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
@@ -543,7 +543,7 @@
         <div id="bonusHistoryLogList" style="max-height: 220px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
       </div>
 
-      <!-- إضافة فني جديد -->
+      <!-- Edafet Fany Gedid -->
       <div class="card">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 8px; color: #1e293b;">👷 إضافة فني جديد:</h5>
         <input type="text" id="addTechName" placeholder="اسم الفني بالكامل" class="input-control">
@@ -566,7 +566,7 @@
     </div>
   </div>
 
-  <!-- 4. شاشة الفني -->
+  <!-- 4. Shashet el-Fany -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -607,34 +607,39 @@
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
     const NTFY_TOPIC = "mega-network-alerts";
 
-    // إعدادات بوابة ADV WHATS الرسمية
-    const ADV_API_KEY = "2cc8b1527eeede63b7073fac65d9fd067a02f074";
-    const ADV_UNIQUE_ID = "1794163927a5771bce93e200c36f7cd9dfd0e5deaa6af0c4d7bf731";
+    // Green-API Config
+    const GREEN_API_URL = "https://7107.api.greenapi.com";
+    const GREEN_ID_INSTANCE = "710722794947";
+    const GREEN_API_TOKEN = "D6edcf8936034a06a7e80a7a7d3f8e3b432e4ae5dd6d48fabf";
 
-    // أرقام هواتف الفنيين (أو معرفات الجروبات) بصيغة كود الدولة
+    // Arqam el-Fanyeen (format: 201xxxxxxxxx@c.us)
     const TECH_WHATSAPP_CONFIG = {
-      "WAZA ELZOZ": "201105943212",
-      "أحمد سعيد": "201105943212",
-      "Mostafa hamdy": "201105943212",
-      "mahmoud": "201105943212",
-      "محمود علي": "201105943212"
+      "WAZA ELZOZ": "201105943212@c.us",
+      "أحمد سعيد": "201105943212@c.us",
+      "Mostafa hamdy": "201105943212@c.us",
+      "mahmoud": "201105943212@c.us",
+      "محمود علي": "201105943212@c.us"
     };
 
-    // دالة إرسال رسالة واتساب آلية في الخلفية عبر ADV WHATS
-    async function sendAdvWhatsAppAuto(targetTech, messageText) {
+    // Ersal WhatsApp Rasmy 3abr Green-API
+    async function sendGreenWhatsAppAuto(targetTech, messageText) {
       try {
-        const receiver = TECH_WHATSAPP_CONFIG[targetTech] || "201105943212";
-        const url = `https://advwhats.com/api/send?api_key=${encodeURIComponent(ADV_API_KEY)}&unique_id=${encodeURIComponent(ADV_UNIQUE_ID)}&number=${encodeURIComponent(receiver)}&message=${encodeURIComponent(messageText)}`;
+        const chatId = TECH_WHATSAPP_CONFIG[targetTech] || "201105943212@c.us";
+        const endpoint = `${GREEN_API_URL}/waInstance${GREEN_ID_INSTANCE}/sendMessage/${GREEN_API_TOKEN}`;
 
-        fetch(url, { method: 'POST', mode: 'no-cors' }).catch(() => {
-          fetch(url, { method: 'GET', mode: 'no-cors' }).catch(() => {});
-        });
+        fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chatId: chatId,
+            message: messageText
+          })
+        }).catch(e => console.error("Green-API fetch error:", e));
       } catch (err) {
-        console.error("خطأ إرسال واتساب آلي:", err);
+        console.error("Khat'a fe ersal WhatsApp:", err);
       }
     }
 
-    // دالة إرسال الإشعار الفوري لهاتفك وتطبيق ntfy
     async function sendNtfyPush(title, message, priority = 'urgent') {
       try {
         await fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
@@ -648,7 +653,7 @@
           }
         });
       } catch (err) {
-        console.error("خطأ في إرسال إشعار ntfy:", err);
+        console.error("Khat'a ntfy:", err);
       }
     }
 
@@ -1395,7 +1400,6 @@
 
       appOrders.unshift(newOrder);
 
-      // إرسال إشعار فوري عبر ntfy يصل لهاتفك وهواتف الفنيين المشتركين
       const ntfyTitle = `طلب جديد: ${newOrder.jobType} 🚨`;
       const ntfyBody = `العميل: ${newOrder.customer}\nالهاتف: ${newOrder.phone || 'بدون رقم'}\nالعنوان/ملاحظات: ${newOrder.desc || 'لا توجد'}`;
       sendNtfyPush(ntfyTitle, ntfyBody);
@@ -1466,7 +1470,6 @@
         ord.date = getToday();
         ord.createdAt = Date.now();
 
-        // إرسال إشعار ntfy بالعطل المتكرر
         sendNtfyPush(`عطل متكرر 🔁: ${ord.customer}`, `تم تحويل الطلب لمعلق لمتابعته فوراً.`);
 
         renderAdmin();
@@ -1485,7 +1488,6 @@
         ord.tech = targetTech;
         if (ord.status === 'postponed') ord.status = 'pending';
 
-        // إرسال فوري مباشر عبر Firebase PUT
         fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -1500,12 +1502,11 @@
           })
         }).catch(() => {});
 
-        // إرسال إشعار ntfy للهاتف باسم الفني المسند إليه
         sendNtfyPush(`إسناد طلب للفني: ${targetTech} 👤`, `العميل: ${ord.customer} (${ord.jobType || 'عطل'})\nالهاتف: ${ord.phone || 'بدون رقم'}`);
 
-        // إرسال رسالة واتساب آلية في الخلفية للفني فور إسناد العطل
-        const waMsg = `🔔 تنبيه عطل جديد مسند إليك!\n\n👤 العميل: ${ord.customer}\n🛠 النوع: ${ord.jobType || 'عطل'}\n📞 الهاتف: ${ord.phone || 'بدون رقم'}\n📍 العنوان/ملاحظات: ${ord.desc || 'لا توجد'}\n\nيرجى مراجعة التطبيق والتحرك فوراً ✓`;
-        sendAdvWhatsAppAuto(targetTech, waMsg);
+        // Ersal WhatsApp Rasmy fawran 3abr Green-API
+        const waMsg = `🔔 تنبيه عطل جديد مسند إليك!\n\n👤 العميل: ${ord.customer}\n🛠 نوع الطلب: ${ord.jobType || 'عطل'}\n📞 رقم الهاتف: ${ord.phone || 'بدون رقم'}\n📍 الملاحظات/العنوان: ${ord.desc || 'لا توجد'}\n\nيرجى فتح التطبيق والتحرك فوراً ✓`;
+        sendGreenWhatsAppAuto(targetTech, waMsg);
 
         syncUp();
         renderAdmin();
@@ -1541,12 +1542,10 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(alertPayload)
       }).then(() => {
-        // إرسال إشعار ntfy فور ضغط زر الرنين
         sendNtfyPush(`تنبيه رنين للفني: ${ord.tech} 🔔`, `العميل: ${ord.customer} - يرجى التحرك فوراً`);
         
-        // إرسال رسالة واتساب تنبيهية برنين الطلب
-        const waRingtoneMsg = `🚨 تنبيه عاجل!\nالمدير يقوم بعمل رنين للطلب الخاص بالعميل (${ord.customer}). يرجى سرعة الإنجاز والتحديث في التطبيق!`;
-        sendAdvWhatsAppAuto(ord.tech, waRingtoneMsg);
+        const waRingtoneMsg = `🚨 تنبيه رنين عاجل!\nالمدير يطلب سرعة التحرك للعميل (${ord.customer}). يرجى سرعة الإنجاز والتحديث في التطبيق!`;
+        sendGreenWhatsAppAuto(ord.tech, waRingtoneMsg);
 
         toastNative(`تم إرسال تنبيه فوري ورسالة واتساب للفني (${ord.tech}) الآن 🔔`);
       }).catch(() => {
@@ -1587,9 +1586,8 @@
             })
           }).catch(() => {});
 
-          // إرسال واتساب للفني بإضافة البونص
           const waBonusMsg = `🎁 مبروك يا بطل!\nنزل لك بونص جديد بقيمة (+${amt} ج)\nالسبب: ${reason}\nإجمالي رصيدك الحالي: ${t.accumulatedBonus} ج ✓`;
-          sendAdvWhatsAppAuto(techName, waBonusMsg);
+          sendGreenWhatsAppAuto(techName, waBonusMsg);
 
           renderAdmin();
           syncUp();
@@ -2070,7 +2068,6 @@
             sentAt: Date.now()
           })
         }).then(() => {
-          // إرسال إشعار ntfy للمدير بإنجاز الطلب
           sendNtfyPush(`تم إنجاز العطل ✅ (${currentUser.name})`, `العميل: ${ord.customer}\nما تم: ${reason}`);
           toastNative('تم تأكيد الحل وإرسال التنبيه للمدير بنجاح ✓');
         }).catch(() => {});
@@ -2112,7 +2109,6 @@
             sentAt: Date.now()
           })
         }).then(() => {
-          // إرسال إشعار ntfy للمدير بتأجيل الطلب
           sendNtfyPush(`تم تأجيل الطلب ⏳ (${currentUser.name})`, `العميل: ${ord.customer}\nالسبب: ${reason}`);
           toastNative('تم حفظ التأجيل وإشعار الإدارة ✓');
         }).catch(() => {});
@@ -2123,7 +2119,6 @@
       }
     }
 
-    // فحص فائق السرعة للإشعارات داخل التطبيق
     let isFetchingInstantAlert = false;
     function instantAlertsCheck() {
       if (!currentUser || isFetchingInstantAlert) return;
@@ -2220,9 +2215,7 @@
 
       syncDown(true);
 
-      // فحص تنبيهات فوري كل ثانية واحدة بدون كاش
       setInterval(instantAlertsCheck, 1000);
-      // تحديث كامل لقائمة الأعطال كل 6 ثوانٍ
       setInterval(() => syncDown(false), 6000);
       setInterval(sendTechHeartbeat, 15000);
     };
