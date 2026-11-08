@@ -262,7 +262,7 @@
     </div>
   </div>
 
-  <!-- نافذة إشعار طلب للفني -->
+  <!-- نافذة إشعار طلب للفني المحدد فقط -->
   <div id="modalOrderAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
     <div class="modal-content" style="text-align: center; border: 2px solid #2563eb;" onclick="event.stopPropagation()">
       <div style="font-size: 34px; margin-bottom: 4px;">🔔</div>
@@ -407,7 +407,7 @@
         </div>
       </div>
 
-      <!-- تسجيل طلب جديد -->
+      <!-- تسجيل طلب جديد (بدون إشعار، يظل معلقاً فقط للإدارة) -->
       <div class="card" style="border: 2px solid #94a3b8 !important;">
         <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
           <span style="font-size: 14px; color: #2563eb;">➕</span>
@@ -445,12 +445,12 @@
         <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
 
-      <!-- قائمة الفنيين -->
+      <!-- قائمة الفنيين للمدير فقط -->
       <div id="adminTechsList"></div>
     </div>
   </div>
 
-  <!-- 2. صفحة الأعطال المستقلة -->
+  <!-- 2. صفحة الأعطال المستقلة للإدارة -->
   <div id="screenOrdersPage" class="hidden">
     <header class="header">
       <div style="display: flex; align-items: center; gap: 6px;">
@@ -566,12 +566,12 @@
     </div>
   </div>
 
-  <!-- 4. شاشة الفني -->
+  <!-- 4. شاشة الفني (مخصصة له فقط وتظهر أعطاله هو دون أعطال غيره) -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
         <h3 id="techDispName" style="font-size: 14px; font-weight: 900; color: #0f172a;">الفني</h3>
-        <span style="font-size: 10px; color: #64748b; font-weight: 700;">أعطالي</span>
+        <span style="font-size: 10px; color: #64748b; font-weight: 700;">أعطالي المسندة فقط</span>
       </div>
       <div style="display: flex; gap: 5px;">
         <button type="button" onclick="triggerManualSync()" class="icon-btn-pro" title="تحديث السحابة">
@@ -595,10 +595,11 @@
       </button>
 
       <div style="display: flex; gap: 6px; margin-bottom: 10px;">
-        <button type="button" id="tabBtnPending" onclick="switchTechTab('pending')" class="btn btn-primary" style="flex: 1; padding: 8px; font-size: 11px;">المطلوبة (<span id="countTechPending">0</span>)</button>
+        <button type="button" id="tabBtnPending" onclick="switchTechTab('pending')" class="btn btn-primary" style="flex: 1; padding: 8px; font-size: 11px;">المطلوبة مني (<span id="countTechPending">0</span>)</button>
         <button type="button" id="tabBtnDone" onclick="switchTechTab('done')" class="btn btn-secondary" style="flex: 1; padding: 8px; font-size: 11px;">المنجزة (<span id="countTechDone">0</span>)</button>
       </div>
 
+      <!-- قائمة أعطال الفني الخاصة به وحده دون غيره -->
       <div id="techOrdersList"></div>
     </div>
   </div>
@@ -607,19 +608,26 @@
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
     const NTFY_TOPIC = "mega-network-alerts";
 
-    // إعدادات بوت تليجرام التلقائي (مجاني ودائم)
+    // إعدادات بوت تليجرام
     const TELEGRAM_BOT_TOKEN = "9027122334:AAGV1B4QIk9dtIHMecW2hqcGXkjwYZy4PeM";
-    const TELEGRAM_CHAT_ID = "5007105167";
+    
+    // شات تليجرام المخصص لكل فني (لكي تصله رسالته وحده)
+    const TECH_TELEGRAM_CHATS = {
+      "mahmoud": "5007105167",
+      "محمود علي": "5007105167"
+    };
+    const DEFAULT_TELEGRAM_CHAT = "5007105167";
 
-    // دالة إرسال الإشعار التلقائي الفوري إلى تليجرام
-    async function sendTelegramAlert(messageText) {
+    // دالة إرسال الإشعار التلقائي للفني المستهدف فقط
+    async function sendTelegramAlertToTech(targetTech, messageText) {
       try {
+        const chatId = TECH_TELEGRAM_CHATS[targetTech] || DEFAULT_TELEGRAM_CHAT;
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
         fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            chat_id: TELEGRAM_CHAT_ID,
+            chat_id: chatId,
             text: messageText,
             parse_mode: 'HTML'
           })
@@ -859,6 +867,7 @@
       }).catch(() => {});
     }
 
+    // فحص الإشعارات: الفني يستلم فقط التنبيهات الموجهة له بالاسم
     function checkIncomingAlerts(data) {
       if (!currentUser || !data) return;
 
@@ -1187,6 +1196,7 @@
       const listContainer = document.getElementById('techBonusHistoryList');
       listContainer.innerHTML = '';
 
+      // يرى الفني فقط سجلاته الخاصة
       const myRecords = bonusRecords.filter(b => b.tech === currentUser.name);
 
       if (myRecords.length === 0) {
@@ -1263,8 +1273,8 @@
           })
         }).catch(() => {});
 
-        // إشعار فوري لتليجرام
-        sendTelegramAlert(`⚠️ <b>تنبيه خصم مالي</b>\n👤 <b>الفني:</b> ${techName}\n🔻 <b>المبلغ:</b> -${amount} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>الرصيد المتبقي:</b> ${techObj.accumulatedBonus} ج`);
+        // إرسال تنبيه الخصم لهذا الفني فقط
+        sendTelegramAlertToTech(techName, `⚠️ <b>تنبيه خصم مالي</b>\n👤 <b>الفني:</b> ${techName}\n🔻 <b>المبلغ:</b> -${amount} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>الرصيد المتبقي:</b> ${techObj.accumulatedBonus} ج`);
 
         document.getElementById('deductAmount').value = '';
         document.getElementById('deductReason').value = '';
@@ -1272,7 +1282,7 @@
         renderBonusHistoryLog();
         renderAdmin();
         syncUp();
-        toastNative(`تم خصم ${amount} ج من حساب (${techName}) وإرسال التنبيه ➖`);
+        toastNative(`تم خصم ${amount} ج من حساب (${techName}) بنجاح ➖`);
       }
     }
 
@@ -1360,6 +1370,7 @@
       toastNative('تم تحديث وتأمين بيانات المدير بنجاح 💾');
     }
 
+    // حفظ طلب جديد: يبقى معلقاً فقط في لوحة المدير دون إرسال إشعار تليجرام أو رنين
     function saveNewOrder() {
       const nameInput = document.getElementById('newCustName');
       const phoneInput = document.getElementById('newCustPhone');
@@ -1392,19 +1403,12 @@
 
       appOrders.unshift(newOrder);
 
-      const ntfyTitle = `طلب جديد: ${newOrder.jobType} 🚨`;
-      const ntfyBody = `العميل: ${newOrder.customer}\nالهاتف: ${newOrder.phone || 'بدون رقم'}\nالعنوان/ملاحظات: ${newOrder.desc || 'لا توجد'}`;
-      sendNtfyPush(ntfyTitle, ntfyBody);
-
-      // إشعار تليجرام عند تسجيل طلب جديد معلق
-      sendTelegramAlert(`🚨 <b>طلب صيانة جديد (معلق)</b>\n\n👤 <b>العميل:</b> ${newOrder.customer}\n🛠 <b>النوع:</b> ${newOrder.jobType}\n📞 <b>الهاتف:</b> ${newOrder.phone || 'بدون رقم'}\n📍 <b>الملاحظات:</b> ${newOrder.desc || 'لا توجد'}`);
-
       nameInput.value = '';
       phoneInput.value = '';
       descInput.value = '';
       renderAdmin();
       syncUp();
-      toastNative('تم حفظ الطلب وإرسال التنبيه بنجاح ✓');
+      toastNative('تم حفظ الطلب في المعلق بنجاح ✓');
     }
 
     function openEditOrderModal(orderId) {
@@ -1465,15 +1469,13 @@
         ord.date = getToday();
         ord.createdAt = Date.now();
 
-        sendNtfyPush(`عطل متكرر 🔁: ${ord.customer}`, `تم تحويل الطلب لمعلق لمتابعته فوراً.`);
-        sendTelegramAlert(`🔁 <b>تنبيه عطل متكرر</b>\nالعميل: ${ord.customer}\nتم تحويله إلى المعلق للبدء فيه كطلب عاجل.`);
-
         renderAdmin();
         syncUp();
         toastNative(`تم نقل طلب (${ord.customer}) إلى المعلق كطلب جديد ✓`);
       }
     }
 
+    // إسناد الطلب لفني: هنا فقط يتم إرسال الإشعار التلقائي للفني المحدد وحده
     function saveAssignDirectly(orderId, selectElem) {
       const targetTech = selectElem.value;
       if (!targetTech) return;
@@ -1500,21 +1502,22 @@
 
         sendNtfyPush(`إسناد طلب للفني: ${targetTech} 👤`, `العميل: ${ord.customer} (${ord.jobType || 'عطل'})\nالهاتف: ${ord.phone || 'بدون رقم'}`);
 
-        // إشعار تليجرام التلقائي والفوري مع الرنين في الهاتف
-        const tgMsg = `🔔 <b>إسناد عطل جديد للفني</b>\n\n👷 <b>الفني المسند له:</b> ${targetTech}\n👤 <b>العميل:</b> ${ord.customer}\n🛠 <b>نوع الطلب:</b> ${ord.jobType || 'عطل'}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n📍 <b>الملاحظات/العنوان:</b> ${ord.desc || 'لا توجد'}\n\n⚡ يرجى سرعة التحرك والإنجاز ✓`;
-        sendTelegramAlert(tgMsg);
+        // رسالة تليجرام خاصة تذهب للفني المسند إليه حصراً
+        const tgMsg = `🔔 <b>إسناد عطل جديد لك</b>\n\n👷 <b>الفني:</b> ${targetTech}\n👤 <b>العميل:</b> ${ord.customer}\n🛠 <b>نوع الطلب:</b> ${ord.jobType || 'عطل'}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n📍 <b>الملاحظات/العنوان:</b> ${ord.desc || 'لا توجد'}\n\n⚡ يرجى سرعة التحرك والإنجاز ✓`;
+        sendTelegramAlertToTech(targetTech, tgMsg);
 
         syncUp();
         renderAdmin();
 
         if (prevTech && prevTech !== targetTech) {
-          toastNative(`تم نقل الطلب وإرسال تنبيه تليجرام لـ (${targetTech}) بنجاح ✓`);
+          toastNative(`تم نقل الطلب وإرسال تنبيه لـ (${targetTech}) بنجاح ✓`);
         } else {
-          toastNative(`تم إسناد الطلب وإرسال تنبيه تليجرام لـ (${targetTech}) بنجاح ✓`);
+          toastNative(`تم إسناد الطلب وإرسال تنبيه لـ (${targetTech}) بنجاح ✓`);
         }
       }
     }
 
+    // إرسال تنبيه رنين للفني المسند فقط
     function sendDirectAlertToTech(orderId) {
       const ord = appOrders.find(o => o.id === orderId);
       if (!ord) return;
@@ -1540,11 +1543,10 @@
       }).then(() => {
         sendNtfyPush(`تنبيه رنين للفني: ${ord.tech} 🔔`, `العميل: ${ord.customer} - يرجى التحرك فوراً`);
         
-        // إشعار رنين عاجل في تليجرام
         const tgRingMsg = `🚨 <b>تنبيه رنين عاجل من الإدارة!</b>\n\n👷 <b>الفني:</b> ${ord.tech}\n👤 <b>العميل:</b> ${ord.customer}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n\n⚡ يرجى فتح التطبيق والتوجه فوراً للمكان!`;
-        sendTelegramAlert(tgRingMsg);
+        sendTelegramAlertToTech(ord.tech, tgRingMsg);
 
-        toastNative(`تم إرسال رنين للتطبيق وتنبيه فوري على تليجرام للفني (${ord.tech}) 🔔`);
+        toastNative(`تم إرسال رنين للتطبيق وتنبيه تليجرام للفني (${ord.tech}) الآن 🔔`);
       }).catch(() => {
         toastNative('حدث خطأ أثناء إرسال التنبيه، تأكد من الاتصال.');
       });
@@ -1583,13 +1585,12 @@
             })
           }).catch(() => {});
 
-          // إشعار بونص فوري لتليجرام
           const tgBonusMsg = `🎁 <b>مبروك! مكافأة جديدة</b>\n\n👷 <b>الفني:</b> ${techName}\n💵 <b>قيمة البونص:</b> +${amt} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>إجمالي رصيدك الحالي:</b> ${t.accumulatedBonus} ج`;
-          sendTelegramAlert(tgBonusMsg);
+          sendTelegramAlertToTech(techName, tgBonusMsg);
 
           renderAdmin();
           syncUp();
-          toastNative(`تم نزول ${amt} ج لحساب (${techName}) وإرسال إشعار تليجرام له 🎁`);
+          toastNative(`تم نزول ${amt} ج لحساب (${techName}) وإرسال إشعار له 🎁`);
         }
       }
     }
@@ -1907,11 +1908,13 @@
       });
     }
 
+    // عرض شاشة الفني: عزل كامل لأعطال الفني المسجل فقط
     function renderTech() {
       try {
         const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
         document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
 
+        // تصفية صارمة: جلب الأعطال المسندة لهذا الفني بعينه فقط
         const myOrders = appOrders.filter(o => o.tech === me.name);
         const pendingList = myOrders.filter(o => o.status !== 'done');
         const doneList = myOrders.filter(o => o.status === 'done');
@@ -1933,7 +1936,7 @@
         const list = techCurrentTab === 'pending' ? pendingList : doneList;
 
         if (list.length === 0) {
-          feed.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:20px;">لا توجد طلبات في هذا التبويب</p>';
+          feed.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px; padding:20px;">لا توجد طلبات مسندة إليك في هذا التبويب</p>';
           return;
         }
 
@@ -2067,10 +2070,6 @@
           })
         }).then(() => {
           sendNtfyPush(`تم إنجاز العطل ✅ (${currentUser.name})`, `العميل: ${ord.customer}\nما تم: ${reason}`);
-          
-          // إشعار إنجاز العطل في تليجرام
-          sendTelegramAlert(`✅ <b>تم حل عطل بنجاح</b>\n\n👷 <b>الفني:</b> ${currentUser.name}\n👤 <b>العميل:</b> ${ord.customer}\n🛠 <b>ما تم إنجازه:</b> ${reason}`);
-
           toastNative('تم تأكيد الحل وإرسال التنبيه للإدارة بنجاح ✓');
         }).catch(() => {});
 
@@ -2112,10 +2111,6 @@
           })
         }).then(() => {
           sendNtfyPush(`تم تأجيل الطلب ⏳ (${currentUser.name})`, `العميل: ${ord.customer}\nالسبب: ${reason}`);
-          
-          // إشعار التأجيل في تليجرام
-          sendTelegramAlert(`⏸️ <b>تم تأجيل موعد طلب</b>\n\n👷 <b>الفني:</b> ${currentUser.name}\n👤 <b>العميل:</b> ${ord.customer}\n📝 <b>سبب التأجيل:</b> ${reason}`);
-
           toastNative('تم حفظ التأجيل وإشعار الإدارة ✓');
         }).catch(() => {});
 
