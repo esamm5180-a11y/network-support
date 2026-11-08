@@ -39,9 +39,9 @@
       color: #1e293b !important; 
       border-radius: 14px; 
       padding: 12px; 
-      margin-bottom: 10px; 
-      border: 1px solid #e2e8f0 !important; 
-      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.03); 
+      margin-bottom: 12px; 
+      border: 2px solid #94a3b8 !important; 
+      box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.06); 
     }
     
     .input-control { 
@@ -120,17 +120,20 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 5px; }
     
+    /* تصميم الحواف البارزة والظلال لكروت الأعطال في لوحة الإدارة */
     .order-box { 
       background-color: #ffffff !important; 
-      border: 1px solid #e2e8f0 !important; 
-      border-radius: 12px; 
+      border: 2px solid #94a3b8 !important; 
+      border-radius: 14px; 
       padding: 12px; 
-      margin-bottom: 8px; 
+      margin-bottom: 12px; 
+      box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.06);
     }
 
     .order-delayed-box {
       background-color: #fff5f5 !important;
-      border: 1.5px solid #fca5a5 !important;
+      border: 2px solid #f87171 !important;
+      box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.15) !important;
     }
     
     .badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-block; }
@@ -406,7 +409,7 @@
       </div>
 
       <!-- تسجيل طلب جديد -->
-      <div class="card" style="border: 1.5px solid #bfdbfe !important;">
+      <div class="card" style="border: 2px solid #94a3b8 !important;">
         <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
           <span style="font-size: 14px; color: #2563eb;">➕</span>
           <h4 style="font-size: 13px; font-weight: 900; color: #1e3a8a;">تسجيل طلب عطل جديد</h4>
@@ -477,7 +480,7 @@
         </div>
       </div>
 
-      <div class="card" style="padding: 10px;">
+      <div style="padding: 2px 0;">
         <div id="adminOrdersList"></div>
       </div>
     </div>
@@ -493,7 +496,7 @@
     </header>
 
     <div class="container" style="padding-bottom: 50px;">
-      <div class="card" style="background-color: #fff5f5 !important; border: 1.5px solid #fecdd3 !important;">
+      <div class="card" style="background-color: #fff5f5 !important; border: 2px solid #fecdd3 !important;">
         <h5 style="font-size: 12px; font-weight: 900; color: #e11d48; margin-bottom: 8px;">➖ تسجيل سلفة أو خصم كاش:</h5>
         <select id="deductTechSelect" class="input-control"></select>
         <input type="number" id="deductAmount" placeholder="المبلغ بالجنيه" class="input-control" style="font-weight: 900; color: #e11d48;">
@@ -552,7 +555,7 @@
         <button type="button" onclick="addNewTechAccount()" class="btn btn-primary" style="padding: 8px; font-size: 11px;">إضافة الفني ➕</button>
       </div>
 
-      <div class="card" style="border: 1.5px solid #bfdbfe !important;">
+      <div class="card" style="border: 2px solid #bfdbfe !important;">
         <h5 style="font-size: 12px; font-weight: 900; color: #2563eb; margin-bottom: 3px;">🔐 أمان حساب المدير:</h5>
         <p style="font-size: 10px; color: #64748b; margin-bottom: 8px;">يمكنك تغيير اسم المستخدم وكلمة المرور في أي وقت لحماية التطبيق.</p>
         <div class="grid-2">
@@ -1802,7 +1805,7 @@
 
         ordBox.innerHTML += `
           <div class="order-box ${delayedClass}">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; border-bottom:1px dashed #e2e8f0; padding-bottom:5px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; border-bottom:1px solid #cbd5e1; padding-bottom:5px;">
               <span style="font-size:11px; font-weight:800; color:#334155; display:inline-flex; align-items:center; gap:4px;">
                 👤 الفني: <strong style="color:#2563eb;">${o.tech || 'غير محدد بعد'}</strong>
               </span>
@@ -1821,7 +1824,7 @@
               </div>
             </div>
             
-            ${o.desc ? `<p style="font-size:11px; color:#475569; margin-bottom:4px; background-color:#f8fafc; padding:5px 8px; border-radius:6px;">${o.desc}</p>` : ''}
+            ${o.desc ? `<p style="font-size:11px; color:#475569; margin-bottom:4px; background-color:#f8fafc; padding:5px 8px; border-radius:6px; border: 1px solid #e2e8f0;">${o.desc}</p>` : ''}
 
             ${isPostponed && o.postponeReason ? `
               <div style="font-size:11px; color:#c2410c; background-color:#fff7ed; border:1px solid #fed7aa; padding:4px 8px; border-radius:6px; margin-bottom:4px;">
@@ -1938,7 +1941,7 @@
 
           feed.innerHTML += `
             <div class="card ${delayedClass}">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; border-bottom:1px solid #cbd5e1; padding-bottom:5px;">
                 <strong style="font-size:14px; color:#0f172a;">${o.customer}</strong>
                 <div style="display:flex; gap:3px; align-items:center; flex-wrap: wrap;">
                   ${delayedBadgeHtml}
