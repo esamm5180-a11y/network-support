@@ -120,7 +120,6 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 5px; }
     
-    /* تصميم الحواف البارزة والظلال لكروت الأعطال في لوحة الإدارة */
     .order-box { 
       background-color: #ffffff !important; 
       border: 2px solid #94a3b8 !important; 
@@ -608,6 +607,33 @@
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
     const NTFY_TOPIC = "mega-network-alerts";
 
+    // إعدادات بوابة ADV WHATS الرسمية
+    const ADV_API_KEY = "2cc8b1527eeede63b7073fac65d9fd067a02f074";
+    const ADV_UNIQUE_ID = "1794163927a5771bce93e200c36f7cd9dfd0e5deaa6af0c4d7bf731";
+
+    // أرقام هواتف الفنيين (أو معرفات الجروبات) بصيغة كود الدولة
+    const TECH_WHATSAPP_CONFIG = {
+      "WAZA ELZOZ": "201105943212",
+      "أحمد سعيد": "201105943212",
+      "Mostafa hamdy": "201105943212",
+      "mahmoud": "201105943212",
+      "محمود علي": "201105943212"
+    };
+
+    // دالة إرسال رسالة واتساب آلية في الخلفية عبر ADV WHATS
+    async function sendAdvWhatsAppAuto(targetTech, messageText) {
+      try {
+        const receiver = TECH_WHATSAPP_CONFIG[targetTech] || "201105943212";
+        const url = `https://advwhats.com/api/send?api_key=${encodeURIComponent(ADV_API_KEY)}&unique_id=${encodeURIComponent(ADV_UNIQUE_ID)}&number=${encodeURIComponent(receiver)}&message=${encodeURIComponent(messageText)}`;
+
+        fetch(url, { method: 'POST', mode: 'no-cors' }).catch(() => {
+          fetch(url, { method: 'GET', mode: 'no-cors' }).catch(() => {});
+        });
+      } catch (err) {
+        console.error("خطأ إرسال واتساب آلي:", err);
+      }
+    }
+
     // دالة إرسال الإشعار الفوري لهاتفك وتطبيق ntfy
     async function sendNtfyPush(title, message, priority = 'urgent') {
       try {
@@ -660,7 +686,7 @@
         if (window.AndroidAPI && typeof window.AndroidAPI.showNotification === 'function') {
           window.AndroidAPI.showNotification(String(title), String(message));
         } else if (window.Android && typeof window.Android.showNotification === 'function') {
-          window.Android.showNotification(String(title), String(message));
+          window.AndroidAPI.showNotification(String(title), String(message));
         } else if ("Notification" in window && Notification.permission === "granted") {
           new Notification(title, { body: message });
         }
@@ -1477,13 +1503,17 @@
         // إرسال إشعار ntfy للهاتف باسم الفني المسند إليه
         sendNtfyPush(`إسناد طلب للفني: ${targetTech} 👤`, `العميل: ${ord.customer} (${ord.jobType || 'عطل'})\nالهاتف: ${ord.phone || 'بدون رقم'}`);
 
+        // إرسال رسالة واتساب آلية في الخلفية للفني فور إسناد العطل
+        const waMsg = `🔔 تنبيه عطل جديد مسند إليك!\n\n👤 العميل: ${ord.customer}\n🛠 النوع: ${ord.jobType || 'عطل'}\n📞 الهاتف: ${ord.phone || 'بدون رقم'}\n📍 العنوان/ملاحظات: ${ord.desc || 'لا توجد'}\n\nيرجى مراجعة التطبيق والتحرك فوراً ✓`;
+        sendAdvWhatsAppAuto(targetTech, waMsg);
+
         syncUp();
         renderAdmin();
 
         if (prevTech && prevTech !== targetTech) {
-          toastNative(`تم نقل الطلب من (${prevTech}) إلى (${targetTech}) بنجاح ✓`);
+          toastNative(`تم نقل الطلب وإرسال واتساب لـ (${targetTech}) بنجاح ✓`);
         } else {
-          toastNative(`تم إسناد الطلب إلى (${targetTech}) بنجاح ✓`);
+          toastNative(`تم إسناد الطلب وإرسال واتساب لـ (${targetTech}) بنجاح ✓`);
         }
       }
     }
@@ -1513,7 +1543,12 @@
       }).then(() => {
         // إرسال إشعار ntfy فور ضغط زر الرنين
         sendNtfyPush(`تنبيه رنين للفني: ${ord.tech} 🔔`, `العميل: ${ord.customer} - يرجى التحرك فوراً`);
-        toastNative(`تم إرسال تنبيه فوري بالعطل للفني (${ord.tech}) الآن 🔔`);
+        
+        // إرسال رسالة واتساب تنبيهية برنين الطلب
+        const waRingtoneMsg = `🚨 تنبيه عاجل!\nالمدير يقوم بعمل رنين للطلب الخاص بالعميل (${ord.customer}). يرجى سرعة الإنجاز والتحديث في التطبيق!`;
+        sendAdvWhatsAppAuto(ord.tech, waRingtoneMsg);
+
+        toastNative(`تم إرسال تنبيه فوري ورسالة واتساب للفني (${ord.tech}) الآن 🔔`);
       }).catch(() => {
         toastNative('حدث خطأ أثناء إرسال التنبيه، تأكد من الاتصال.');
       });
@@ -1552,9 +1587,13 @@
             })
           }).catch(() => {});
 
+          // إرسال واتساب للفني بإضافة البونص
+          const waBonusMsg = `🎁 مبروك يا بطل!\nنزل لك بونص جديد بقيمة (+${amt} ج)\nالسبب: ${reason}\nإجمالي رصيدك الحالي: ${t.accumulatedBonus} ج ✓`;
+          sendAdvWhatsAppAuto(techName, waBonusMsg);
+
           renderAdmin();
           syncUp();
-          toastNative(`تم نزول ${amt} ج لحساب (${techName}) - السبب: ${reason} 🎁`);
+          toastNative(`تم نزول ${amt} ج لحساب (${techName}) وإرسال واتساب له 🎁`);
         }
       }
     }
