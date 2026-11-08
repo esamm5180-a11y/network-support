@@ -407,7 +407,7 @@
         </div>
       </div>
 
-      <!-- تسجيل طلب جديد (بدون إشعار، يظل معلقاً فقط للإدارة) -->
+      <!-- تسجيل طلب جديد (يبقى معلقاً ولا يصدر تنبيهات إلا بعد الإسناد) -->
       <div class="card" style="border: 2px solid #94a3b8 !important;">
         <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
           <span style="font-size: 14px; color: #2563eb;">➕</span>
@@ -445,12 +445,12 @@
         <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
 
-      <!-- قائمة الفنيين للمدير فقط -->
+      <!-- قائمة الفنيين للإدارة فقط -->
       <div id="adminTechsList"></div>
     </div>
   </div>
 
-  <!-- 2. صفحة الأعطال المستقلة للإدارة -->
+  <!-- 2. صفحة الأعطال المستقلة -->
   <div id="screenOrdersPage" class="hidden">
     <header class="header">
       <div style="display: flex; align-items: center; gap: 6px;">
@@ -485,7 +485,7 @@
     </div>
   </div>
 
-  <!-- 3. صفحة الإعدادات المستقلة -->
+  <!-- 3. صفحة الإعدادات المستقلة (تحكم كامل بدون تعديل كود) -->
   <div id="screenSettingsPage" class="hidden">
     <header class="header">
       <div style="display: flex; align-items: center; gap: 6px;">
@@ -503,7 +503,7 @@
         <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 8px; font-size: 11px;">خصم من الرصيد ➖</button>
       </div>
 
-      <!-- التحكم في حساب الفني -->
+      <!-- التحكم في حساب الفني وإعداد تليجرام الخاص به -->
       <div class="card">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 8px; color: #1e293b;">🛠 التحكم في حساب وسجل الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
@@ -514,11 +514,16 @@
           <button type="button" onclick="updateSelectedTechBalance()" class="btn btn-success" style="width: auto; padding: 0 12px; font-size: 11px; white-space: nowrap;">تحديث</button>
         </div>
 
+        <label style="font-size: 10px; font-weight: 700; color: #475569; display: block; margin-bottom: 2px;">اسم الفني:</label>
         <input type="text" id="settingsTechName" placeholder="الاسم" class="input-control">
         <div class="grid-2">
           <input type="text" id="settingsTechUser" placeholder="اليوزر" class="input-control">
           <input type="text" id="settingsTechPass" placeholder="الباسورد" class="input-control">
         </div>
+
+        <!-- خانة تليجرام شات آي دي في الإعدادات -->
+        <label style="font-size: 10px; font-weight: 800; color: #2563eb; display: block; margin-bottom: 2px;">✈️ تليجرام Chat ID للفني (لإرسال إشعار العطل له منفصلاً):</label>
+        <input type="text" id="settingsTechTelegram" placeholder="مثال: 5007105167" class="input-control" style="direction: ltr; font-weight: 800; border-color: #93c5fd;">
         
         <div class="grid-2" style="margin-bottom: 8px;">
           <button type="button" onclick="saveSelectedTechAccount()" class="btn btn-primary" style="padding: 8px; font-size: 11px;">حفظ البيانات 💾</button>
@@ -543,7 +548,7 @@
         <div id="bonusHistoryLogList" style="max-height: 220px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
       </div>
 
-      <!-- إضافة فني جديد -->
+      <!-- إضافة فني جديد مع خانة تليجرام -->
       <div class="card">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 8px; color: #1e293b;">👷 إضافة فني جديد:</h5>
         <input type="text" id="addTechName" placeholder="اسم الفني بالكامل" class="input-control">
@@ -551,6 +556,7 @@
           <input type="text" id="addTechUser" placeholder="اليوزر" class="input-control">
           <input type="text" id="addTechPass" placeholder="الباسورد" class="input-control">
         </div>
+        <input type="text" id="addTechTelegram" placeholder="تليجرام Chat ID للفني (اختياري، مثلاً: 5007105167)" class="input-control" style="direction: ltr; font-weight: 800;">
         <button type="button" onclick="addNewTechAccount()" class="btn btn-primary" style="padding: 8px; font-size: 11px;">إضافة الفني ➕</button>
       </div>
 
@@ -566,7 +572,7 @@
     </div>
   </div>
 
-  <!-- 4. شاشة الفني (مخصصة له فقط وتظهر أعطاله هو دون أعطال غيره) -->
+  <!-- 4. شاشة الفني (مخصصة له فقط وتظهر أعطاله المسندة له) -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -610,18 +616,16 @@
 
     // إعدادات بوت تليجرام
     const TELEGRAM_BOT_TOKEN = "9027122334:AAGV1B4QIk9dtIHMecW2hqcGXkjwYZy4PeM";
-    
-    // شات تليجرام المخصص لكل فني (لكي تصله رسالته وحده)
-    const TECH_TELEGRAM_CHATS = {
-      "mahmoud": "5007105167",
-      "محمود علي": "5007105167"
-    };
     const DEFAULT_TELEGRAM_CHAT = "5007105167";
 
-    // دالة إرسال الإشعار التلقائي للفني المستهدف فقط
-    async function sendTelegramAlertToTech(targetTech, messageText) {
+    // دالة إرسال الإشعار التلقائي للفني عبر الـ Chat ID المسجل في حسابه بالإعدادات
+    async function sendTelegramAlertToTech(targetTechName, messageText) {
       try {
-        const chatId = TECH_TELEGRAM_CHATS[targetTech] || DEFAULT_TELEGRAM_CHAT;
+        const techObj = appAccounts.find(a => a.name === targetTechName);
+        const chatId = (techObj && techObj.telegramChatId) ? techObj.telegramChatId : DEFAULT_TELEGRAM_CHAT;
+
+        if (!chatId) return;
+
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
         fetch(url, {
           method: 'POST',
@@ -656,8 +660,8 @@
 
     let appAccounts = [
       { id: 1, role: 'admin', name: 'المدير العام', username: 'mega_admin', pass: 'M@g@#2026!Sec' },
-      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0, lastSeen: 0 },
-      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0, lastSeen: 0 }
+      { id: 2, role: 'tech', name: 'أحمد سعيد', username: 'ahmed', pass: '111', accumulatedBonus: 0, lastSeen: 0, telegramChatId: '' },
+      { id: 3, role: 'tech', name: 'محمود علي', username: 'mahmoud', pass: '222', accumulatedBonus: 0, lastSeen: 0, telegramChatId: '5007105167' }
     ];
 
     let appOrders = [];
@@ -1147,6 +1151,7 @@
         document.getElementById('settingsTechName').value = tech.name;
         document.getElementById('settingsTechUser').value = tech.username;
         document.getElementById('settingsTechPass').value = tech.pass;
+        document.getElementById('settingsTechTelegram').value = tech.telegramChatId || '';
       }
     }
 
@@ -1273,7 +1278,7 @@
           })
         }).catch(() => {});
 
-        // إرسال تنبيه الخصم لهذا الفني فقط
+        // إرسال تنبيه الخصم لهذا الفني فقط عبر تليجرام
         sendTelegramAlertToTech(techName, `⚠️ <b>تنبيه خصم مالي</b>\n👤 <b>الفني:</b> ${techName}\n🔻 <b>المبلغ:</b> -${amount} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>الرصيد المتبقي:</b> ${techObj.accumulatedBonus} ج`);
 
         document.getElementById('deductAmount').value = '';
@@ -1304,6 +1309,8 @@
       const newName = document.getElementById('settingsTechName').value.trim();
       const newUser = document.getElementById('settingsTechUser').value.trim();
       const newPass = document.getElementById('settingsTechPass').value.trim();
+      const newTgId = document.getElementById('settingsTechTelegram').value.trim();
+
       if (!newName || !newUser || !newPass) return toastNative('يرجى ملء جميع الخانات');
       const tech = appAccounts.find(a => a.id == selId);
       if (tech) {
@@ -1311,6 +1318,8 @@
         tech.name = newName;
         tech.username = newUser;
         tech.pass = newPass;
+        tech.telegramChatId = newTgId;
+
         if (oldName !== newName) {
           appOrders.forEach(o => { if (o.tech === oldName) o.tech = newName; });
           bonusRecords.forEach(b => { if (b.tech === oldName) b.tech = newName; });
@@ -1318,7 +1327,7 @@
         populateSettingsTechSelects();
         renderAdmin();
         syncUp();
-        toastNative('تم تعديل بيانات الفني بنجاح ✓');
+        toastNative('تم حفظ وتحديث بيانات الفني وتليجرام بنجاح ✓');
       }
     }
 
@@ -1340,16 +1349,30 @@
       const name = document.getElementById('addTechName').value.trim();
       const user = document.getElementById('addTechUser').value.trim();
       const pass = document.getElementById('addTechPass').value.trim();
-      if (!name || !user || !pass) return toastNative('يرجى ملء جميع البيانات');
-      appAccounts.push({ id: Date.now(), role: 'tech', name, username: user, pass, accumulatedBonus: 0, lastSeen: 0 });
+      const tgId = document.getElementById('addTechTelegram').value.trim();
+
+      if (!name || !user || !pass) return toastNative('يرجى ملء الاسم واليوزر والباسورد');
+      appAccounts.push({ 
+        id: Date.now(), 
+        role: 'tech', 
+        name, 
+        username: user, 
+        pass, 
+        accumulatedBonus: 0, 
+        lastSeen: 0,
+        telegramChatId: tgId || ''
+      });
+
       document.getElementById('addTechName').value = '';
       document.getElementById('addTechUser').value = '';
       document.getElementById('addTechPass').value = '';
+      document.getElementById('addTechTelegram').value = '';
+
       populateSettingsTechSelects();
       loadSelectedTechData();
       renderAdmin();
       syncUp();
-      toastNative('تمت إضافة الفني بنجاح ➕');
+      toastNative('تمت إضافة الفني وإعداد تليجرام بنجاح ➕');
     }
 
     function saveAdminCredentials() {
@@ -1475,7 +1498,7 @@
       }
     }
 
-    // إسناد الطلب لفني: هنا فقط يتم إرسال الإشعار التلقائي للفني المحدد وحده
+    // إسناد الطلب لفني: هنا فقط يتم إرسال الإشعار التلقائي للفني المحدد وحده عبر الـ ID المسجل له
     function saveAssignDirectly(orderId, selectElem) {
       const targetTech = selectElem.value;
       if (!targetTech) return;
