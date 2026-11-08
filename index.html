@@ -607,36 +607,25 @@
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
     const NTFY_TOPIC = "mega-network-alerts";
 
-    // إعدادات بوابة Green-API
-    const GREEN_API_URL = "https://7107.api.greenapi.com";
-    const GREEN_ID_INSTANCE = "710722794947";
-    const GREEN_API_TOKEN = "D6edcf8936034a06a7e80a7a7d3f8e3b432e4ae5dd6d48fabf";
+    // إعدادات بوت تليجرام التلقائي (مجاني ودائم)
+    const TELEGRAM_BOT_TOKEN = "9027122334:AAGV1B4QIk9dtIHMecW2hqcGXkjwYZy4PeM";
+    const TELEGRAM_CHAT_ID = "5007105167";
 
-    // أرقام هواتف الفنيين (تم ربط mahmoud بالرقم المباشر)
-    const TECH_WHATSAPP_CONFIG = {
-      "mahmoud": "201550131443@c.us",
-      "WAZA ELZOZ": "201550131443@c.us",
-      "أحمد سعيد": "201550131443@c.us",
-      "Mostafa hamdy": "201550131443@c.us",
-      "محمود علي": "201550131443@c.us"
-    };
-
-    // إرسال واتساب تلقائي عبر Green-API
-    async function sendGreenWhatsAppAuto(targetTech, messageText) {
+    // دالة إرسال الإشعار التلقائي الفوري إلى تليجرام
+    async function sendTelegramAlert(messageText) {
       try {
-        const chatId = TECH_WHATSAPP_CONFIG[targetTech] || "201550131443@c.us";
-        const endpoint = `${GREEN_API_URL}/waInstance${GREEN_ID_INSTANCE}/sendMessage/${GREEN_API_TOKEN}`;
-
-        fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+        fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            chatId: chatId,
-            message: messageText
+            chat_id: TELEGRAM_CHAT_ID,
+            text: messageText,
+            parse_mode: 'HTML'
           })
-        }).catch(e => console.error("Green-API error:", e));
-      } catch (err) {
-        console.error("خطأ في إرسال واتساب:", err);
+        }).catch(err => console.error("Telegram fetch error:", err));
+      } catch (e) {
+        console.error("خطأ تليجرام:", e);
       }
     }
 
@@ -1274,13 +1263,16 @@
           })
         }).catch(() => {});
 
+        // إشعار فوري لتليجرام
+        sendTelegramAlert(`⚠️ <b>تنبيه خصم مالي</b>\n👤 <b>الفني:</b> ${techName}\n🔻 <b>المبلغ:</b> -${amount} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>الرصيد المتبقي:</b> ${techObj.accumulatedBonus} ج`);
+
         document.getElementById('deductAmount').value = '';
         document.getElementById('deductReason').value = '';
         loadSelectedTechData();
         renderBonusHistoryLog();
         renderAdmin();
         syncUp();
-        toastNative(`تم خصم ${amount} ج من حساب (${techName}) بنجاح ➖`);
+        toastNative(`تم خصم ${amount} ج من حساب (${techName}) وإرسال التنبيه ➖`);
       }
     }
 
@@ -1404,12 +1396,15 @@
       const ntfyBody = `العميل: ${newOrder.customer}\nالهاتف: ${newOrder.phone || 'بدون رقم'}\nالعنوان/ملاحظات: ${newOrder.desc || 'لا توجد'}`;
       sendNtfyPush(ntfyTitle, ntfyBody);
 
+      // إشعار تليجرام عند تسجيل طلب جديد معلق
+      sendTelegramAlert(`🚨 <b>طلب صيانة جديد (معلق)</b>\n\n👤 <b>العميل:</b> ${newOrder.customer}\n🛠 <b>النوع:</b> ${newOrder.jobType}\n📞 <b>الهاتف:</b> ${newOrder.phone || 'بدون رقم'}\n📍 <b>الملاحظات:</b> ${newOrder.desc || 'لا توجد'}`);
+
       nameInput.value = '';
       phoneInput.value = '';
       descInput.value = '';
       renderAdmin();
       syncUp();
-      toastNative('تم حفظ الطلب وإرسال التنبيه للهاتف بنجاح ✓');
+      toastNative('تم حفظ الطلب وإرسال التنبيه بنجاح ✓');
     }
 
     function openEditOrderModal(orderId) {
@@ -1471,6 +1466,7 @@
         ord.createdAt = Date.now();
 
         sendNtfyPush(`عطل متكرر 🔁: ${ord.customer}`, `تم تحويل الطلب لمعلق لمتابعته فوراً.`);
+        sendTelegramAlert(`🔁 <b>تنبيه عطل متكرر</b>\nالعميل: ${ord.customer}\nتم تحويله إلى المعلق للبدء فيه كطلب عاجل.`);
 
         renderAdmin();
         syncUp();
@@ -1504,17 +1500,17 @@
 
         sendNtfyPush(`إسناد طلب للفني: ${targetTech} 👤`, `العميل: ${ord.customer} (${ord.jobType || 'عطل'})\nالهاتف: ${ord.phone || 'بدون رقم'}`);
 
-        // إرسال واتساب رسمي عبر Green-API فور الإسناد
-        const waMsg = `🔔 تنبيه عطل جديد مسند إليك!\n\n👤 العميل: ${ord.customer}\n🛠 نوع الطلب: ${ord.jobType || 'عطل'}\n📞 رقم الهاتف: ${ord.phone || 'بدون رقم'}\n📍 الملاحظات/العنوان: ${ord.desc || 'لا توجد'}\n\nيرجى فتح التطبيق والتحرك فوراً ✓`;
-        sendGreenWhatsAppAuto(targetTech, waMsg);
+        // إشعار تليجرام التلقائي والفوري مع الرنين في الهاتف
+        const tgMsg = `🔔 <b>إسناد عطل جديد للفني</b>\n\n👷 <b>الفني المسند له:</b> ${targetTech}\n👤 <b>العميل:</b> ${ord.customer}\n🛠 <b>نوع الطلب:</b> ${ord.jobType || 'عطل'}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n📍 <b>الملاحظات/العنوان:</b> ${ord.desc || 'لا توجد'}\n\n⚡ يرجى سرعة التحرك والإنجاز ✓`;
+        sendTelegramAlert(tgMsg);
 
         syncUp();
         renderAdmin();
 
         if (prevTech && prevTech !== targetTech) {
-          toastNative(`تم نقل الطلب وإرسال واتساب لـ (${targetTech}) بنجاح ✓`);
+          toastNative(`تم نقل الطلب وإرسال تنبيه تليجرام لـ (${targetTech}) بنجاح ✓`);
         } else {
-          toastNative(`تم إسناد الطلب وإرسال واتساب لـ (${targetTech}) بنجاح ✓`);
+          toastNative(`تم إسناد الطلب وإرسال تنبيه تليجرام لـ (${targetTech}) بنجاح ✓`);
         }
       }
     }
@@ -1544,10 +1540,11 @@
       }).then(() => {
         sendNtfyPush(`تنبيه رنين للفني: ${ord.tech} 🔔`, `العميل: ${ord.customer} - يرجى التحرك فوراً`);
         
-        const waRingtoneMsg = `🚨 تنبيه رنين عاجل!\nالمدير يطلب سرعة التحرك للعميل (${ord.customer}). يرجى سرعة الإنجاز والتحديث في التطبيق!`;
-        sendGreenWhatsAppAuto(ord.tech, waRingtoneMsg);
+        // إشعار رنين عاجل في تليجرام
+        const tgRingMsg = `🚨 <b>تنبيه رنين عاجل من الإدارة!</b>\n\n👷 <b>الفني:</b> ${ord.tech}\n👤 <b>العميل:</b> ${ord.customer}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n\n⚡ يرجى فتح التطبيق والتوجه فوراً للمكان!`;
+        sendTelegramAlert(tgRingMsg);
 
-        toastNative(`تم إرسال تنبيه فوري ورسالة واتساب للفني (${ord.tech}) الآن 🔔`);
+        toastNative(`تم إرسال رنين للتطبيق وتنبيه فوري على تليجرام للفني (${ord.tech}) 🔔`);
       }).catch(() => {
         toastNative('حدث خطأ أثناء إرسال التنبيه، تأكد من الاتصال.');
       });
@@ -1586,12 +1583,13 @@
             })
           }).catch(() => {});
 
-          const waBonusMsg = `🎁 مبروك يا بطل!\nنزل لك بونص جديد بقيمة (+${amt} ج)\nالسبب: ${reason}\nإجمالي رصيدك الحالي: ${t.accumulatedBonus} ج ✓`;
-          sendGreenWhatsAppAuto(techName, waBonusMsg);
+          // إشعار بونص فوري لتليجرام
+          const tgBonusMsg = `🎁 <b>مبروك! مكافأة جديدة</b>\n\n👷 <b>الفني:</b> ${techName}\n💵 <b>قيمة البونص:</b> +${amt} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>إجمالي رصيدك الحالي:</b> ${t.accumulatedBonus} ج`;
+          sendTelegramAlert(tgBonusMsg);
 
           renderAdmin();
           syncUp();
-          toastNative(`تم نزول ${amt} ج لحساب (${techName}) وإرسال واتساب له 🎁`);
+          toastNative(`تم نزول ${amt} ج لحساب (${techName}) وإرسال إشعار تليجرام له 🎁`);
         }
       }
     }
@@ -1887,7 +1885,7 @@
                 >
                   ${techOpts}
                 </select>
-                <button type="button" onclick="sendDirectAlertToTech('${o.id}')" class="btn btn-warning" style="width:auto; padding:5px 8px; font-size:11px; white-space:nowrap;" title="رنين داخل التطبيق">
+                <button type="button" onclick="sendDirectAlertToTech('${o.id}')" class="btn btn-warning" style="width:auto; padding:5px 8px; font-size:11px; white-space:nowrap;" title="رنين داخل التطبيق وتليجرام">
                   🔔 رنين
                 </button>
               ` : ''}
@@ -2069,7 +2067,11 @@
           })
         }).then(() => {
           sendNtfyPush(`تم إنجاز العطل ✅ (${currentUser.name})`, `العميل: ${ord.customer}\nما تم: ${reason}`);
-          toastNative('تم تأكيد الحل وإرسال التنبيه للمدير بنجاح ✓');
+          
+          // إشعار إنجاز العطل في تليجرام
+          sendTelegramAlert(`✅ <b>تم حل عطل بنجاح</b>\n\n👷 <b>الفني:</b> ${currentUser.name}\n👤 <b>العميل:</b> ${ord.customer}\n🛠 <b>ما تم إنجازه:</b> ${reason}`);
+
+          toastNative('تم تأكيد الحل وإرسال التنبيه للإدارة بنجاح ✓');
         }).catch(() => {});
 
         closeSolveModal();
@@ -2110,6 +2112,10 @@
           })
         }).then(() => {
           sendNtfyPush(`تم تأجيل الطلب ⏳ (${currentUser.name})`, `العميل: ${ord.customer}\nالسبب: ${reason}`);
+          
+          // إشعار التأجيل في تليجرام
+          sendTelegramAlert(`⏸️ <b>تم تأجيل موعد طلب</b>\n\n👷 <b>الفني:</b> ${currentUser.name}\n👤 <b>العميل:</b> ${ord.customer}\n📝 <b>سبب التأجيل:</b> ${reason}`);
+
           toastNative('تم حفظ التأجيل وإشعار الإدارة ✓');
         }).catch(() => {});
 
