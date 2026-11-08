@@ -126,7 +126,7 @@
       border-radius: 14px; 
       padding: 12px; 
       margin-bottom: 12px; 
-      box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.06);
+      box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.06); 
     }
 
     .order-delayed-box {
@@ -233,7 +233,7 @@
 </head>
 <body onclick="unlockAudioSystem()" ontouchstart="unlockAudioSystem()">
 
-  <!-- Nafzet Ta3deel Bayanat el-3ameel -->
+  <!-- نافذة تعديل بيانات العميل أو العطل -->
   <div id="modalEditOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
@@ -262,7 +262,7 @@
     </div>
   </div>
 
-  <!-- Esh3ar Talab Gedid lel Fany -->
+  <!-- نافذة إشعار طلب للفني -->
   <div id="modalOrderAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
     <div class="modal-content" style="text-align: center; border: 2px solid #2563eb;" onclick="event.stopPropagation()">
       <div style="font-size: 34px; margin-bottom: 4px;">🔔</div>
@@ -280,7 +280,7 @@
     </div>
   </div>
 
-  <!-- Esh3ar lel Modeer -->
+  <!-- نافذة إشعار للمدير -->
   <div id="modalAdminNotification" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
     <div class="modal-content" id="adminNotifBox" style="text-align: center; border: 2px solid #2563eb;" onclick="event.stopPropagation()">
       <div id="adminNotifIcon" style="font-size: 34px; margin-bottom: 4px;">📢</div>
@@ -294,7 +294,7 @@
     </div>
   </div>
 
-  <!-- Esh3ar Bonus aw Khasm -->
+  <!-- نافذة إشعار البونص / الخصم للفني -->
   <div id="modalBonusAlert" class="modal-overlay hidden" onclick="stopAlertChimeNow()">
     <div class="modal-content" id="bonusAlertBox" style="text-align: center; border: 2px solid #10b981;" onclick="event.stopPropagation()">
       <div id="bonusAlertIcon" style="font-size: 34px; margin-bottom: 4px;">🎁</div>
@@ -308,7 +308,7 @@
     </div>
   </div>
 
-  <!-- Segal el-Mokafe'at -->
+  <!-- سجل المكافآت للفني -->
   <div id="modalTechBonusHistory" class="modal-overlay hidden">
     <div class="modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
@@ -320,7 +320,7 @@
     </div>
   </div>
 
-  <!-- Hal el-3otl -->
+  <!-- نافذة حل العطل -->
   <div id="modalSolveOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 14px; font-weight: 900; margin-bottom: 6px; color: #059669;">تأكيد حل المشكلة ✓</h4>
@@ -334,7 +334,7 @@
     </div>
   </div>
 
-  <!-- Ta'geel el-3otl -->
+  <!-- نافذة تأجيل العطل -->
   <div id="modalPostponeOrder" class="modal-overlay hidden">
     <div class="modal-content">
       <h4 style="font-size: 14px; font-weight: 900; margin-bottom: 6px; color: #d97706;">تأجيل موعد الطلب ⏳</h4>
@@ -348,7 +348,7 @@
     </div>
   </div>
 
-  <!-- Shashat el-Dokhol -->
+  <!-- شاشة الدخول -->
   <div id="screenLogin" class="container" style="min-height: 85vh; display: flex; align-items: center; justify-content: center;">
     <div class="card" style="width: 100%; text-align: center; padding: 26px 18px;">
       <div style="width: 52px; height: 52px; background-color: #eff6ff !important; color: #2563eb !important; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto; font-size: 22px; border: 1.5px solid #bfdbfe;">
@@ -364,7 +364,7 @@
     </div>
   </div>
 
-  <!-- 1. Shasha el-Modeer el-Ra'eseyya -->
+  <!-- 1. شاشة المدير الرئيسية -->
   <div id="screenAdmin" class="hidden">
     <header class="header">
       <div>
@@ -407,7 +407,7 @@
         </div>
       </div>
 
-      <!-- Tasgeel Talab Gedid -->
+      <!-- تسجيل طلب جديد -->
       <div class="card" style="border: 2px solid #94a3b8 !important;">
         <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
           <span style="font-size: 14px; color: #2563eb;">➕</span>
@@ -445,12 +445,12 @@
         <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
 
-      <!-- Qa'emat el-Fanyeen -->
+      <!-- قائمة الفنيين -->
       <div id="adminTechsList"></div>
     </div>
   </div>
 
-  <!-- 2. Safhat el-A3tal el-Mostaqella -->
+  <!-- 2. صفحة الأعطال المستقلة -->
   <div id="screenOrdersPage" class="hidden">
     <header class="header">
       <div style="display: flex; align-items: center; gap: 6px;">
@@ -465,7 +465,7 @@
     <div class="container">
       <div id="techSubFilterBar" class="sub-filter-bar hidden"></div>
 
-      <!-- Filter el-Tareekh -->
+      <!-- فلتر التاريخ -->
       <div class="card" style="padding: 8px 10px; margin-bottom: 8px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
           <span style="font-size: 11px; font-weight: 800; color: #475569;">📅 فلتر التاريخ:</span>
@@ -485,7 +485,7 @@
     </div>
   </div>
 
-  <!-- 3. Safhat el-E3dadat -->
+  <!-- 3. صفحة الإعدادات المستقلة -->
   <div id="screenSettingsPage" class="hidden">
     <header class="header">
       <div style="display: flex; align-items: center; gap: 6px;">
@@ -503,7 +503,7 @@
         <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 8px; font-size: 11px;">خصم من الرصيد ➖</button>
       </div>
 
-      <!-- El-Tahakkom fe Hesab el-Fany -->
+      <!-- التحكم في حساب الفني -->
       <div class="card">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 8px; color: #1e293b;">🛠 التحكم في حساب وسجل الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
@@ -543,7 +543,7 @@
         <div id="bonusHistoryLogList" style="max-height: 220px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
       </div>
 
-      <!-- Edafet Fany Gedid -->
+      <!-- إضافة فني جديد -->
       <div class="card">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 8px; color: #1e293b;">👷 إضافة فني جديد:</h5>
         <input type="text" id="addTechName" placeholder="اسم الفني بالكامل" class="input-control">
@@ -566,7 +566,7 @@
     </div>
   </div>
 
-  <!-- 4. Shashet el-Fany -->
+  <!-- 4. شاشة الفني -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -607,24 +607,24 @@
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
     const NTFY_TOPIC = "mega-network-alerts";
 
-    // Green-API Config
+    // إعدادات بوابة Green-API
     const GREEN_API_URL = "https://7107.api.greenapi.com";
     const GREEN_ID_INSTANCE = "710722794947";
     const GREEN_API_TOKEN = "D6edcf8936034a06a7e80a7a7d3f8e3b432e4ae5dd6d48fabf";
 
-    // Arqam el-Fanyeen (format: 201xxxxxxxxx@c.us)
+    // أرقام هواتف الفنيين (تم ربط mahmoud بالرقم المباشر)
     const TECH_WHATSAPP_CONFIG = {
-      "WAZA ELZOZ": "201105943212@c.us",
-      "أحمد سعيد": "201105943212@c.us",
-      "Mostafa hamdy": "201105943212@c.us",
-      "mahmoud": "201105943212@c.us",
-      "محمود علي": "201105943212@c.us"
+      "mahmoud": "201550131443@c.us",
+      "WAZA ELZOZ": "201550131443@c.us",
+      "أحمد سعيد": "201550131443@c.us",
+      "Mostafa hamdy": "201550131443@c.us",
+      "محمود علي": "201550131443@c.us"
     };
 
-    // Ersal WhatsApp Rasmy 3abr Green-API
+    // إرسال واتساب تلقائي عبر Green-API
     async function sendGreenWhatsAppAuto(targetTech, messageText) {
       try {
-        const chatId = TECH_WHATSAPP_CONFIG[targetTech] || "201105943212@c.us";
+        const chatId = TECH_WHATSAPP_CONFIG[targetTech] || "201550131443@c.us";
         const endpoint = `${GREEN_API_URL}/waInstance${GREEN_ID_INSTANCE}/sendMessage/${GREEN_API_TOKEN}`;
 
         fetch(endpoint, {
@@ -634,9 +634,9 @@
             chatId: chatId,
             message: messageText
           })
-        }).catch(e => console.error("Green-API fetch error:", e));
+        }).catch(e => console.error("Green-API error:", e));
       } catch (err) {
-        console.error("Khat'a fe ersal WhatsApp:", err);
+        console.error("خطأ في إرسال واتساب:", err);
       }
     }
 
@@ -653,7 +653,7 @@
           }
         });
       } catch (err) {
-        console.error("Khat'a ntfy:", err);
+        console.error("خطأ ntfy:", err);
       }
     }
 
@@ -1504,7 +1504,7 @@
 
         sendNtfyPush(`إسناد طلب للفني: ${targetTech} 👤`, `العميل: ${ord.customer} (${ord.jobType || 'عطل'})\nالهاتف: ${ord.phone || 'بدون رقم'}`);
 
-        // Ersal WhatsApp Rasmy fawran 3abr Green-API
+        // إرسال واتساب رسمي عبر Green-API فور الإسناد
         const waMsg = `🔔 تنبيه عطل جديد مسند إليك!\n\n👤 العميل: ${ord.customer}\n🛠 نوع الطلب: ${ord.jobType || 'عطل'}\n📞 رقم الهاتف: ${ord.phone || 'بدون رقم'}\n📍 الملاحظات/العنوان: ${ord.desc || 'لا توجد'}\n\nيرجى فتح التطبيق والتحرك فوراً ✓`;
         sendGreenWhatsAppAuto(targetTech, waMsg);
 
