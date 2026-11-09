@@ -651,7 +651,8 @@
           }]);
         }
 
-        const cleanMessage = `🔔 <b>لديك مهمة جديدة مسندة إليك!</b>\n\n👷 <b>الفني:</b> ${targetTechName}\n⚡ <b>يرجى فتح التطبيق لمراجعة تفاصيل العميل ومكان العطل وبدء التنفيذ.</b>`;
+        // تم حذف سطر الفني بناءً على طلبك
+        const cleanMessage = `🔔 <b>لديك مهمة جديدة مسندة إليك!</b>\n\n⚡ <b>يرجى فتح التطبيق لمراجعة تفاصيل العميل ومكان العطل وبدء التنفيذ.</b>`;
 
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
         const res = await fetch(url, {
@@ -667,7 +668,7 @@
 
         const json = await res.json();
         if (json.ok) {
-          toastNative(`تم تسليم الإشعار لتليجرام (${targetTechName}) ورن بنجاح ✓`);
+          toastNative(`تم تسليم الإشعار لتليجرام ورن بنجاح ✓`);
           return true;
         } else {
           toastNative(`⚠️ تعذر الإرسال: ${json.description}`);
