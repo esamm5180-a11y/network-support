@@ -9,8 +9,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <!-- سكريبت تليجرام الرسمي لتفعيل الـ Web App والتحكم في إغلاق الشاشة فوراً -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
       color-scheme: light only !important;
@@ -246,11 +244,6 @@
   </style>
 </head>
 <body onclick="unlockAudioSystem()" ontouchstart="unlockAudioSystem()">
-
-  <!-- لافتة تأكيد استلام واطلاع الفني -->
-  <div id="viewConfirmationBanner" class="hidden" style="background:#ecfdf5; border-bottom:2px solid #10b981; color:#047857; text-align:center; padding:12px; font-size:13px; font-weight:800; position:sticky; top:0; z-index:9999;">
-    ✅ تم تأكيد استلامك واطلاعك على المهمة بنجاح، جاري إغلاق النافذة...
-  </div>
 
   <!-- نافذة تعديل بيانات العميل أو العطل -->
   <div id="modalEditOrder" class="modal-overlay hidden">
@@ -636,7 +629,7 @@
     const TELEGRAM_BOT_TOKEN = "9027122334:AAGV1B4QIk9dtIHMecW2hqcGXkjwYZy4PeM";
     const DEFAULT_TELEGRAM_CHAT = "5007105167";
 
-    // إرسال الإشعار التفاعلي عبر Telegram Web App المدمج بدون روابط منبثقة مزعجة
+    // إرسال الإشعار التفاعلي عبر فتح تطبيق الأندرويد مباشرة وبدون إظهار أي روابط خارجية
     async function sendTelegramAlertToTech(targetTechName, messageText, clientPhone, orderId) {
       try {
         const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
@@ -648,15 +641,12 @@
         }
 
         const keyboard = [];
-        const appBaseUrl = window.location.origin + window.location.pathname;
-
-        // زر استلام واطلاع يفتح كنافذة Web App داخلية صامتة تغلق فوراً بعد التثبيت
+        
+        // تشغيل التطبيق المثبت على هاتف الفني مباشرة وتسجيل وقت الاستلام والرؤية
         if (orderId) {
           keyboard.push([{
-            text: "👀 استلمت وشفت الطلب",
-            web_app: {
-              url: `${appBaseUrl}?seen_order=${encodeURIComponent(orderId)}&tech=${encodeURIComponent(targetTechName)}`
-            }
+            text: "🚀 فتح التطبيق واستلام الطلب",
+            url: `intent://open?seen_order=${encodeURIComponent(orderId)}&tech=${encodeURIComponent(targetTechName)}#Intent;scheme=mega;package=com.mega.support;end`
           }]);
         }
 
@@ -725,7 +715,7 @@
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
 
-    // فحص تأكيد الرؤية وتسجيل الوقت وإغلاق نافذة الـ Web App فوراً
+    // فحص الرؤية عند فتح التطبيق
     function checkUrlForOrderSeen() {
       const urlParams = new URLSearchParams(window.location.search);
       const seenOrderId = urlParams.get('seen_order');
@@ -751,18 +741,8 @@
               }
             }
           })
-          .then(() => {
-            // إغلاق النافذة المنبثقة تلقائياً ليبقى الفني داخل شات تليجرام
-            if (window.Telegram && window.Telegram.WebApp) {
-              window.Telegram.WebApp.ready();
-              setTimeout(() => {
-                window.Telegram.WebApp.close();
-              }, 400);
-            }
-          })
           .catch(() => {});
 
-        document.getElementById('viewConfirmationBanner').classList.remove('hidden');
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     }
@@ -1614,7 +1594,7 @@
 
         sendNtfyPush(`إسناد طلب للفني: ${targetTech} 👤`, `العميل: ${ord.customer} (${ord.jobType || 'عطل'})\nالهاتف: ${ord.phone || 'بدون رقم'}`);
 
-        const tgMsg = `🔔 <b>إسناد عطل جديد لك</b>\n\n👷 <b>الفني:</b> ${targetTech}\n👤 <b>العميل:</b> ${ord.customer}\n🛠 <b>نوع الطلب:</b> ${ord.jobType || 'عطل'}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n📍 <b>الملاحظات/العنوان:</b> ${ord.desc || 'لا توجد'}\n\n⚡ يرجى الضغط على زر الاستلام أدناه للبدء ✓`;
+        const tgMsg = `🔔 <b>إسناد عطل جديد لك</b>\n\n👷 <b>الفني:</b> ${targetTech}\n👤 <b>العميل:</b> ${ord.customer}\n🛠 <b>نوع الطلب:</b> ${ord.jobType || 'عطل'}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n📍 <b>الملاحظات/العنوان:</b> ${ord.desc || 'لا توجد'}\n\n⚡ اضغط الزر أدناه لتأكيد الاستلام وبدء العمل ✓`;
         sendTelegramAlertToTech(targetTech, tgMsg, ord.phone, ord.id);
 
         syncUp();
@@ -1653,7 +1633,7 @@
       }).then(() => {
         sendNtfyPush(`تنبيه رنين للفني: ${ord.tech} 🔔`, `العميل: ${ord.customer} - يرجى التحرك فوراً`);
         
-        const tgRingMsg = `🚨 <b>تنبيه رنين عاجل من الإدارة!</b>\n\n👷 <b>الفني:</b> ${ord.tech}\n👤 <b>العميل:</b> ${ord.customer}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n\n⚡ يرجى الضغط على زر الاستلام أدناه فوراً!`;
+        const tgRingMsg = `🚨 <b>تنبيه رنين عاجل من الإدارة!</b>\n\n👷 <b>الفني:</b> ${ord.tech}\n👤 <b>العميل:</b> ${ord.customer}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n\n⚡ يرجى فتح التطبيق والتوجه فوراً للمكان!`;
         sendTelegramAlertToTech(ord.tech, tgRingMsg, ord.phone, ord.id);
       }).catch(() => {
         toastNative('حدث خطأ أثناء إرسال التنبيه، تأكد من الاتصال.');
