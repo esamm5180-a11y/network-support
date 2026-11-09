@@ -1590,11 +1590,7 @@
         syncUp();
         renderAdmin();
 
-        if (prevTech && prevTech !== targetTech) {
-          toastNative(`تم نقل الطلب للفني (${targetTech}) وإرسال إشعار تليجرام ✓`);
-        } else {
-          toastNative(`تم إسناد الطلب للفني (${targetTech}) وإرسال إشعار تليجرام ✓`);
-        }
+        toastNative(`تم إسناد الطلب للفني (${targetTech}) وإرسال إشعار تليجرام بنجاح ✓`);
       }
     }
 
@@ -1623,6 +1619,7 @@
       }).then(() => {
         sendNtfyPush(`تنبيه رنين للفني: ${ord.tech} 🔔`, `العميل: ${ord.customer} - يرجى التحرك فوراً`);
         sendTelegramAlertToTech(ord.tech);
+        toastNative(`تم إرسال إشعار الرنين وتليجرام إلى (${ord.tech}) بنجاح ✓`);
       }).catch(() => {
         toastNative('حدث خطأ أثناء إرسال التنبيه، تأكد من الاتصال.');
       });
@@ -2367,7 +2364,7 @@
       setInterval(instantAlertsCheck, 1000);
       setInterval(() => syncDown(false), 6000);
       setInterval(sendTechHeartbeat, 15000);
-      setInterval(pollTelegramBotUpdates, 3000);
+      setInterval(pollTelegramBotUpdates, 2000); // جعل فحص رسائل البوت كل ثانيتين لتقليل التأخير
     };
   </script>
 </body>
