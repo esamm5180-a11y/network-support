@@ -629,7 +629,7 @@
     const TELEGRAM_BOT_TOKEN = "9027122334:AAGV1B4QIk9dtIHMecW2hqcGXkjwYZy4PeM";
     const DEFAULT_TELEGRAM_CHAT = "5007105167";
 
-    // إرسال الإشعار التفاعلي برابط HTTPS صالح يقبله تليجرام فوراً
+    // إرسال إشعار تليجرام نصي خالص وبدون أي أزرار أو روابط
     async function sendTelegramAlertToTech(targetTechName, orderId) {
       try {
         const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
@@ -640,18 +640,7 @@
           return false;
         }
 
-        const keyboard = [];
-        const appBaseUrl = window.location.origin + window.location.pathname;
-        
-        // رابط HTTPS قياسي متوافق مع سيرفر تليجرام 100% وبدون أخطاء
-        if (orderId) {
-          keyboard.push([{
-            text: "🚀 فتح التطبيق ومراجعة المهمة",
-            url: `${appBaseUrl}?seen_order=${encodeURIComponent(orderId)}&tech=${encodeURIComponent(targetTechName)}`
-          }]);
-        }
-
-        // تم حذف سطر الفني بناءً على طلبك
+        // إشعار نصي بدون كلمة الفني وبدون أزرار
         const cleanMessage = `🔔 <b>لديك مهمة جديدة مسندة إليك!</b>\n\n⚡ <b>يرجى فتح التطبيق لمراجعة تفاصيل العميل ومكان العطل وبدء التنفيذ.</b>`;
 
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
@@ -661,8 +650,7 @@
           body: JSON.stringify({
             chat_id: chatId,
             text: cleanMessage,
-            parse_mode: 'HTML',
-            reply_markup: keyboard.length > 0 ? { inline_keyboard: keyboard } : undefined
+            parse_mode: 'HTML'
           })
         });
 
@@ -677,6 +665,31 @@
       } catch (e) {
         console.error("خطأ تليجرام:", e);
         toastNative('⚠️ خطأ في الاتصال بسيرفر تليجرام.');
+        return false;
+      }
+    }
+
+    async function sendRawTelegramMessage(targetTechName, messageText) {
+      try {
+        const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
+        const chatId = (techObj && techObj.telegramChatId) ? techObj.telegramChatId : DEFAULT_TELEGRAM_CHAT;
+
+        if (!chatId) return false;
+
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: messageText,
+            parse_mode: 'HTML'
+          })
+        });
+
+        const json = await res.json();
+        return json.ok;
+      } catch (e) {
         return false;
       }
     }
@@ -719,36 +732,35 @@
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
 
-    // فحص الرؤية التلقائي عند فتح التطبيق وتسجيل وقت الفتح
-    function checkUrlForOrderSeen() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const seenOrderId = urlParams.get('seen_order');
-      const seenTech = urlParams.get('tech');
+    // تسجيل وقت فتح الفني للتطبيق كدليل قاطع على مشاهدته للطلب
+    function markOrderAsSeenOnAppLogin() {
+      if (!currentUser || currentUser.role !== 'tech') return;
+      
+      fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`)
+        .then(res => res.json())
+        .then(orders => {
+          if (Array.isArray(orders)) {
+            let updated = false;
+            const timeNow = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 
-      if (seenOrderId) {
-        const timeNow = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-        
-        fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`)
-          .then(res => res.json())
-          .then(orders => {
-            if (Array.isArray(orders)) {
-              const target = orders.find(o => o.id === seenOrderId);
-              if (target) {
-                target.seenAt = timeNow;
-                target.seenBy = seenTech || target.tech;
-                
-                return fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(orders)
-                });
+            orders.forEach(o => {
+              if (o.tech === currentUser.name && o.status !== 'done' && !o.seenAt) {
+                o.seenAt = timeNow;
+                o.seenBy = currentUser.name;
+                updated = true;
               }
-            }
-          })
-          .catch(() => {});
+            });
 
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
+            if (updated) {
+              return fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orders)
+              });
+            }
+          }
+        })
+        .catch(() => {});
     }
 
     function forceLightModeEverywhere() {
@@ -1103,6 +1115,10 @@
         try {
           localStorage.setItem('saved_active_user', JSON.stringify(currentUser));
         } catch(e) {}
+        
+        // تسجيل وقت الدخول كرؤية للطلبات المسندة فوراً
+        markOrderAsSeenOnAppLogin();
+
         showUserScreen();
         if (currentUser.role === 'tech') sendTechHeartbeat();
       } else {
@@ -1348,7 +1364,8 @@
           })
         }).catch(() => {});
 
-        sendTelegramAlertToTech(techName, '');
+        const tgDeductMsg = `⚠️ <b>تنبيه خصم مالي</b>\n\n👤 <b>الفني:</b> ${techName}\n🔻 <b>المبلغ:</b> -${amount} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>إجمالي رصيدك المتبقي:</b> ${techObj.accumulatedBonus} ج`;
+        sendRawTelegramMessage(techName, tgDeductMsg);
 
         document.getElementById('deductAmount').value = '';
         document.getElementById('deductReason').value = '';
@@ -1598,8 +1615,8 @@
 
         sendNtfyPush(`إسناد طلب للفني: ${targetTech} 👤`, `العميل: ${ord.customer} (${ord.jobType || 'عطل'})\nالهاتف: ${ord.phone || 'بدون رقم'}`);
 
-        // إرسال الإشعار لتليجرام بدون بيانات وبزر فتح التطبيق المعتمد
-        sendTelegramAlertToTech(targetTech, ord.id);
+        // إرسال إشعار تليجرام نصي خالص بدون أزرار وبدون كلمة الفني
+        sendTelegramAlertToTech(targetTech);
 
         syncUp();
         renderAdmin();
@@ -1636,7 +1653,7 @@
         body: JSON.stringify(alertPayload)
       }).then(() => {
         sendNtfyPush(`تنبيه رنين للفني: ${ord.tech} 🔔`, `العميل: ${ord.customer} - يرجى التحرك فوراً`);
-        sendTelegramAlertToTech(ord.tech, ord.id);
+        sendTelegramAlertToTech(ord.tech);
       }).catch(() => {
         toastNative('حدث خطأ أثناء إرسال التنبيه، تأكد من الاتصال.');
       });
@@ -1674,6 +1691,9 @@
               sentAt: Date.now() 
             })
           }).catch(() => {});
+
+          const tgBonusMsg = `🎁 <b>مبروك! نزل لك بونص جديد</b>\n\n👤 <b>الفني:</b> ${techName}\n💵 <b>قيمة البونص:</b> +${amt} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>إجمالي رصيدك الحالي:</b> ${t.accumulatedBonus} ج`;
+          sendRawTelegramMessage(techName, tgBonusMsg);
 
           renderAdmin();
           syncUp();
@@ -2289,8 +2309,6 @@
     }
 
     window.onload = function() {
-      checkUrlForOrderSeen();
-
       try {
         const saved = localStorage.getItem('saved_active_user');
         if (saved) {
