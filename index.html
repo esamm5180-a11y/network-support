@@ -629,7 +629,7 @@
     const TELEGRAM_BOT_TOKEN = "9027122334:AAGV1B4QIk9dtIHMecW2hqcGXkjwYZy4PeM";
     const DEFAULT_TELEGRAM_CHAT = "5007105167";
 
-    // إرسال الإشعار التفاعلي عبر فتح تطبيق الأندرويد مباشرة وبدون كشف أي بيانات
+    // إرسال الإشعار التفاعلي برابط HTTPS صالح يقبله تليجرام فوراً
     async function sendTelegramAlertToTech(targetTechName, orderId) {
       try {
         const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
@@ -641,12 +641,13 @@
         }
 
         const keyboard = [];
+        const appBaseUrl = window.location.origin + window.location.pathname;
         
-        // رابط تشغيل تطبيق الأندرويد مباشرة بدون أي روابط إنترنت
+        // رابط HTTPS قياسي متوافق مع سيرفر تليجرام 100% وبدون أخطاء
         if (orderId) {
           keyboard.push([{
             text: "🚀 فتح التطبيق ومراجعة المهمة",
-            url: `intent://open?seen_order=${encodeURIComponent(orderId)}&tech=${encodeURIComponent(targetTechName)}#Intent;scheme=mega;package=com.mega.support;end`
+            url: `${appBaseUrl}?seen_order=${encodeURIComponent(orderId)}&tech=${encodeURIComponent(targetTechName)}`
           }]);
         }
 
@@ -717,7 +718,7 @@
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
 
-    // فحص الرؤية التلقائي عند فتح التطبيق من زر تليجرام
+    // فحص الرؤية التلقائي عند فتح التطبيق وتسجيل وقت الفتح
     function checkUrlForOrderSeen() {
       const urlParams = new URLSearchParams(window.location.search);
       const seenOrderId = urlParams.get('seen_order');
@@ -1346,7 +1347,6 @@
           })
         }).catch(() => {});
 
-        // إشعار خصم مالي
         sendTelegramAlertToTech(techName, '');
 
         document.getElementById('deductAmount').value = '';
@@ -1597,7 +1597,7 @@
 
         sendNtfyPush(`إسناد طلب للفني: ${targetTech} 👤`, `العميل: ${ord.customer} (${ord.jobType || 'عطل'})\nالهاتف: ${ord.phone || 'بدون رقم'}`);
 
-        // إرسال الإشعار لتليجرام بدون بيانات العميل لإجباره على فتح التطبيق
+        // إرسال الإشعار لتليجرام بدون بيانات وبزر فتح التطبيق المعتمد
         sendTelegramAlertToTech(targetTech, ord.id);
 
         syncUp();
