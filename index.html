@@ -629,8 +629,8 @@
     const TELEGRAM_BOT_TOKEN = "9027122334:AAGV1B4QIk9dtIHMecW2hqcGXkjwYZy4PeM";
     const DEFAULT_TELEGRAM_CHAT = "5007105167";
 
-    // إرسال الإشعار التفاعلي عبر فتح تطبيق الأندرويد مباشرة وبدون إظهار أي روابط خارجية
-    async function sendTelegramAlertToTech(targetTechName, messageText, clientPhone, orderId) {
+    // إرسال الإشعار التفاعلي عبر فتح تطبيق الأندرويد مباشرة وبدون كشف أي بيانات
+    async function sendTelegramAlertToTech(targetTechName, orderId) {
       try {
         const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
         const chatId = (techObj && techObj.telegramChatId) ? techObj.telegramChatId : DEFAULT_TELEGRAM_CHAT;
@@ -642,13 +642,15 @@
 
         const keyboard = [];
         
-        // تشغيل التطبيق المثبت على هاتف الفني مباشرة وتسجيل وقت الاستلام والرؤية
+        // رابط تشغيل تطبيق الأندرويد مباشرة بدون أي روابط إنترنت
         if (orderId) {
           keyboard.push([{
-            text: "🚀 فتح التطبيق واستلام الطلب",
+            text: "🚀 فتح التطبيق ومراجعة المهمة",
             url: `intent://open?seen_order=${encodeURIComponent(orderId)}&tech=${encodeURIComponent(targetTechName)}#Intent;scheme=mega;package=com.mega.support;end`
           }]);
         }
+
+        const cleanMessage = `🔔 <b>لديك مهمة عطل جديدة مسندة إليك!</b>\n\n👷 <b>الفني:</b> ${targetTechName}\n⚡ <b>يرجى فتح التطبيق لمراجعة تفاصيل العميل ومكان العطل وبدء التنفيذ.</b>`;
 
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
         const res = await fetch(url, {
@@ -656,7 +658,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             chat_id: chatId,
-            text: messageText,
+            text: cleanMessage,
             parse_mode: 'HTML',
             reply_markup: keyboard.length > 0 ? { inline_keyboard: keyboard } : undefined
           })
@@ -715,7 +717,7 @@
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
 
-    // فحص الرؤية عند فتح التطبيق
+    // فحص الرؤية التلقائي عند فتح التطبيق من زر تليجرام
     function checkUrlForOrderSeen() {
       const urlParams = new URLSearchParams(window.location.search);
       const seenOrderId = urlParams.get('seen_order');
@@ -1344,7 +1346,8 @@
           })
         }).catch(() => {});
 
-        sendTelegramAlertToTech(techName, `⚠️ <b>تنبيه خصم مالي</b>\n👤 <b>الفني:</b> ${techName}\n🔻 <b>المبلغ:</b> -${amount} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>الرصيد المتبقي:</b> ${techObj.accumulatedBonus} ج`, '', '');
+        // إشعار خصم مالي
+        sendTelegramAlertToTech(techName, '');
 
         document.getElementById('deductAmount').value = '';
         document.getElementById('deductReason').value = '';
@@ -1594,8 +1597,8 @@
 
         sendNtfyPush(`إسناد طلب للفني: ${targetTech} 👤`, `العميل: ${ord.customer} (${ord.jobType || 'عطل'})\nالهاتف: ${ord.phone || 'بدون رقم'}`);
 
-        const tgMsg = `🔔 <b>إسناد عطل جديد لك</b>\n\n👷 <b>الفني:</b> ${targetTech}\n👤 <b>العميل:</b> ${ord.customer}\n🛠 <b>نوع الطلب:</b> ${ord.jobType || 'عطل'}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n📍 <b>الملاحظات/العنوان:</b> ${ord.desc || 'لا توجد'}\n\n⚡ اضغط الزر أدناه لتأكيد الاستلام وبدء العمل ✓`;
-        sendTelegramAlertToTech(targetTech, tgMsg, ord.phone, ord.id);
+        // إرسال الإشعار لتليجرام بدون بيانات العميل لإجباره على فتح التطبيق
+        sendTelegramAlertToTech(targetTech, ord.id);
 
         syncUp();
         renderAdmin();
@@ -1632,9 +1635,7 @@
         body: JSON.stringify(alertPayload)
       }).then(() => {
         sendNtfyPush(`تنبيه رنين للفني: ${ord.tech} 🔔`, `العميل: ${ord.customer} - يرجى التحرك فوراً`);
-        
-        const tgRingMsg = `🚨 <b>تنبيه رنين عاجل من الإدارة!</b>\n\n👷 <b>الفني:</b> ${ord.tech}\n👤 <b>العميل:</b> ${ord.customer}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n\n⚡ يرجى فتح التطبيق والتوجه فوراً للمكان!`;
-        sendTelegramAlertToTech(ord.tech, tgRingMsg, ord.phone, ord.id);
+        sendTelegramAlertToTech(ord.tech, ord.id);
       }).catch(() => {
         toastNative('حدث خطأ أثناء إرسال التنبيه، تأكد من الاتصال.');
       });
@@ -1672,9 +1673,6 @@
               sentAt: Date.now() 
             })
           }).catch(() => {});
-
-          const tgBonusMsg = `🎁 <b>مبروك! مكافأة جديدة</b>\n\n👷 <b>الفني:</b> ${techName}\n💵 <b>قيمة البونص:</b> +${amt} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>إجمالي رصيدك الحالي:</b> ${t.accumulatedBonus} ج`;
-          sendTelegramAlertToTech(techName, tgBonusMsg, '', '');
 
           renderAdmin();
           syncUp();
@@ -1925,7 +1923,7 @@
         // شارة رؤية الفني للمهمة في لوحة الإدارة
         let seenBadgeHtml = '';
         if (o.seenAt) {
-          seenBadgeHtml = `<div class="badge-seen">👁️ شاف الطلب واستلمه (${o.seenAt}) ✓✓</div>`;
+          seenBadgeHtml = `<div class="badge-seen">👁️ فتح التطبيق واستلم (${o.seenAt}) ✓✓</div>`;
         }
 
         let techOpts = '<option value="">اختر الفني للإسناد...</option>';
