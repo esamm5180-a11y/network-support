@@ -481,7 +481,7 @@
       <div class="card" style="padding: 8px 10px; margin-bottom: 8px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
           <span style="font-size: 11px; font-weight: 800; color: #475569;">📅 فلتر التاريخ:</span>
-          <span id="selectedDateLabel" style="font-size: 10px; font-weight: 800; color: #2563eb;">عرض: الكل</span>
+          <span id="selectedDateLabel" style="font-size: 10px; font-weight: 800; color: #2563eb;>عرض: الكل</span>
         </div>
         <div style="display: flex; gap: 5px; align-items: center; flex-wrap: wrap;">
           <button type="button" id="datePillAll" onclick="setDateFilter('all')" class="tech-pill active" style="flex: 1; padding: 4px 5px;">الكل</button>
@@ -625,56 +625,14 @@
     const FIREBASE_DB = "https://maintanance-7de19-default-rtdb.firebaseio.com";
     const NTFY_TOPIC = "mega-network-alerts";
 
-    // إعدادات بوت تليجرام
+    // إعدادات بوت تليجرام وباتك الخاصة (شات ID الخاص بالمدير لتلقي الإشعارات)
     const TELEGRAM_BOT_TOKEN = "9027122334:AAGV1B4QIk9dtIHMecW2hqcGXkjwYZy4PeM";
-    const DEFAULT_TELEGRAM_CHAT = "5007105167";
+    const ADMIN_TELEGRAM_CHAT = "5007105167";
 
-    // إرسال إشعار تليجرام نصي خالص وبدون أزرار أو روابط، مع إظهار تأكيد فوري
-    async function sendTelegramAlertToTech(targetTechName) {
+    // إرسال إشعار نصي لتليجرام (للفني أو المدير)
+    async function sendTelegramMessage(chatId, messageText) {
       try {
-        const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
-        const chatId = (techObj && techObj.telegramChatId) ? techObj.telegramChatId : DEFAULT_TELEGRAM_CHAT;
-
-        if (!chatId) {
-          toastNative('⚠️ لم يتم تحديد معرف تليجرام (Chat ID) لهذا الفني في الإعدادات!');
-          return false;
-        }
-
-        const cleanMessage = `🔔 <b>لديك مهمة جديدة مسندة إليك!</b>\n\n⚡ <b>يرجى فتح التطبيق لمراجعة تفاصيل العميل ومكان العطل وبدء التنفيذ.</b>`;
-
-        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: chatId,
-            text: cleanMessage,
-            parse_mode: 'HTML'
-          })
-        });
-
-        const json = await res.json();
-        if (json.ok) {
-          toastNative(`تم إرسال إشعار تليجرام إلى (${targetTechName}) بنجاح ✓`);
-          return true;
-        } else {
-          toastNative(`⚠️ تعذر الإرسال: ${json.description}`);
-          return false;
-        }
-      } catch (e) {
-        console.error("خطأ تليجرام:", e);
-        toastNative('⚠️ خطأ في الاتصال بسيرفر تليجرام.');
-        return false;
-      }
-    }
-
-    async function sendRawTelegramMessage(targetTechName, messageText) {
-      try {
-        const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
-        const chatId = (techObj && techObj.telegramChatId) ? techObj.telegramChatId : DEFAULT_TELEGRAM_CHAT;
-
         if (!chatId) return false;
-
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
         const res = await fetch(url, {
           method: 'POST',
@@ -685,12 +643,18 @@
             parse_mode: 'HTML'
           })
         });
-
         const json = await res.json();
         return json.ok;
       } catch (e) {
         return false;
       }
+    }
+
+    async function sendTelegramAlertToTech(targetTechName) {
+      const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
+      const chatId = (techObj && techObj.telegramChatId) ? techObj.telegramChatId : ADMIN_TELEGRAM_CHAT;
+      const cleanMessage = `🔔 <b>لديك مهمة جديدة مسندة إليك!</b>\n\n⚡ <b>يرجى فتح التطبيق لمراجعة تفاصيل العميل ومكان العطل وبدء التنفيذ.</b>`;
+      await sendTelegramMessage(chatId, cleanMessage);
     }
 
     async function sendNtfyPush(title, message, priority = 'urgent') {
@@ -705,9 +669,7 @@
             'Content-Type': 'text/plain; charset=utf-8'
           }
         });
-      } catch (err) {
-        console.error("خطأ ntfy:", err);
-      }
+      } catch (err) {}
     }
 
     let appAccounts = [
@@ -731,7 +693,6 @@
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
 
-    // تسجيل وقت فتح الفني للتطبيق كدليل قاطع على رؤيته للطلبات المسندة إليه
     function markOrderAsSeenOnAppLogin() {
       if (!currentUser || currentUser.role !== 'tech') return;
       
@@ -1363,7 +1324,7 @@
         }).catch(() => {});
 
         const tgDeductMsg = `⚠️ <b>تنبيه خصم مالي</b>\n\n👤 <b>الفني:</b> ${techName}\n🔻 <b>المبلغ:</b> -${amount} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>إجمالي رصيدك المتبقي:</b> ${techObj.accumulatedBonus} ج`;
-        sendRawTelegramMessage(techName, tgDeductMsg);
+        sendTelegramMessage(techObj.telegramChatId || DEFAULT_TELEGRAM_CHAT, tgDeductMsg);
 
         document.getElementById('deductAmount').value = '';
         document.getElementById('deductReason').value = '';
@@ -1612,8 +1573,6 @@
         }).catch(() => {});
 
         sendNtfyPush(`إسناد طلب للفني: ${targetTech} 👤`, `العميل: ${ord.customer} (${ord.jobType || 'عطل'})\nالهاتف: ${ord.phone || 'بدون رقم'}`);
-
-        // إرسال إشعار تليجرام نصي خالص وإظهار رسالة تأكيد واضحة
         sendTelegramAlertToTech(targetTech);
 
         syncUp();
@@ -1691,7 +1650,7 @@
           }).catch(() => {});
 
           const tgBonusMsg = `🎁 <b>مبروك! نزل لك بونص جديد</b>\n\n👤 <b>الفني:</b> ${techName}\n💵 <b>قيمة البونص:</b> +${amt} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>إجمالي رصيدك الحالي:</b> ${t.accumulatedBonus} ج`;
-          sendRawTelegramMessage(techName, tgBonusMsg);
+          sendTelegramMessage(t.telegramChatId || DEFAULT_TELEGRAM_CHAT, tgBonusMsg);
 
           renderAdmin();
           syncUp();
@@ -2168,21 +2127,27 @@
         ord.status = 'done';
         ord.doneReason = reason;
 
+        const adminAlertPayload = {
+          id: 'DONE-' + Date.now(),
+          type: 'done',
+          tech: currentUser.name,
+          customer: ord.customer,
+          detail: reason,
+          sentAt: Date.now()
+        };
+
         fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: 'DONE-' + Date.now(),
-            type: 'done',
-            tech: currentUser.name,
-            customer: ord.customer,
-            detail: reason,
-            sentAt: Date.now()
-          })
-        }).then(() => {
-          sendNtfyPush(`تم إنجاز العطل ✅ (${currentUser.name})`, `العميل: ${ord.customer}\nما تم: ${reason}`);
-          toastNative('تم تأكيد الحل وإرسال التنبيه للإدارة بنجاح ✓');
+          body: JSON.stringify(adminAlertPayload)
         }).catch(() => {});
+
+        // إرسال إشعار تليجرام فوري للمدير عند حل العطل
+        const tgAdminMsg = `✅ <b>تم حل العطل بواسطة الفني: ${currentUser.name}</b>\n\n👤 <b>العميل:</b> ${ord.customer}\n📝 <b>التفاصيل:</b> ${reason}`;
+        sendTelegramMessage(ADMIN_TELEGRAM_CHAT, tgAdminMsg);
+
+        sendNtfyPush(`تم إنجاز العطل ✅ (${currentUser.name})`, `العميل: ${ord.customer}\nما تم: ${reason}`);
+        toastNative('تم تأكيد الحل وإرسال التنبيه للإدارة بنجاح ✓');
 
         closeSolveModal();
         renderTech();
@@ -2209,21 +2174,27 @@
         ord.status = 'postponed';
         ord.postponeReason = reason;
 
+        const adminAlertPayload = {
+          id: 'POSTPONE-' + Date.now(),
+          type: 'postpone',
+          tech: currentUser.name,
+          customer: ord.customer,
+          detail: reason,
+          sentAt: Date.now()
+        };
+
         fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: 'POSTPONE-' + Date.now(),
-            type: 'postpone',
-            tech: currentUser.name,
-            customer: ord.customer,
-            detail: reason,
-            sentAt: Date.now()
-          })
-        }).then(() => {
-          sendNtfyPush(`تم تأجيل الطلب ⏳ (${currentUser.name})`, `العميل: ${ord.customer}\nالسبب: ${reason}`);
-          toastNative('تم حفظ التأجيل وإشعار الإدارة ✓');
+          body: JSON.stringify(adminAlertPayload)
         }).catch(() => {});
+
+        // إرسال إشعار تليجرام فوري للمدير عند تأجيل العطل
+        const tgAdminMsg = `⏳ <b>تم تأجيل الطلب بواسطة الفني: ${currentUser.name}</b>\n\n👤 <b>العميل:</b> ${ord.customer}\n📝 <b>السبب:</b> ${reason}`;
+        sendTelegramMessage(ADMIN_TELEGRAM_CHAT, tgAdminMsg);
+
+        sendNtfyPush(`تم تأجيل الطلب ⏳ (${currentUser.name})`, `العميل: ${ord.customer}\nالسبب: ${reason}`);
+        toastNative('تم حفظ التأجيل وإشعار الإدارة ✓');
 
         closePostponeModal();
         renderTech();
