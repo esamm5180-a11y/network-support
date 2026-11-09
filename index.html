@@ -629,7 +629,7 @@
     const TELEGRAM_BOT_TOKEN = "9027122334:AAGV1B4QIk9dtIHMecW2hqcGXkjwYZy4PeM";
     const DEFAULT_TELEGRAM_CHAT = "5007105167";
 
-    // إرسال الإشعار التفاعلي برابط HTTPS صالح يقبله تليجرام فوراً
+    // إرسال الإشعار التفاعلي عبر أمر تليجرام المباشر (صفر متصفح - داخل الشات فقط)
     async function sendTelegramAlertToTech(targetTechName, orderId) {
       try {
         const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
@@ -640,18 +640,14 @@
           return false;
         }
 
-        const keyboard = [];
-        const appBaseUrl = window.location.origin + window.location.pathname;
-        
-        // رابط HTTPS قياسي متوافق مع سيرفر تليجرام 100% وبدون أخطاء
-        if (orderId) {
-          keyboard.push([{
-            text: "🚀 فتح التطبيق ومراجعة المهمة",
-            url: `${appBaseUrl}?seen_order=${encodeURIComponent(orderId)}&tech=${encodeURIComponent(targetTechName)}`
-          }]);
-        }
+        // تحويل المعرف لصيغة أمر تليجرام مقبول (حروف وأرقام وشرطة سفلية)
+        const cleanCmdId = (orderId || '').replace(/[^a-zA-Z0-9]/g, '_');
 
-        const cleanMessage = `🔔 <b>لديك مهمة عطل جديدة مسندة إليك!</b>\n\n👷 <b>الفني:</b> ${targetTechName}\n⚡ <b>يرجى فتح التطبيق لمراجعة تفاصيل العميل ومكان العطل وبدء التنفيذ.</b>`;
+        const messageText = `🔔 <b>لديك مهمة عطل جديدة مسندة إليك!</b>\n\n` +
+          `👷 <b>الفني:</b> ${targetTechName}\n` +
+          `⚡ <b>يرجى فتح التطبيق لمراجعة تفاصيل العميل ومكان العطل وبدء التنفيذ.</b>\n\n` +
+          `👇 <b>لتأكيد استلامك واطلاعك على المهمة، اضغط الأمر الأزرق أدناه:</b>\n` +
+          `/seen_${cleanCmdId}`;
 
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
         const res = await fetch(url, {
@@ -659,9 +655,8 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             chat_id: chatId,
-            text: cleanMessage,
-            parse_mode: 'HTML',
-            reply_markup: keyboard.length > 0 ? { inline_keyboard: keyboard } : undefined
+            text: messageText,
+            parse_mode: 'HTML'
           })
         });
 
@@ -677,6 +672,66 @@
         console.error("خطأ تليجرام:", e);
         toastNative('⚠️ خطأ في الاتصال بسيرفر تليجرام.');
         return false;
+      }
+    }
+
+    // فحص ردود تليجرام لقراءة ضغط الفني على أمر تأكيد الاستلام بدون أي متصفح
+    let lastTelegramUpdateId = 0;
+    async function pollTelegramUpdatesForSeen() {
+      if (!currentUser || currentUser.role !== 'admin') return;
+      try {
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastTelegramUpdateId + 1}&limit=10&timeout=0`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.ok && Array.isArray(data.result) && data.result.length > 0) {
+          let hasNewSeen = false;
+
+          for (const item of data.result) {
+            lastTelegramUpdateId = item.update_id;
+            const text = (item.message && item.message.text) ? item.message.text.trim() : '';
+
+            if (text.startsWith('/seen_')) {
+              const matchedCmd = text.replace('/seen_', '').trim();
+              const timeNow = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+              const fromName = (item.message.from && item.message.from.first_name) ? item.message.from.first_name : 'الفني';
+
+              const targetOrder = appOrders.find(o => {
+                const cleanId = (o.id || '').replace(/[^a-zA-Z0-9]/g, '_');
+                return cleanId.toLowerCase() === matchedCmd.toLowerCase() || o.id === matchedCmd;
+              });
+
+              if (targetOrder && !targetOrder.seenAt) {
+                targetOrder.seenAt = timeNow;
+                targetOrder.seenBy = targetOrder.tech || fromName;
+                hasNewSeen = true;
+
+                // الرد فورياً على الفني داخل شات تليجرام ليطمئن أن استلامه تسجل
+                const replyChatId = item.message.chat.id;
+                fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    chat_id: replyChatId,
+                    text: `✅ <b>تم تسجيل استلامك واطلاعك على العطل الساعة ${timeNow} بنجاح، بالتوفيق!</b>`,
+                    parse_mode: 'HTML'
+                  })
+                }).catch(() => {});
+              }
+            }
+          }
+
+          if (hasNewSeen) {
+            renderAdmin();
+            fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(appOrders)
+            }).catch(() => {});
+          }
+        }
+      } catch (err) {
+        // تجاهل أخطاء انقطاع الشبكة المؤقتة
       }
     }
 
@@ -717,38 +772,6 @@
     let lastBonusAlertId = null;
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
-
-    // فحص الرؤية التلقائي عند فتح التطبيق وتسجيل وقت الفتح
-    function checkUrlForOrderSeen() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const seenOrderId = urlParams.get('seen_order');
-      const seenTech = urlParams.get('tech');
-
-      if (seenOrderId) {
-        const timeNow = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-        
-        fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`)
-          .then(res => res.json())
-          .then(orders => {
-            if (Array.isArray(orders)) {
-              const target = orders.find(o => o.id === seenOrderId);
-              if (target) {
-                target.seenAt = timeNow;
-                target.seenBy = seenTech || target.tech;
-                
-                return fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(orders)
-                });
-              }
-            }
-          })
-          .catch(() => {});
-
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    }
 
     function forceLightModeEverywhere() {
       try {
@@ -1597,7 +1620,7 @@
 
         sendNtfyPush(`إسناد طلب للفني: ${targetTech} 👤`, `العميل: ${ord.customer} (${ord.jobType || 'عطل'})\nالهاتف: ${ord.phone || 'بدون رقم'}`);
 
-        // إرسال الإشعار لتليجرام بدون بيانات وبزر فتح التطبيق المعتمد
+        // إرسال الإشعار لتليجرام مع أمر التأكيد الداخلي (بدون متصفح)
         sendTelegramAlertToTech(targetTech, ord.id);
 
         syncUp();
@@ -1923,7 +1946,7 @@
         // شارة رؤية الفني للمهمة في لوحة الإدارة
         let seenBadgeHtml = '';
         if (o.seenAt) {
-          seenBadgeHtml = `<div class="badge-seen">👁️ فتح التطبيق واستلم (${o.seenAt}) ✓✓</div>`;
+          seenBadgeHtml = `<div class="badge-seen">👁️ شاف الطلب واستلمه (${o.seenAt}) ✓✓</div>`;
         }
 
         let techOpts = '<option value="">اختر الفني للإسناد...</option>';
@@ -2288,8 +2311,6 @@
     }
 
     window.onload = function() {
-      checkUrlForOrderSeen();
-
       try {
         const saved = localStorage.getItem('saved_active_user');
         if (saved) {
@@ -2313,6 +2334,9 @@
       setInterval(instantAlertsCheck, 1000);
       setInterval(() => syncDown(false), 6000);
       setInterval(sendTechHeartbeat, 15000);
+
+      // فحص تأكيد الاستلام من تليجرام تلقائياً كل 3 ثوانٍ
+      setInterval(pollTelegramUpdatesForSeen, 3000);
     };
   </script>
 </body>
