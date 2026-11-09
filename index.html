@@ -24,7 +24,7 @@
     }
     html, body { 
       background-color: #f8fafc !important; 
-      background: #f8fafc !important;
+      background: #f8fafc !important; 
       color: #1e293b !important; 
       min-height: 100vh;
       -webkit-overflow-scrolling: touch;
@@ -142,6 +142,18 @@
     .badge-postponed { background-color: #fffbeb !important; color: #d97706 !important; border: 1px solid #fde68a !important; }
     .badge-done { background-color: #ecfdf5 !important; color: #059669 !important; border: 1px solid #a7f3d0 !important; }
 
+    .badge-seen { 
+      background-color: #f0fdf4 !important; 
+      color: #16a34a !important; 
+      border: 1px solid #86efac !important; 
+      font-size: 10px; 
+      font-weight: 900; 
+      padding: 2px 6px; 
+      border-radius: 5px; 
+      display: inline-block; 
+      margin-top: 4px;
+    }
+
     .badge-job-fault { background-color: #fff7ed !important; color: #ea580c !important; border: 1px solid #fed7aa !important; }
     .badge-job-install { background-color: #eff6ff !important; color: #1d4ed8 !important; border: 1px solid #bfdbfe !important; }
     .badge-job-check { background-color: #f5f3ff !important; color: #7c3aed !important; border: 1px solid #ddd6fe !important; }
@@ -232,6 +244,11 @@
   </style>
 </head>
 <body onclick="unlockAudioSystem()" ontouchstart="unlockAudioSystem()">
+
+  <!-- نافذة تأكيد رؤية الفني عند الضغط من الرابط الخارجي -->
+  <div id="viewConfirmationBanner" class="hidden" style="background:#ecfdf5; border-bottom:2px solid #10b981; color:#047857; text-align:center; padding:10px; font-size:12px; font-weight:800; position:sticky; top:0; z-index:9999;">
+    ✅ تم تأكيد استلامك واطلاعك على المهمة بنجاح، بالتوفيق!
+  </div>
 
   <!-- نافذة تعديل بيانات العميل أو العطل -->
   <div id="modalEditOrder" class="modal-overlay hidden">
@@ -407,7 +424,7 @@
         </div>
       </div>
 
-      <!-- تسجيل طلب جديد (يبقى معلقاً ولا يصدر تنبيهات إلا بعد الإسناد) -->
+      <!-- تسجيل طلب جديد -->
       <div class="card" style="border: 2px solid #94a3b8 !important;">
         <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
           <span style="font-size: 14px; color: #2563eb;">➕</span>
@@ -445,7 +462,7 @@
         <button type="button" onclick="saveNewOrder()" class="btn btn-primary">حفظ الطلب ➕</button>
       </div>
 
-      <!-- قائمة الفنيين للإدارة فقط -->
+      <!-- قائمة الفنيين -->
       <div id="adminTechsList"></div>
     </div>
   </div>
@@ -485,7 +502,7 @@
     </div>
   </div>
 
-  <!-- 3. صفحة الإعدادات المستقلة (تحكم كامل بدون تعديل كود) -->
+  <!-- 3. صفحة الإعدادات المستقلة -->
   <div id="screenSettingsPage" class="hidden">
     <header class="header">
       <div style="display: flex; align-items: center; gap: 6px;">
@@ -521,7 +538,6 @@
           <input type="text" id="settingsTechPass" placeholder="الباسورد" class="input-control">
         </div>
 
-        <!-- خانة تليجرام شات آي دي في الإعدادات -->
         <label style="font-size: 10px; font-weight: 800; color: #2563eb; display: block; margin-bottom: 2px;">✈️ تليجرام Chat ID للفني (لإرسال إشعار العطل له منفصلاً):</label>
         <input type="text" id="settingsTechTelegram" placeholder="مثال: 5007105167" class="input-control" style="direction: ltr; font-weight: 800; border-color: #93c5fd;">
         
@@ -572,7 +588,7 @@
     </div>
   </div>
 
-  <!-- 4. شاشة الفني (مخصصة له فقط وتظهر أعطاله المسندة له) -->
+  <!-- 4. شاشة الفني -->
   <div id="screenTech" class="hidden">
     <header class="header">
       <div>
@@ -618,26 +634,61 @@
     const TELEGRAM_BOT_TOKEN = "9027122334:AAGV1B4QIk9dtIHMecW2hqcGXkjwYZy4PeM";
     const DEFAULT_TELEGRAM_CHAT = "5007105167";
 
-    // دالة إرسال الإشعار التلقائي للفني عبر الـ Chat ID المسجل في حسابه بالإعدادات
-    async function sendTelegramAlertToTech(targetTechName, messageText) {
+    // إرسال الإشعار التفاعلي عبر تليجرام مع زر الاتصال وزر استلام ورؤية العطل
+    async function sendTelegramAlertToTech(targetTechName, messageText, clientPhone, orderId) {
       try {
-        const techObj = appAccounts.find(a => a.name === targetTechName);
+        const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
         const chatId = (techObj && techObj.telegramChatId) ? techObj.telegramChatId : DEFAULT_TELEGRAM_CHAT;
 
-        if (!chatId) return;
+        if (!chatId) {
+          toastNative('⚠️ لم يتم تحديد معرف تليجرام (Chat ID) لهذا الفني في الإعدادات!');
+          return false;
+        }
+
+        // تجهيز الأزرار التفاعلية أسفل رسالة التليجرام
+        const keyboard = [];
+        const appBaseUrl = window.location.origin + window.location.pathname;
+
+        // زر تأكيد المشاهدة والاستلام
+        if (orderId) {
+          keyboard.push([{
+            text: "👀 استلمت وشفت الطلب",
+            url: `${appBaseUrl}?seen_order=${encodeURIComponent(orderId)}&tech=${encodeURIComponent(targetTechName)}`
+          }]);
+        }
+
+        // زر اتصال مباشر بالعميل
+        if (clientPhone && clientPhone.trim() !== '') {
+          keyboard.push([{
+            text: "📞 اتصال بالعميل فوراً",
+            url: `tel:${clientPhone.trim()}`
+          }]);
+        }
 
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-        fetch(url, {
+        const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             chat_id: chatId,
             text: messageText,
-            parse_mode: 'HTML'
+            parse_mode: 'HTML',
+            reply_markup: keyboard.length > 0 ? { inline_keyboard: keyboard } : undefined
           })
-        }).catch(err => console.error("Telegram fetch error:", err));
+        });
+
+        const json = await res.json();
+        if (json.ok) {
+          toastNative(`تم تسليم الإشعار لتليجرام (${targetTechName}) ورن بنجاح ✓`);
+          return true;
+        } else {
+          toastNative(`⚠️ تعذر الإرسال لتليجرام: ${json.description || 'تأكد أن الفني ضغط Start في البوت'}`);
+          return false;
+        }
       } catch (e) {
         console.error("خطأ تليجرام:", e);
+        toastNative('⚠️ خطأ في الاتصال بسيرفر تليجرام.');
+        return false;
       }
     }
 
@@ -678,6 +729,38 @@
     let lastBonusAlertId = null;
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
+
+    // فحص رابط تأكيد رؤية الفني عند الضغط على زر تليجرام
+    function checkUrlForOrderSeen() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const seenOrderId = urlParams.get('seen_order');
+      const seenTech = urlParams.get('tech');
+
+      if (seenOrderId) {
+        const timeNow = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        
+        fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`)
+          .then(res => res.json())
+          .then(orders => {
+            if (Array.isArray(orders)) {
+              const target = orders.find(o => o.id === seenOrderId);
+              if (target) {
+                target.seenAt = timeNow;
+                target.seenBy = seenTech || target.tech;
+                
+                fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(orders)
+                });
+              }
+            }
+          }).catch(() => {});
+
+        document.getElementById('viewConfirmationBanner').classList.remove('hidden');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
 
     function forceLightModeEverywhere() {
       try {
@@ -871,7 +954,6 @@
       }).catch(() => {});
     }
 
-    // فحص الإشعارات: الفني يستلم فقط التنبيهات الموجهة له بالاسم
     function checkIncomingAlerts(data) {
       if (!currentUser || !data) return;
 
@@ -1201,7 +1283,6 @@
       const listContainer = document.getElementById('techBonusHistoryList');
       listContainer.innerHTML = '';
 
-      // يرى الفني فقط سجلاته الخاصة
       const myRecords = bonusRecords.filter(b => b.tech === currentUser.name);
 
       if (myRecords.length === 0) {
@@ -1278,7 +1359,6 @@
           })
         }).catch(() => {});
 
-        // إرسال تنبيه الخصم لهذا الفني فقط عبر تليجرام
         sendTelegramAlertToTech(techName, `⚠️ <b>تنبيه خصم مالي</b>\n👤 <b>الفني:</b> ${techName}\n🔻 <b>المبلغ:</b> -${amount} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>الرصيد المتبقي:</b> ${techObj.accumulatedBonus} ج`);
 
         document.getElementById('deductAmount').value = '';
@@ -1393,7 +1473,6 @@
       toastNative('تم تحديث وتأمين بيانات المدير بنجاح 💾');
     }
 
-    // حفظ طلب جديد: يبقى معلقاً فقط في لوحة المدير دون إرسال إشعار تليجرام أو رنين
     function saveNewOrder() {
       const nameInput = document.getElementById('newCustName');
       const phoneInput = document.getElementById('newCustPhone');
@@ -1420,6 +1499,8 @@
         status: 'pending',
         postponeReason: '',
         doneReason: '',
+        seenAt: '',
+        seenBy: '',
         date: getToday(),
         createdAt: Date.now()
       };
@@ -1480,6 +1561,8 @@
         ord.jobType = 'عطل متكرر';
         ord.status = 'pending';
         ord.tech = ''; 
+        ord.seenAt = '';
+        ord.seenBy = '';
 
         if (ord.desc) {
           ord.desc = ord.desc
@@ -1498,7 +1581,6 @@
       }
     }
 
-    // إسناد الطلب لفني: هنا فقط يتم إرسال الإشعار التلقائي للفني المحدد وحده عبر الـ ID المسجل له
     function saveAssignDirectly(orderId, selectElem) {
       const targetTech = selectElem.value;
       if (!targetTech) return;
@@ -1507,6 +1589,8 @@
       if (ord) {
         const prevTech = ord.tech;
         ord.tech = targetTech;
+        ord.seenAt = '';
+        ord.seenBy = '';
         if (ord.status === 'postponed') ord.status = 'pending';
 
         fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`, {
@@ -1525,22 +1609,20 @@
 
         sendNtfyPush(`إسناد طلب للفني: ${targetTech} 👤`, `العميل: ${ord.customer} (${ord.jobType || 'عطل'})\nالهاتف: ${ord.phone || 'بدون رقم'}`);
 
-        // رسالة تليجرام خاصة تذهب للفني المسند إليه حصراً
-        const tgMsg = `🔔 <b>إسناد عطل جديد لك</b>\n\n👷 <b>الفني:</b> ${targetTech}\n👤 <b>العميل:</b> ${ord.customer}\n🛠 <b>نوع الطلب:</b> ${ord.jobType || 'عطل'}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n📍 <b>الملاحظات/العنوان:</b> ${ord.desc || 'لا توجد'}\n\n⚡ يرجى سرعة التحرك والإنجاز ✓`;
-        sendTelegramAlertToTech(targetTech, tgMsg);
+        const tgMsg = `🔔 <b>إسناد عطل جديد لك</b>\n\n👷 <b>الفني:</b> ${targetTech}\n👤 <b>العميل:</b> ${ord.customer}\n🛠 <b>نوع الطلب:</b> ${ord.jobType || 'عطل'}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n📍 <b>الملاحظات/العنوان:</b> ${ord.desc || 'لا توجد'}\n\n⚡ يرجى الضغط على زر الاستلام أدناه للبدء ✓`;
+        sendTelegramAlertToTech(targetTech, tgMsg, ord.phone, ord.id);
 
         syncUp();
         renderAdmin();
 
         if (prevTech && prevTech !== targetTech) {
-          toastNative(`تم نقل الطلب وإرسال تنبيه لـ (${targetTech}) بنجاح ✓`);
+          toastNative(`تم نقل الطلب للفني (${targetTech}) بنجاح ✓`);
         } else {
-          toastNative(`تم إسناد الطلب وإرسال تنبيه لـ (${targetTech}) بنجاح ✓`);
+          toastNative(`تم إسناد الطلب للفني (${targetTech}) بنجاح ✓`);
         }
       }
     }
 
-    // إرسال تنبيه رنين للفني المسند فقط
     function sendDirectAlertToTech(orderId) {
       const ord = appOrders.find(o => o.id === orderId);
       if (!ord) return;
@@ -1566,10 +1648,8 @@
       }).then(() => {
         sendNtfyPush(`تنبيه رنين للفني: ${ord.tech} 🔔`, `العميل: ${ord.customer} - يرجى التحرك فوراً`);
         
-        const tgRingMsg = `🚨 <b>تنبيه رنين عاجل من الإدارة!</b>\n\n👷 <b>الفني:</b> ${ord.tech}\n👤 <b>العميل:</b> ${ord.customer}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n\n⚡ يرجى فتح التطبيق والتوجه فوراً للمكان!`;
-        sendTelegramAlertToTech(ord.tech, tgRingMsg);
-
-        toastNative(`تم إرسال رنين للتطبيق وتنبيه تليجرام للفني (${ord.tech}) الآن 🔔`);
+        const tgRingMsg = `🚨 <b>تنبيه رنين عاجل من الإدارة!</b>\n\n👷 <b>الفني:</b> ${ord.tech}\n👤 <b>العميل:</b> ${ord.customer}\n📞 <b>الهاتف:</b> <code>${ord.phone || 'بدون رقم'}</code>\n\n⚡ يرجى الضغط على زر الاستلام أدناه فوراً!`;
+        sendTelegramAlertToTech(ord.tech, tgRingMsg, ord.phone, ord.id);
       }).catch(() => {
         toastNative('حدث خطأ أثناء إرسال التنبيه، تأكد من الاتصال.');
       });
@@ -1857,6 +1937,12 @@
         const displayJobName = (o.jobType === 'معاينة') ? 'معاينه جديده' : (o.jobType || 'عطل');
         const timeBadgeHtml = getOrderTimeBadge(o.date);
 
+        // شارة رؤية الفني للمهمة
+        let seenBadgeHtml = '';
+        if (o.seenAt) {
+          seenBadgeHtml = `<div class="badge-seen">👁️ شاف الطلب واستلمه (${o.seenAt}) ✓✓</div>`;
+        }
+
         let techOpts = '<option value="">اختر الفني للإسناد...</option>';
         techs.forEach(t => {
           techOpts += `<option value="${t.name}" ${o.tech === t.name ? 'selected' : ''}>${t.name}</option>`;
@@ -1883,7 +1969,9 @@
               </div>
             </div>
             
-            ${o.desc ? `<p style="font-size:11px; color:#475569; margin-bottom:4px; background-color:#f8fafc; padding:5px 8px; border-radius:6px; border: 1px solid #e2e8f0;">${o.desc}</p>` : ''}
+            ${seenBadgeHtml}
+
+            ${o.desc ? `<p style="font-size:11px; color:#475569; margin-bottom:4px; margin-top:4px; background-color:#f8fafc; padding:5px 8px; border-radius:6px; border: 1px solid #e2e8f0;">${o.desc}</p>` : ''}
 
             ${isPostponed && o.postponeReason ? `
               <div style="font-size:11px; color:#c2410c; background-color:#fff7ed; border:1px solid #fed7aa; padding:4px 8px; border-radius:6px; margin-bottom:4px;">
@@ -1931,13 +2019,11 @@
       });
     }
 
-    // عرض شاشة الفني: عزل كامل لأعطال الفني المسجل فقط
     function renderTech() {
       try {
         const me = appAccounts.find(a => a.id === currentUser.id) || currentUser;
         document.getElementById('techBonusBalance').innerText = `${me.accumulatedBonus || 0} ج`;
 
-        // تصفية صارمة: جلب الأعطال المسندة لهذا الفني بعينه فقط
         const myOrders = appOrders.filter(o => o.tech === me.name);
         const pendingList = myOrders.filter(o => o.status !== 'done');
         const doneList = myOrders.filter(o => o.status === 'done');
@@ -2219,6 +2305,8 @@
     }
 
     window.onload = function() {
+      checkUrlForOrderSeen();
+
       try {
         const saved = localStorage.getItem('saved_active_user');
         if (saved) {
