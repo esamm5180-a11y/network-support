@@ -245,7 +245,7 @@
 </head>
 <body onclick="unlockAudioSystem()" ontouchstart="unlockAudioSystem()">
 
-  <!-- نافذة تأكيد رؤية الفني عند الضغط من الرابط الخارجي -->
+  <!-- لافتة تأكيد رؤية الفني للمهمة -->
   <div id="viewConfirmationBanner" class="hidden" style="background:#ecfdf5; border-bottom:2px solid #10b981; color:#047857; text-align:center; padding:10px; font-size:12px; font-weight:800; position:sticky; top:0; z-index:9999;">
     ✅ تم تأكيد استلامك واطلاعك على المهمة بنجاح، بالتوفيق!
   </div>
@@ -520,7 +520,7 @@
         <button type="button" onclick="submitDeduction()" class="btn btn-danger" style="padding: 8px; font-size: 11px;">خصم من الرصيد ➖</button>
       </div>
 
-      <!-- التحكم في حساب الفني وإعداد تليجرام الخاص به -->
+      <!-- التحكم في حساب الفني -->
       <div class="card">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 8px; color: #1e293b;">🛠 التحكم في حساب وسجل الفني:</h5>
         <select id="settingsTechSelect" onchange="loadSelectedTechData()" class="input-control"></select>
@@ -538,7 +538,7 @@
           <input type="text" id="settingsTechPass" placeholder="الباسورد" class="input-control">
         </div>
 
-        <label style="font-size: 10px; font-weight: 800; color: #2563eb; display: block; margin-bottom: 2px;">✈️ تليجرام Chat ID للفني (لإرسال إشعار العطل له منفصلاً):</label>
+        <label style="font-size: 10px; font-weight: 800; color: #2563eb; display: block; margin-bottom: 2px;">✈️ تليجرام Chat ID للفني:</label>
         <input type="text" id="settingsTechTelegram" placeholder="مثال: 5007105167" class="input-control" style="direction: ltr; font-weight: 800; border-color: #93c5fd;">
         
         <div class="grid-2" style="margin-bottom: 8px;">
@@ -564,7 +564,7 @@
         <div id="bonusHistoryLogList" style="max-height: 220px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
       </div>
 
-      <!-- إضافة فني جديد مع خانة تليجرام -->
+      <!-- إضافة فني جديد -->
       <div class="card">
         <h5 style="font-size: 12px; font-weight: 900; margin-bottom: 8px; color: #1e293b;">👷 إضافة فني جديد:</h5>
         <input type="text" id="addTechName" placeholder="اسم الفني بالكامل" class="input-control">
@@ -634,7 +634,7 @@
     const TELEGRAM_BOT_TOKEN = "9027122334:AAGV1B4QIk9dtIHMecW2hqcGXkjwYZy4PeM";
     const DEFAULT_TELEGRAM_CHAT = "5007105167";
 
-    // إرسال الإشعار التفاعلي عبر تليجرام مع زر الاتصال وزر استلام ورؤية العطل
+    // إرسال الإشعار التفاعلي عبر تليجرام متوافق 100% مع شروط تليجرام
     async function sendTelegramAlertToTech(targetTechName, messageText, clientPhone, orderId) {
       try {
         const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
@@ -645,7 +645,6 @@
           return false;
         }
 
-        // تجهيز الأزرار التفاعلية أسفل رسالة التليجرام
         const keyboard = [];
         const appBaseUrl = window.location.origin + window.location.pathname;
 
@@ -654,14 +653,6 @@
           keyboard.push([{
             text: "👀 استلمت وشفت الطلب",
             url: `${appBaseUrl}?seen_order=${encodeURIComponent(orderId)}&tech=${encodeURIComponent(targetTechName)}`
-          }]);
-        }
-
-        // زر اتصال مباشر بالعميل
-        if (clientPhone && clientPhone.trim() !== '') {
-          keyboard.push([{
-            text: "📞 اتصال بالعميل فوراً",
-            url: `tel:${clientPhone.trim()}`
           }]);
         }
 
@@ -682,7 +673,7 @@
           toastNative(`تم تسليم الإشعار لتليجرام (${targetTechName}) ورن بنجاح ✓`);
           return true;
         } else {
-          toastNative(`⚠️ تعذر الإرسال لتليجرام: ${json.description || 'تأكد أن الفني ضغط Start في البوت'}`);
+          toastNative(`⚠️ تعذر الإرسال: ${json.description}`);
           return false;
         }
       } catch (e) {
@@ -1359,7 +1350,7 @@
           })
         }).catch(() => {});
 
-        sendTelegramAlertToTech(techName, `⚠️ <b>تنبيه خصم مالي</b>\n👤 <b>الفني:</b> ${techName}\n🔻 <b>المبلغ:</b> -${amount} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>الرصيد المتبقي:</b> ${techObj.accumulatedBonus} ج`);
+        sendTelegramAlertToTech(techName, `⚠️ <b>تنبيه خصم مالي</b>\n👤 <b>الفني:</b> ${techName}\n🔻 <b>المبلغ:</b> -${amount} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>الرصيد المتبقي:</b> ${techObj.accumulatedBonus} ج`, '', '');
 
         document.getElementById('deductAmount').value = '';
         document.getElementById('deductReason').value = '';
@@ -1689,7 +1680,7 @@
           }).catch(() => {});
 
           const tgBonusMsg = `🎁 <b>مبروك! مكافأة جديدة</b>\n\n👷 <b>الفني:</b> ${techName}\n💵 <b>قيمة البونص:</b> +${amt} ج\n📝 <b>السبب:</b> ${reason}\n💰 <b>إجمالي رصيدك الحالي:</b> ${t.accumulatedBonus} ج`;
-          sendTelegramAlertToTech(techName, tgBonusMsg);
+          sendTelegramAlertToTech(techName, tgBonusMsg, '', '');
 
           renderAdmin();
           syncUp();
@@ -1937,7 +1928,7 @@
         const displayJobName = (o.jobType === 'معاينة') ? 'معاينه جديده' : (o.jobType || 'عطل');
         const timeBadgeHtml = getOrderTimeBadge(o.date);
 
-        // شارة رؤية الفني للمهمة
+        // علامة المشاهدة على كارت الإدارة
         let seenBadgeHtml = '';
         if (o.seenAt) {
           seenBadgeHtml = `<div class="badge-seen">👁️ شاف الطلب واستلمه (${o.seenAt}) ✓✓</div>`;
