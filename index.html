@@ -9,6 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <!-- سكريبت تليجرام الرسمي لتفعيل الـ Web App والتحكم في إغلاق الشاشة فوراً -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
       color-scheme: light only !important;
@@ -132,7 +134,7 @@
     .order-delayed-box {
       background-color: #fff5f5 !important;
       border: 2px solid #f87171 !important;
-      box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.15) !important;
+      box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.15) !important; 
     }
     
     .badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-block; }
@@ -245,9 +247,9 @@
 </head>
 <body onclick="unlockAudioSystem()" ontouchstart="unlockAudioSystem()">
 
-  <!-- لافتة تأكيد رؤية الفني للمهمة -->
-  <div id="viewConfirmationBanner" class="hidden" style="background:#ecfdf5; border-bottom:2px solid #10b981; color:#047857; text-align:center; padding:10px; font-size:12px; font-weight:800; position:sticky; top:0; z-index:9999;">
-    ✅ تم تأكيد استلامك واطلاعك على المهمة بنجاح، بالتوفيق!
+  <!-- لافتة تأكيد استلام واطلاع الفني -->
+  <div id="viewConfirmationBanner" class="hidden" style="background:#ecfdf5; border-bottom:2px solid #10b981; color:#047857; text-align:center; padding:12px; font-size:13px; font-weight:800; position:sticky; top:0; z-index:9999;">
+    ✅ تم تأكيد استلامك واطلاعك على المهمة بنجاح، جاري إغلاق النافذة...
   </div>
 
   <!-- نافذة تعديل بيانات العميل أو العطل -->
@@ -634,7 +636,7 @@
     const TELEGRAM_BOT_TOKEN = "9027122334:AAGV1B4QIk9dtIHMecW2hqcGXkjwYZy4PeM";
     const DEFAULT_TELEGRAM_CHAT = "5007105167";
 
-    // إرسال الإشعار التفاعلي عبر تليجرام متوافق 100% مع شروط تليجرام
+    // إرسال الإشعار التفاعلي عبر Telegram Web App المدمج بدون روابط منبثقة مزعجة
     async function sendTelegramAlertToTech(targetTechName, messageText, clientPhone, orderId) {
       try {
         const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
@@ -648,11 +650,13 @@
         const keyboard = [];
         const appBaseUrl = window.location.origin + window.location.pathname;
 
-        // زر تأكيد المشاهدة والاستلام
+        // زر استلام واطلاع يفتح كنافذة Web App داخلية صامتة تغلق فوراً بعد التثبيت
         if (orderId) {
           keyboard.push([{
             text: "👀 استلمت وشفت الطلب",
-            url: `${appBaseUrl}?seen_order=${encodeURIComponent(orderId)}&tech=${encodeURIComponent(targetTechName)}`
+            web_app: {
+              url: `${appBaseUrl}?seen_order=${encodeURIComponent(orderId)}&tech=${encodeURIComponent(targetTechName)}`
+            }
           }]);
         }
 
@@ -721,7 +725,7 @@
     let lastAdminAlertId = null;
     let isUserInteractingWithSelect = false;
 
-    // فحص رابط تأكيد رؤية الفني عند الضغط على زر تليجرام
+    // فحص تأكيد الرؤية وتسجيل الوقت وإغلاق نافذة الـ Web App فوراً
     function checkUrlForOrderSeen() {
       const urlParams = new URLSearchParams(window.location.search);
       const seenOrderId = urlParams.get('seen_order');
@@ -739,14 +743,24 @@
                 target.seenAt = timeNow;
                 target.seenBy = seenTech || target.tech;
                 
-                fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`, {
+                return fetch(`${FIREBASE_DB}/bonus_system_data/orders.json`, {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(orders)
                 });
               }
             }
-          }).catch(() => {});
+          })
+          .then(() => {
+            // إغلاق النافذة المنبثقة تلقائياً ليبقى الفني داخل شات تليجرام
+            if (window.Telegram && window.Telegram.WebApp) {
+              window.Telegram.WebApp.ready();
+              setTimeout(() => {
+                window.Telegram.WebApp.close();
+              }, 400);
+            }
+          })
+          .catch(() => {});
 
         document.getElementById('viewConfirmationBanner').classList.remove('hidden');
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -1928,7 +1942,7 @@
         const displayJobName = (o.jobType === 'معاينة') ? 'معاينه جديده' : (o.jobType || 'عطل');
         const timeBadgeHtml = getOrderTimeBadge(o.date);
 
-        // علامة المشاهدة على كارت الإدارة
+        // شارة رؤية الفني للمهمة في لوحة الإدارة
         let seenBadgeHtml = '';
         if (o.seenAt) {
           seenBadgeHtml = `<div class="badge-seen">👁️ شاف الطلب واستلمه (${o.seenAt}) ✓✓</div>`;
