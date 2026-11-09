@@ -643,8 +643,7 @@
         if (includePersistentKeyboard) {
           bodyPayload.reply_markup = {
             keyboard: [
-              [{ text: '📊 أعطالي المتبقية' }, { text: '🎁 المكافآت' }],
-              [{ text: '📋 تقرير اليوم' }]
+              [{ text: '📊 أعطالي المتبقية' }, { text: '🎁 المكافآت' }]
             ],
             resize_keyboard: true,
             is_persistent: true
@@ -2209,7 +2208,7 @@
       }
     }
 
-    // ====== رصد رسائل الأزرار الثابتة في تليجرام (أعطالي المتبقية، المكافآت، وتقرير اليوم) ======
+    // ====== رصد رسائل الأزرار الثابتة في تليجرام (أعطالي المتبقية والمكافآت) ======
     let lastTelegramUpdateId = 0;
     async function pollTelegramBotUpdates() {
       try {
@@ -2229,13 +2228,13 @@
               const techName = techObj ? techObj.name : null;
 
               if (!techName) {
-                if (msgText.includes('أعطالي المتبقية') || msgText.includes('المكافآت') || msgText.includes('تقرير اليوم') || msgText.startsWith('/start')) {
+                if (msgText.includes('أعطالي المتبقية') || msgText.includes('المكافآت') || msgText.startsWith('/start')) {
                   await sendTelegramMessage(chatId, `⚠️ أهلاً بك يا ${userFirstName}.\nعذراً، معرف تليجرام الخاص بك غير مسجل في نظام الإدارة لدى المدير.`, true);
                 }
                 continue;
               }
 
-              // 1. زر "أعطالي المتبقية"
+              // إذا ضغط على زر "أعطالي المتبقية"
               if (msgText.includes('أعطالي المتبقية') || msgText.startsWith('/my_status')) {
                 const myAssignedOrders = appOrders.filter(o => o.tech === techName && o.status !== 'done');
                 const myPostponedOrders = myAssignedOrders.filter(o => o.status === 'postponed');
@@ -2250,7 +2249,7 @@
                 await sendTelegramMessage(chatId, replyText, true);
               }
 
-              // 2. زر "المكافآت"
+              // إذا ضغط على زر "المكافآت"
               if (msgText.includes('المكافآت')) {
                 const bonusTotal = techObj.accumulatedBonus || 0;
                 const replyText = `🎁 <b>حصالة مكافآتك يا ${techName}:</b>\n\n` +
@@ -2258,26 +2257,6 @@
                   `✨ <i>استمر في الإنجاز لتزيد مكافآتك!</i>`;
 
                 await sendTelegramMessage(chatId, replyText, true);
-              }
-
-              // 3. زر "تقرير اليوم" (مع تفاصيل الأعطال التي تم إنجازها اليوم)
-              if (msgText.includes('تقرير اليوم')) {
-                const todayStr = getToday();
-                const todayDoneOrders = appOrders.filter(o => o.tech === techName && o.status === 'done' && o.date === todayStr);
-
-                let reportText = `📋 <b>تقرير إنجازك اليوم (${todayStr}):</b>\n\n`;
-                if (todayDoneOrders.length === 0) {
-                  reportText += `⚠️ لم تقم بإنهاء أي أعطال حتى الآن اليوم. شد حيلك! 💪`;
-                } else {
-                  reportText += `✅ عدد الأعطال المنجزة اليوم: <b>${todayDoneOrders.length}</b>\n\n`;
-                  todayDoneOrders.forEach((ord, index) => {
-                    reportText += `<b>${index + 1}. العميل:</b> ${ord.customer}\n`;
-                    reportText += `   🔹 <b>النوع:</b> ${ord.jobType || 'عطل'}\n`;
-                    reportText += `   📝 <b>ما تم:</b> ${ord.doneReason || 'تم الحل'}\n\n`;
-                  });
-                }
-
-                await sendTelegramMessage(chatId, reportText, true);
               }
             }
           }
@@ -2385,7 +2364,7 @@
       setInterval(instantAlertsCheck, 1000);
       setInterval(() => syncDown(false), 6000);
       setInterval(sendTechHeartbeat, 15000);
-      setInterval(pollTelegramBotUpdates, 2000);
+      setInterval(pollTelegramBotUpdates, 2000); // جعل فحص رسائل البوت كل ثانيتين لتقليل التأخير
     };
   </script>
 </body>
