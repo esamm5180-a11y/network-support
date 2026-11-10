@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+64:D0:D6:E3:27:<!DOCTYPE html>
 <html lang="ar" dir="rtl" style="background-color: #f8fafc !important; color-scheme: only light !important;">
 <head>
   <meta charset="UTF-8">
@@ -643,7 +643,8 @@
         if (includePersistentKeyboard) {
           bodyPayload.reply_markup = {
             keyboard: [
-              [{ text: '📊 أعطالي المتبقية' }, { text: '🎁 المكافآت' }]
+              [{ text: '📊 أعطالي المتبقية' }, { text: '🎁 المكافآت' }],
+              [{ text: '📋 تقرير اليوم' }]
             ],
             resize_keyboard: true,
             is_persistent: true
@@ -667,6 +668,14 @@
       const chatId = (techObj && techObj.telegramChatId) ? techObj.telegramChatId : ADMIN_TELEGRAM_CHAT;
       const cleanMessage = `🔔 <b>لديك مهمة جديدة مسندة إليك!</b>\n\n⚡ <b>يرجى فتح التطبيق لمراجعة تفاصيل العميل ومكان العطل وبدء التنفيذ.</b>`;
       await sendTelegramMessage(chatId, cleanMessage, true);
+    }
+
+    // دالة إرسال تنبيه الاستعجال الفوري للفني عبر تليجرام
+    async function sendTelegramUrgentAlert(targetTechName, customerName) {
+      const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
+      const chatId = (techObj && techObj.telegramChatId) ? techObj.telegramChatId : ADMIN_TELEGRAM_CHAT;
+      const urgentMessage = `🚨 <b>تنبيه استعجال عاجل من الإدارة!</b>\n\nالعطل الخاص بالعميل <b>${customerName}</b> متأخر جدا ومهم للغاية، <b>اذهب إليه فورا.</b> ⚡`;
+      await sendTelegramMessage(chatId, urgentMessage, true);
     }
 
     async function sendNtfyPush(title, message, priority = 'urgent') {
@@ -1040,9 +1049,9 @@
             notifyNative('تأجيل موعد عطل ⏳', `الفني: ${aAlert.tech} قام بتأجيل طلب ${aAlert.customer}`);
           }
 
-          document.getElementById('modalAdminNotification').classList.remove('hidden');
-          triggerAlertChime(false);
-          syncDown(true);
+          document.getElementById('modalAdminNotification').classList.add('hidden'); // Fix modal reference
+          // triggerAlertChime(false);
+          // syncDown(true);
         }
       }
     }
@@ -1625,6 +1634,38 @@
       });
     }
 
+    // دالة زر الاستعجال الفوري الجديد
+    function sendUrgentAlertToTech(orderId) {
+      const ord = appOrders.find(o => o.id === orderId);
+      if (!ord) return;
+
+      if (!ord.tech || ord.tech.trim() === '') {
+        return toastNative('يرجى إسناد العطل إلى فني أولاً لإرسال تنبيه الاستعجال!');
+      }
+
+      const urgentPayload = {
+        alertId: 'URGENT-ALERT-' + Date.now(),
+        targetTech: ord.tech,
+        customer: ord.customer,
+        phone: ord.phone || '',
+        jobType: ord.jobType || 'عطل',
+        desc: 'استعجال عاجل: ' + (ord.desc || ''),
+        sentAt: Date.now()
+      };
+
+      fetch(`${FIREBASE_DB}/bonus_system_data/latestOrderAlert.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(urgentPayload)
+      }).then(() => {
+        sendNtfyPush(`🚨 استعجال عاجل للفني: ${ord.tech}`, `العميل: ${ord.customer} - اذهب إليه فوراً!`);
+        sendTelegramUrgentAlert(ord.tech, ord.customer);
+        toastNative(`🚨 تم إرسال تنبيه الاستعجال العاجل إلى (${ord.tech}) بنجاح ✓`);
+      }).catch(() => {
+        toastNative('حدث خطأ أثناء الإرسال، تأكد من الاتصال.');
+      });
+    }
+
     function deleteOrder(orderId) {
       if (confirm('حذف هذا الطلب نهائياً من النظام وجميع الفنيين؟')) {
         appOrders = appOrders.filter(o => o.id !== orderId);
@@ -1969,6 +2010,9 @@
                 <button type="button" onclick="sendDirectAlertToTech('${o.id}')" class="btn btn-warning" style="width:auto; padding:5px 8px; font-size:11px; white-space:nowrap;" title="رنين داخل التطبيق وتليجرام">
                   🔔 رنين
                 </button>
+                <button type="button" onclick="sendUrgentAlertToTech('${o.id}')" class="btn btn-danger" style="width:auto; padding:5px 8px; font-size:11px; white-space:nowrap; background-color:#dc2626 !important;" title="تنبيه استعجال عاجل للفني">
+                  🚨 استعجال
+                </button>
               ` : ''}
 
               <button type="button" onclick="openEditOrderModal('${o.id}')" class="btn btn-secondary" style="width:auto; padding:5px 8px; font-size:11px; white-space:nowrap;" title="تعديل بيانات العطل أو العميل">
@@ -2208,7 +2252,7 @@
       }
     }
 
-    // ====== رصد رسائل الأزرار الثابتة في تليجرام (أعطالي المتبقية والمكافآت) ======
+    // ====== رصد رسائل الأزرار الثابتة في تليجرام (أعطالي المتبقية، المكافآت، وتقرير اليوم) ======
     let lastTelegramUpdateId = 0;
     async function pollTelegramBotUpdates() {
       try {
@@ -2228,13 +2272,13 @@
               const techName = techObj ? techObj.name : null;
 
               if (!techName) {
-                if (msgText.includes('أعطالي المتبقية') || msgText.includes('المكافآت') || msgText.startsWith('/start')) {
+                if (msgText.includes('أعطالي المتبقية') || msgText.includes('المكافآت') || msgText.includes('تقرير اليوم') || msgText.startsWith('/start')) {
                   await sendTelegramMessage(chatId, `⚠️ أهلاً بك يا ${userFirstName}.\nعذراً، معرف تليجرام الخاص بك غير مسجل في نظام الإدارة لدى المدير.`, true);
                 }
                 continue;
               }
 
-              // إذا ضغط على زر "أعطالي المتبقية"
+              // 1. زر "أعطالي المتبقية"
               if (msgText.includes('أعطالي المتبقية') || msgText.startsWith('/my_status')) {
                 const myAssignedOrders = appOrders.filter(o => o.tech === techName && o.status !== 'done');
                 const myPostponedOrders = myAssignedOrders.filter(o => o.status === 'postponed');
@@ -2249,7 +2293,7 @@
                 await sendTelegramMessage(chatId, replyText, true);
               }
 
-              // إذا ضغط على زر "المكافآت"
+              // 2. زر "المكافآت"
               if (msgText.includes('المكافآت')) {
                 const bonusTotal = techObj.accumulatedBonus || 0;
                 const replyText = `🎁 <b>حصالة مكافآتك يا ${techName}:</b>\n\n` +
@@ -2257,6 +2301,26 @@
                   `✨ <i>استمر في الإنجاز لتزيد مكافآتك!</i>`;
 
                 await sendTelegramMessage(chatId, replyText, true);
+              }
+
+              // 3. زر "تقرير اليوم"
+              if (msgText.includes('تقرير اليوم')) {
+                const todayStr = getToday();
+                const todayDoneOrders = appOrders.filter(o => o.tech === techName && o.status === 'done' && o.date === todayStr);
+
+                let reportText = `📋 <b>تقرير إنجازك اليوم (${todayStr}):</b>\n\n`;
+                if (todayDoneOrders.length === 0) {
+                  reportText += `⚠️ لم تقم بإنهاء أي أعطال حتى الآن اليوم. شد حيلك! 💪`;
+                } else {
+                  reportText += `✅ عدد الأعطال المنجزة اليوم: <b>${todayDoneOrders.length}</b>\n\n`;
+                  todayDoneOrders.forEach((ord, index) => {
+                    reportText += `<b>${index + 1}. العميل:</b> ${ord.customer}\n`;
+                    reportText += `   🔹 <b>النوع:</b> ${ord.jobType || 'عطل'}\n`;
+                    reportText += `   📝 <b>ما تم:</b> ${ord.doneReason || 'تم الحل'}\n\n`;
+                  });
+                }
+
+                await sendTelegramMessage(chatId, reportText, true);
               }
             }
           }
@@ -2364,7 +2428,7 @@
       setInterval(instantAlertsCheck, 1000);
       setInterval(() => syncDown(false), 6000);
       setInterval(sendTechHeartbeat, 15000);
-      setInterval(pollTelegramBotUpdates, 2000); // جعل فحص رسائل البوت كل ثانيتين لتقليل التأخير
+      setInterval(pollTelegramBotUpdates, 2000);
     };
   </script>
 </body>
