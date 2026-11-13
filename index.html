@@ -670,7 +670,6 @@
       await sendTelegramMessage(chatId, cleanMessage, true);
     }
 
-    // دالة إرسال تنبيه الاستعجال الفوري للفني عبر تليجرام
     async function sendTelegramUrgentAlert(targetTechName, customerName) {
       const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
       const chatId = (techObj && techObj.telegramChatId) ? techObj.telegramChatId : ADMIN_TELEGRAM_CHAT;
@@ -757,7 +756,7 @@
         if (window.AndroidAPI && typeof window.AndroidAPI.showNotification === 'function') {
           window.AndroidAPI.showNotification(String(title), String(message));
         } else if (window.Android && typeof window.Android.showNotification === 'function') {
-          window.AndroidAPI.showNotification(String(title), String(message));
+          window.Android.showNotification(String(title), String(message));
         } else if ("Notification" in window && Notification.permission === "granted") {
           new Notification(title, { body: message });
         }
@@ -1024,9 +1023,11 @@
 
       if (currentUser.role === 'admin' && data.latestAdminAlert) {
         const aAlert = data.latestAdminAlert;
-        const dismissedAdmin = localStorage.getItem('last_dismissed_admin_alert');
-        if (aAlert.id && aAlert.id !== dismissedAdmin && aAlert.id !== lastAdminAlertId) {
-          lastAdminAlertId = aAlert.id;
+        const processedAdminAlertId = localStorage.getItem('last_processed_admin_alert_id');
+        
+        if (aAlert.id && aAlert.id !== processedAdminAlertId) {
+          localStorage.setItem('last_processed_admin_alert_id', aAlert.id);
+          
           document.getElementById('adminNotifTech').innerText = aAlert.tech || 'الفني';
           document.getElementById('adminNotifCust').innerText = aAlert.customer || 'العميل';
           document.getElementById('adminNotifDetail').innerText = aAlert.detail || 'بدون تفاصيل';
@@ -1049,18 +1050,15 @@
             notifyNative('تأجيل موعد عطل ⏳', `الفني: ${aAlert.tech} قام بتأجيل طلب ${aAlert.customer}`);
           }
 
-          document.getElementById('modalAdminNotification').classList.add('hidden'); // Fix modal reference
-          // triggerAlertChime(false);
-          // syncDown(true);
+          document.getElementById('modalAdminNotification').classList.remove('hidden');
+          triggerAlertChime(false);
+          syncDown(true);
         }
       }
     }
 
     function dismissAdminNotification() {
       stopAlertChimeNow();
-      if (lastAdminAlertId) {
-        localStorage.setItem('last_dismissed_admin_alert', lastAdminAlertId);
-      }
       document.getElementById('modalAdminNotification').classList.add('hidden');
     }
 
@@ -1634,7 +1632,6 @@
       });
     }
 
-    // دالة زر الاستعجال الفوري الجديد
     function sendUrgentAlertToTech(orderId) {
       const ord = appOrders.find(o => o.id === orderId);
       if (!ord) return;
@@ -2179,14 +2176,17 @@
         ord.status = 'done';
         ord.doneReason = reason;
 
+        const alertUniqueId = 'DONE-' + Date.now();
         const adminAlertPayload = {
-          id: 'DONE-' + Date.now(),
+          id: alertUniqueId,
           type: 'done',
           tech: currentUser.name,
           customer: ord.customer,
           detail: reason,
           sentAt: Date.now()
         };
+
+        localStorage.setItem('last_processed_admin_alert_id', alertUniqueId);
 
         fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
           method: 'PUT',
@@ -2225,14 +2225,17 @@
         ord.status = 'postponed';
         ord.postponeReason = reason;
 
+        const alertUniqueId = 'POSTPONE-' + Date.now();
         const adminAlertPayload = {
-          id: 'POSTPONE-' + Date.now(),
+          id: alertUniqueId,
           type: 'postpone',
           tech: currentUser.name,
           customer: ord.customer,
           detail: reason,
           sentAt: Date.now()
         };
+
+        localStorage.setItem('last_processed_admin_alert_id', alertUniqueId);
 
         fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
           method: 'PUT',
@@ -2252,80 +2255,106 @@
       }
     }
 
-    // ====== رصد رسائل الأزرار الثابتة في تليجرام (أعطالي المتبقية، المكافآت، وتقرير اليوم) ======
-    let lastTelegramUpdateId = 0;
+    // ====== معالجة رسائل الأزرار الثابتة في تليجرام بسحب أحدث رسالة فقط وتخزين الـ offset سحابياً ======
+    let isProcessingTelegram = false;
+
     async function pollTelegramBotUpdates() {
+      if (isProcessingTelegram) return;
+      isProcessingTelegram = true;
+
       try {
-        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastTelegramUpdateId + 1}&timeout=1`;
+        let cloudOffsetRes = await fetch(`${FIREBASE_DB}/bonus_system_data/last_tg_offset.json`);
+        let cloudOffset = await cloudOffsetRes.json();
+        let lastProcessedUpdateId = Number(cloudOffset) || 0;
+
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastProcessedUpdateId + 1}&limit=1&timeout=1`;
         const res = await fetch(url);
         const data = await res.json();
 
-        if (data.ok && Array.isArray(data.result)) {
-          for (const update of data.result) {
-            lastTelegramUpdateId = update.update_id;
-            if (update.message && update.message.text) {
-              const msgText = update.message.text.trim();
-              const chatId = update.message.chat.id;
-              const userFirstName = update.message.from.first_name || 'الفني';
+        if (data.ok && Array.isArray(data.result) && data.result.length > 0) {
+          const update = data.result[0];
+          lastProcessedUpdateId = update.update_id;
+          
+          await fetch(`${FIREBASE_DB}/bonus_system_data/last_tg_offset.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(lastProcessedUpdateId)
+          });
 
-              const techObj = appAccounts.find(a => a.telegramChatId == chatId);
-              const techName = techObj ? techObj.name : null;
+          if (update.message && update.message.date) {
+            const messageAge = Math.floor(Date.now() / 1000) - update.message.date;
+            if (messageAge > 12) {
+              isProcessingTelegram = false;
+              return;
+            }
+          }
 
-              if (!techName) {
-                if (msgText.includes('أعطالي المتبقية') || msgText.includes('المكافآت') || msgText.includes('تقرير اليوم') || msgText.startsWith('/start')) {
-                  await sendTelegramMessage(chatId, `⚠️ أهلاً بك يا ${userFirstName}.\nعذراً، معرف تليجرام الخاص بك غير مسجل في نظام الإدارة لدى المدير.`, true);
-                }
-                continue;
+          if (update.message && update.message.text) {
+            const msgText = update.message.text.trim();
+            const chatId = update.message.chat.id;
+            const userFirstName = update.message.from.first_name || 'الفني';
+
+            const techObj = appAccounts.find(a => a.telegramChatId == chatId);
+            const techName = techObj ? techObj.name : null;
+
+            if (!techName) {
+              if (msgText.includes('أعطالي المتبقية') || msgText.includes('المكافآت') || msgText.includes('تقرير اليوم') || msgText.startsWith('/start')) {
+                await sendTelegramMessage(chatId, `⚠️ أهلاً بك يا ${userFirstName}.\nعذراً، معرف تليجرام الخاص بك غير مسجل في نظام الإدارة لدى المدير.`, true);
+              }
+              isProcessingTelegram = false;
+              return;
+            }
+
+            // 1. زر "أعطالي المتبقية"
+            if (msgText.includes('أعطالي المتبقية') || msgText.startsWith('/my_status')) {
+              const myAssignedOrders = appOrders.filter(o => o.tech === techName && o.status !== 'done');
+              const myPostponedOrders = myAssignedOrders.filter(o => o.status === 'postponed');
+              const myPendingActive = myAssignedOrders.filter(o => o.status === 'pending');
+
+              const replyText = `👷 <b>أهلاً بك يا ${techName}</b>\n\n` +
+                `📊 <b>أعطالك المتبقية الحالية:</b>\n` +
+                `🚀 الأعطال المطلوبة منك إنجازها: <b>${myPendingActive.length}</b>\n` +
+                `⏸️ الطلبات المؤجلة: <b>${myPostponedOrders.length}</b>\n\n` +
+                `🔥 <i>شد حيلك، خلص اللي عليك!</i>`;
+
+              await sendTelegramMessage(chatId, replyText, true);
+            }
+
+            // 2. زر "المكافآت"
+            else if (msgText.includes('المكافآت')) {
+              const bonusTotal = techObj.accumulatedBonus || 0;
+              const replyText = `🎁 <b>حصالة مكافآتك يا ${techName}:</b>\n\n` +
+                `💰 إجمالي رصيد البونص المستحق لك: <b>${bonusTotal} ج</b>\n\n` +
+                `✨ <i>استمر في الإنجاز لتزيد مكافآتك!</i>`;
+
+              await sendTelegramMessage(chatId, replyText, true);
+            }
+
+            // 3. زر "تقرير اليوم"
+            else if (msgText.includes('تقرير اليوم')) {
+              const todayStr = getToday();
+              const todayDoneOrders = appOrders.filter(o => o.tech === techName && o.status === 'done' && o.date === todayStr);
+
+              let reportText = `📋 <b>تقرير إنجازك اليوم (${todayStr}):</b>\n\n`;
+              if (todayDoneOrders.length === 0) {
+                reportText += `⚠️ لم تقم بإنهاء أي أعطال حتى الآن اليوم. شد حيلك! 💪`;
+              } else {
+                reportText += `✅ عدد الأعطال المنجزة اليوم: <b>${todayDoneOrders.length}</b>\n\n`;
+                todayDoneOrders.forEach((ord, index) => {
+                  reportText += `<b>${index + 1}. العميل:</b> ${ord.customer}\n`;
+                  reportText += `   🔹 <b>النوع:</b> ${ord.jobType || 'عطل'}\n`;
+                  reportText += `   📝 <b>ما تم:</b> ${ord.doneReason || 'تم الحل'}\n\n`;
+                });
               }
 
-              // 1. زر "أعطالي المتبقية"
-              if (msgText.includes('أعطالي المتبقية') || msgText.startsWith('/my_status')) {
-                const myAssignedOrders = appOrders.filter(o => o.tech === techName && o.status !== 'done');
-                const myPostponedOrders = myAssignedOrders.filter(o => o.status === 'postponed');
-                const myPendingActive = myAssignedOrders.filter(o => o.status === 'pending');
-
-                const replyText = `👷 <b>أهلاً بك يا ${techName}</b>\n\n` +
-                  `📊 <b>أعطالك المتبقية الحالية:</b>\n` +
-                  `🚀 الأعطال المطلوبة منك إنجازها: <b>${myPendingActive.length}</b>\n` +
-                  `⏸️ الطلبات المؤجلة: <b>${myPostponedOrders.length}</b>\n\n` +
-                  `🔥 <i>شد حيلك، خلص اللي عليك!</i>`;
-
-                await sendTelegramMessage(chatId, replyText, true);
-              }
-
-              // 2. زر "المكافآت"
-              if (msgText.includes('المكافآت')) {
-                const bonusTotal = techObj.accumulatedBonus || 0;
-                const replyText = `🎁 <b>حصالة مكافآتك يا ${techName}:</b>\n\n` +
-                  `💰 إجمالي رصيد البونص المستحق لك: <b>${bonusTotal} ج</b>\n\n` +
-                  `✨ <i>استمر في الإنجاز لتزيد مكافآتك!</i>`;
-
-                await sendTelegramMessage(chatId, replyText, true);
-              }
-
-              // 3. زر "تقرير اليوم"
-              if (msgText.includes('تقرير اليوم')) {
-                const todayStr = getToday();
-                const todayDoneOrders = appOrders.filter(o => o.tech === techName && o.status === 'done' && o.date === todayStr);
-
-                let reportText = `📋 <b>تقرير إنجازك اليوم (${todayStr}):</b>\n\n`;
-                if (todayDoneOrders.length === 0) {
-                  reportText += `⚠️ لم تقم بإنهاء أي أعطال حتى الآن اليوم. شد حيلك! 💪`;
-                } else {
-                  reportText += `✅ عدد الأعطال المنجزة اليوم: <b>${todayDoneOrders.length}</b>\n\n`;
-                  todayDoneOrders.forEach((ord, index) => {
-                    reportText += `<b>${index + 1}. العميل:</b> ${ord.customer}\n`;
-                    reportText += `   🔹 <b>النوع:</b> ${ord.jobType || 'عطل'}\n`;
-                    reportText += `   📝 <b>ما تم:</b> ${ord.doneReason || 'تم الحل'}\n\n`;
-                  });
-                }
-
-                await sendTelegramMessage(chatId, reportText, true);
-              }
+              await sendTelegramMessage(chatId, reportText, true);
             }
           }
         }
-      } catch (e) {}
+      } catch (e) {
+      } finally {
+        isProcessingTelegram = false;
+      }
     }
 
     let isFetchingInstantAlert = false;
