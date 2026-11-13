@@ -670,7 +670,6 @@
       await sendTelegramMessage(chatId, cleanMessage, true);
     }
 
-    // دالة إرسال تنبيه الاستعجال الفوري للفني عبر تليجرام
     async function sendTelegramUrgentAlert(targetTechName, customerName) {
       const techObj = appAccounts.find(a => a.name === targetTechName || a.username === targetTechName);
       const chatId = (techObj && techObj.telegramChatId) ? techObj.telegramChatId : ADMIN_TELEGRAM_CHAT;
@@ -757,7 +756,7 @@
         if (window.AndroidAPI && typeof window.AndroidAPI.showNotification === 'function') {
           window.AndroidAPI.showNotification(String(title), String(message));
         } else if (window.Android && typeof window.Android.showNotification === 'function') {
-          window.AndroidAPI.showNotification(String(title), String(message));
+          window.Android.showNotification(String(title), String(message));
         } else if ("Notification" in window && Notification.permission === "granted") {
           new Notification(title, { body: message });
         }
@@ -1049,9 +1048,9 @@
             notifyNative('تأجيل موعد عطل ⏳', `الفني: ${aAlert.tech} قام بتأجيل طلب ${aAlert.customer}`);
           }
 
-          document.getElementById('modalAdminNotification').classList.add('hidden'); // Fix modal reference
-          // triggerAlertChime(false);
-          // syncDown(true);
+          document.getElementById('modalAdminNotification').classList.remove('hidden');
+          triggerAlertChime(false);
+          syncDown(true);
         }
       }
     }
@@ -1634,7 +1633,6 @@
       });
     }
 
-    // دالة زر الاستعجال الفوري الجديد
     function sendUrgentAlertToTech(orderId) {
       const ord = appOrders.find(o => o.id === orderId);
       if (!ord) return;
@@ -2252,17 +2250,20 @@
       }
     }
 
-    // ====== رصد رسائل الأزرار الثابتة في تليجرام (أعطالي المتبقية، المكافآت، وتقرير اليوم) ======
-    let lastTelegramUpdateId = 0;
+    // ====== معالجة رسائل الأزرار الثابتة في تليجرام بدقة ومنع التكرار ======
+    let lastProcessedUpdateId = Number(localStorage.getItem('last_tg_update_id')) || 0;
+
     async function pollTelegramBotUpdates() {
       try {
-        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastTelegramUpdateId + 1}&timeout=1`;
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastProcessedUpdateId + 1}&timeout=1`;
         const res = await fetch(url);
         const data = await res.json();
 
-        if (data.ok && Array.isArray(data.result)) {
+        if (data.ok && Array.isArray(data.result) && data.result.length > 0) {
           for (const update of data.result) {
-            lastTelegramUpdateId = update.update_id;
+            lastProcessedUpdateId = update.update_id;
+            localStorage.setItem('last_tg_update_id', lastProcessedUpdateId);
+
             if (update.message && update.message.text) {
               const msgText = update.message.text.trim();
               const chatId = update.message.chat.id;
@@ -2428,7 +2429,7 @@
       setInterval(instantAlertsCheck, 1000);
       setInterval(() => syncDown(false), 6000);
       setInterval(sendTechHeartbeat, 15000);
-      setInterval(pollTelegramBotUpdates, 2000);
+      setInterval(pollTelegramBotUpdates, 1500); // فحص سريع ومنتظم بدون تكرار
     };
   </script>
 </body>
