@@ -1021,11 +1021,14 @@
         }
       }
 
+      // منع تكرار إشعار الإدارة عبر التحقق من معرف الإشعار المحفوظ محلياً
       if (currentUser.role === 'admin' && data.latestAdminAlert) {
         const aAlert = data.latestAdminAlert;
-        const dismissedAdmin = localStorage.getItem('last_dismissed_admin_alert');
-        if (aAlert.id && aAlert.id !== dismissedAdmin && aAlert.id !== lastAdminAlertId) {
-          lastAdminAlertId = aAlert.id;
+        const processedAdminAlertId = localStorage.getItem('last_processed_admin_alert_id');
+        
+        if (aAlert.id && aAlert.id !== processedAdminAlertId) {
+          localStorage.setItem('last_processed_admin_alert_id', aAlert.id);
+          
           document.getElementById('adminNotifTech').innerText = aAlert.tech || 'الفني';
           document.getElementById('adminNotifCust').innerText = aAlert.customer || 'العميل';
           document.getElementById('adminNotifDetail').innerText = aAlert.detail || 'بدون تفاصيل';
@@ -1057,9 +1060,6 @@
 
     function dismissAdminNotification() {
       stopAlertChimeNow();
-      if (lastAdminAlertId) {
-        localStorage.setItem('last_dismissed_admin_alert', lastAdminAlertId);
-      }
       document.getElementById('modalAdminNotification').classList.add('hidden');
     }
 
@@ -2177,14 +2177,18 @@
         ord.status = 'done';
         ord.doneReason = reason;
 
+        const alertUniqueId = 'DONE-' + Date.now();
         const adminAlertPayload = {
-          id: 'DONE-' + Date.now(),
+          id: alertUniqueId,
           type: 'done',
           tech: currentUser.name,
           customer: ord.customer,
           detail: reason,
           sentAt: Date.now()
         };
+
+        // حفظ المعرف محلياً للمدير فوراً لكي لا يتكرر الإشعار لديه
+        localStorage.setItem('last_processed_admin_alert_id', alertUniqueId);
 
         fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
           method: 'PUT',
@@ -2223,14 +2227,17 @@
         ord.status = 'postponed';
         ord.postponeReason = reason;
 
+        const alertUniqueId = 'POSTPONE-' + Date.now();
         const adminAlertPayload = {
-          id: 'POSTPONE-' + Date.now(),
+          id: alertUniqueId,
           type: 'postpone',
           tech: currentUser.name,
           customer: ord.customer,
           detail: reason,
           sentAt: Date.now()
         };
+
+        localStorage.setItem('last_processed_admin_alert_id', alertUniqueId);
 
         fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
           method: 'PUT',
@@ -2250,7 +2257,7 @@
       }
     }
 
-    // ====== معالجة رسائل الأزرار الثابتة في تليجرام بدقة ومنع التكرار ======
+    // ====== معالجة رسائل الأزرار الثابتة في تليجرام بدون تكرار ======
     let lastProcessedUpdateId = Number(localStorage.getItem('last_tg_update_id')) || 0;
 
     async function pollTelegramBotUpdates() {
@@ -2429,7 +2436,7 @@
       setInterval(instantAlertsCheck, 1000);
       setInterval(() => syncDown(false), 6000);
       setInterval(sendTechHeartbeat, 15000);
-      setInterval(pollTelegramBotUpdates, 1500); // فحص سريع ومنتظم بدون تكرار
+      setInterval(pollTelegramBotUpdates, 1500);
     };
   </script>
 </body>
