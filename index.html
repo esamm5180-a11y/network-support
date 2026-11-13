@@ -1021,7 +1021,6 @@
         }
       }
 
-      // منع تكرار إشعار الإدارة عبر التحقق من معرف الإشعار المحفوظ محلياً
       if (currentUser.role === 'admin' && data.latestAdminAlert) {
         const aAlert = data.latestAdminAlert;
         const processedAdminAlertId = localStorage.getItem('last_processed_admin_alert_id');
@@ -2187,7 +2186,6 @@
           sentAt: Date.now()
         };
 
-        // حفظ المعرف محلياً للمدير فوراً لكي لا يتكرر الإشعار لديه
         localStorage.setItem('last_processed_admin_alert_id', alertUniqueId);
 
         fetch(`${FIREBASE_DB}/bonus_system_data/latestAdminAlert.json`, {
@@ -2257,10 +2255,14 @@
       }
     }
 
-    // ====== معالجة رسائل الأزرار الثابتة في تليجرام بدون تكرار ======
+    // ====== منع تكرار استقبال الأوامر بأمان تام (Deduplication Lock) ======
     let lastProcessedUpdateId = Number(localStorage.getItem('last_tg_update_id')) || 0;
+    let isProcessingTelegram = false;
 
     async function pollTelegramBotUpdates() {
+      if (isProcessingTelegram) return;
+      isProcessingTelegram = true;
+
       try {
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastProcessedUpdateId + 1}&timeout=1`;
         const res = await fetch(url);
@@ -2333,7 +2335,10 @@
             }
           }
         }
-      } catch (e) {}
+      } catch (e) {
+      } finally {
+        isProcessingTelegram = false;
+      }
     }
 
     let isFetchingInstantAlert = false;
